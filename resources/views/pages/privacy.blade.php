@@ -34,50 +34,14 @@
                 prose-p:leading-relaxed prose-p:text-zinc-600 dark:prose-p:text-zinc-400
                 prose-li:text-zinc-600 dark:prose-li:text-zinc-400
                 prose-a:text-emerald-600 hover:prose-a:text-emerald-500 prose-a:no-underline hover:prose-a:underline dark:prose-a:text-emerald-400">
-                
-                <h2>1. Collecte des Données Personnelles</h2>
-                <p>
-                    Lors de votre navigation sur notre site, CADERSA ASBL peut être amenée à collecter certaines données personnelles vous concernant, notamment lorsque :
-                </p>
-                <ul>
-                    <li>Vous vous inscrivez à notre newsletter.</li>
-                    <li>Vous remplissez le formulaire de contact.</li>
-                    <li>Vous naviguez sur notre site (données de navigation anonymisées).</li>
-                </ul>
-
-                <h2>2. Utilisation des Données</h2>
-                <p>
-                    Les informations que nous recueillons sont utilisées dans les buts suivants :
-                </p>
-                <ul>
-                    <li>Répondre à vos demandes de renseignements ou de partenariat.</li>
-                    <li>Vous envoyer des actualités et informations sur nos projets (uniquement si vous y avez consenti).</li>
-                    <li>Améliorer l'expérience utilisateur et les performances de notre site web.</li>
-                </ul>
-
-                <h2>3. Partage des Informations</h2>
-                <p>
-                    CADERSA ASBL s'engage à ne jamais vendre, échanger ou transférer vos informations personnelles identifiables à des tiers. Cela ne comprend pas les tierces parties de confiance qui nous aident à exploiter notre site web ou à mener nos affaires, tant que ces parties conviennent de garder ces informations confidentielles.
-                </p>
-
-                <h2>4. Protection des Informations</h2>
-                <p>
-                    Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles. Le site utilise un certificat SSL pour garantir le chiffrement des données transitant entre votre navigateur et notre serveur.
-                </p>
-
-                <h2>5. Vos Droits</h2>
-                <p>
-                    Conformément aux normes internationales en matière de protection des données, vous disposez d'un droit d'accès, de rectification, de suppression et d'opposition aux données personnelles vous concernant. Vous pouvez exercer ce droit en nous contactant directement à : 
-                    <a href="mailto:contact@cadersa.org">contact@cadersa.org</a>.
-                </p>
-
-                <h2>6. Modification de la Politique</h2>
-                <p>
-                    Nous nous réservons le droit de modifier cette politique de confidentialité à tout moment. Toute modification sera publiée sur cette page avec une date de mise à jour révisée.
-                </p>
-                <p class="text-sm italic mt-8 text-zinc-500">
-                    Dernière mise à jour : Février 2026
-                </p>
+                @php
+                    $content = app(\App\Settings\PrivacySettings::class)->content;
+                @endphp
+                @if(!empty($content) && isset($content['type']))
+                    {!! (new \Tiptap\Editor)->setContent($content)->getHTML() !!}
+                @else
+                    <p>Contenu en cours de rédaction...</p>
+                @endif
             </div>
         </div>
     </div>

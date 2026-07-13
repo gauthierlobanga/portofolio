@@ -33,43 +33,14 @@
                 prose-h3:mt-8 prose-h3:mb-3
                 prose-p:leading-relaxed prose-p:text-zinc-600 dark:prose-p:text-zinc-400
                 prose-a:text-emerald-600 hover:prose-a:text-emerald-500 prose-a:no-underline hover:prose-a:underline dark:prose-a:text-emerald-400">
-                
-                <h2>1. Éditeur du Site</h2>
-                <p>
-                    Le présent site web est édité par <strong>CADERSA ASBL</strong> (Comité d'Action pour le Développement Rural et la Sécurité Alimentaire).<br>
-                    Association Sans But Lucratif enregistrée conformément aux lois en vigueur en République Démocratique du Congo.
-                </p>
-                <ul>
-                    <li><strong>Siège Social :</strong> Goma, Nord-Kivu, République Démocratique du Congo</li>
-                    <li><strong>Téléphone :</strong> <a href="tel:+243997125301">+243 997 125 301</a></li>
-                    <li><strong>Email :</strong> <a href="mailto:contact@cadersa.org">contact@cadersa.org</a></li>
-                    <li><strong>Directeur de la publication :</strong> Prof. Dr Bernard HANGI</li>
-                </ul>
-
-                <h2>2. Hébergement</h2>
-                <p>
-                    L'hébergement de ce site est assuré par une structure professionnelle garantissant la sécurité et la disponibilité des données.
-                </p>
-
-                <h2>3. Propriété Intellectuelle</h2>
-                <p>
-                    L'ensemble de ce site relève de la législation congolaise et internationale sur le droit d'auteur et la propriété intellectuelle. 
-                    Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques.
-                </p>
-                <p>
-                    La reproduction de tout ou partie de ce site sur un support électronique quel qu'il soit est formellement interdite sauf autorisation expresse du directeur de la publication.
-                </p>
-
-                <h2>4. Limitation de Responsabilité</h2>
-                <p>
-                    CADERSA ASBL s'efforce de fournir sur le site des informations aussi précises que possible. Toutefois, l'association ne pourra être tenue responsable des omissions, des inexactitudes et des carences dans la mise à jour, qu'elles soient de son fait ou du fait des tiers partenaires qui lui fournissent ces informations.
-                </p>
-
-                <h2>5. Réalisation du Site</h2>
-                <p>
-                    Site conçu et développé par <strong>Gauthier Lobanga</strong>.<br>
-                    Profil GitHub : <a href="https://github.com/gauthierlobanga" target="_blank" rel="noopener noreferrer">github.com/gauthierlobanga</a>
-                </p>
+                @php
+                    $content = app(\App\Settings\LegalSettings::class)->content;
+                @endphp
+                @if(!empty($content) && isset($content['type']))
+                    {!! (new \Tiptap\Editor)->setContent($content)->getHTML() !!}
+                @else
+                    <p>Contenu en cours de rédaction...</p>
+                @endif
             </div>
         </div>
     </div>

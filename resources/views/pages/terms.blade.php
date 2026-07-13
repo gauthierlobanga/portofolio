@@ -34,49 +34,14 @@
                 prose-p:leading-relaxed prose-p:text-zinc-600 dark:prose-p:text-zinc-400
                 prose-li:text-zinc-600 dark:prose-li:text-zinc-400
                 prose-a:text-emerald-600 hover:prose-a:text-emerald-500 prose-a:no-underline hover:prose-a:underline dark:prose-a:text-emerald-400">
-                
-                <h2>1. Acceptation des Conditions</h2>
-                <p>
-                    En accédant et en utilisant le site web de CADERSA ASBL, vous acceptez d'être lié par les présentes Conditions Générales d'Utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site.
-                </p>
-
-                <h2>2. Objet du Site</h2>
-                <p>
-                    Ce site a pour vocation de présenter les activités, les projets agricoles et d'autonomisation, ainsi que les actualités de l'ONG CADERSA ASBL en République Démocratique du Congo. Il permet également aux partenaires et bénéficiaires de prendre contact avec l'association.
-                </p>
-
-                <h2>3. Comportement de l'Utilisateur</h2>
-                <p>
-                    L'utilisateur s'engage à utiliser ce site de manière responsable et licite. Il est formellement interdit de :
-                </p>
-                <ul>
-                    <li>Tenter de porter atteinte à la sécurité et l'intégrité du système informatique.</li>
-                    <li>Utiliser le site à des fins de spam ou d'envoi de messages non sollicités via nos formulaires.</li>
-                    <li>Publier des commentaires (si applicable) contenant des propos diffamatoires, haineux, racistes ou illégaux.</li>
-                </ul>
-
-                <h2>4. Liens Hypertextes Externes</h2>
-                <p>
-                    Notre site peut contenir des liens vers des sites web tiers (partenaires, institutions, sources d'information). CADERSA ASBL n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu ou à leurs pratiques de confidentialité.
-                </p>
-
-                <h2>5. Disponibilité des Services</h2>
-                <p>
-                    Nous nous efforçons de maintenir le site accessible 7j/7 et 24h/24. Cependant, l'accès peut être suspendu ou interrompu pour des raisons de maintenance technique, de mise à jour, ou en cas de force majeure, sans que cela n'ouvre droit à une quelconque indemnisation.
-                </p>
-
-                <h2>6. Juridiction Compétente</h2>
-                <p>
-                    Les présentes conditions sont régies par le droit de la République Démocratique du Congo. En cas de litige, et à défaut de résolution à l'amiable, les tribunaux congolais seront seuls compétents.
-                </p>
-
-                <div class="mt-12 rounded-2xl bg-emerald-50/50 p-6 dark:bg-emerald-500/5">
-                    <h3 class="!mt-0 text-emerald-800 dark:text-emerald-400">Besoin d'éclaircissements ?</h3>
-                    <p class="!mb-0 text-emerald-700 dark:text-emerald-300">
-                        Pour toute question concernant ces conditions, veuillez nous contacter à l'adresse 
-                        <a href="mailto:contact@cadersa.org" class="font-semibold text-emerald-900 dark:text-emerald-200">contact@cadersa.org</a>.
-                    </p>
-                </div>
+                @php
+                    $content = app(\App\Settings\TermsSettings::class)->content;
+                @endphp
+                @if(!empty($content) && isset($content['type']))
+                    {!! (new \Tiptap\Editor)->setContent($content)->getHTML() !!}
+                @else
+                    <p>Contenu en cours de rédaction...</p>
+                @endif
             </div>
         </div>
     </div>

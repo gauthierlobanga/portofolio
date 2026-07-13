@@ -20,7 +20,14 @@
     <div class="relative z-20 mx-auto -mt-12 max-w-4xl px-6 pb-24 lg:px-8">
         <div class="overflow-hidden rounded-3xl border border-zinc-200/60 bg-white/80 p-8 shadow-xl shadow-zinc-200/20 backdrop-blur-xl sm:p-12 dark:border-zinc-800/60 dark:bg-zinc-900/80">
             <div class="prose prose-lg prose-emerald max-w-none dark:prose-invert">
-                <p>Informations sur notre politique de gestion des cookies à venir.</p>
+                @php
+                    $content = app(\App\Settings\CookieSettings::class)->content;
+                @endphp
+                @if(!empty($content) && isset($content['type']))
+                    {!! (new \Tiptap\Editor)->setContent($content)->getHTML() !!}
+                @else
+                    <p>Contenu en cours de rédaction...</p>
+                @endif
             </div>
         </div>
     </div>
