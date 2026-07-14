@@ -74,6 +74,11 @@ class ManageAboutPage extends SettingsPage
             Storage::disk('public')->delete($this->oldAboutImage);
         }
 
+        // Ensure Spatie settings keys exist before saving to avoid MissingSettings
+        // when a form section is absent or removed by the user.
+        $data['impact_content'] = $data['impact_content'] ?? [];
+        $data['impact_stats'] = $data['impact_stats'] ?? [];
+
         return $data;
     }
 
