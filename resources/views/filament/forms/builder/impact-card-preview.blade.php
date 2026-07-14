@@ -1,5 +1,9 @@
 @php
-    $block = $data['data'] ?? $data;
+    $block = [];
+
+    if (isset($data)) {
+        $block = $data['data'] ?? $data;
+    }
 @endphp
 
 <div class="rounded-3xl border border-zinc-200/10 bg-white/5 p-4 shadow-sm">
