@@ -2,12 +2,9 @@ import { gsap } from "gsap";
 import autoAnimate from "@formkit/auto-animate";
 
 import { CustomEase } from "gsap/CustomEase";
-// CustomBounce requires CustomEase
 import { CustomBounce } from "gsap/CustomBounce";
-// CustomWiggle requires CustomEase
 import { CustomWiggle } from "gsap/CustomWiggle";
 import { RoughEase, ExpoScaleEase, SlowMo } from "gsap/EasePack";
-
 import { Draggable } from "gsap/Draggable";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { EaselPlugin } from "gsap/EaselPlugin";
@@ -21,7 +18,6 @@ import { Physics2DPlugin } from "gsap/Physics2DPlugin";
 import { PixiPlugin } from "gsap/PixiPlugin";
 import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-// ScrollSmoother requires ScrollTrigger
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { SplitText } from "gsap/SplitText";
@@ -53,6 +49,7 @@ gsap.registerPlugin(
     CustomWiggle,
 );
 
+// Rendre disponibles globalement (utile dans les données Alpine)
 globalThis.gsap = globalThis.gsap || gsap;
 globalThis.SplitText = globalThis.SplitText || SplitText;
 globalThis.ScrollTrigger = globalThis.ScrollTrigger || ScrollTrigger;
@@ -65,25 +62,110 @@ if (typeof window !== "undefined") {
     window.autoAnimate = window.autoAnimate || autoAnimate;
 }
 
-// Safe helper wrappers to avoid calling GSAP with empty/undefined targets
+// ---------- Utilitaires sécurisés ----------
 const safeGsapFromTo = (target, fromVars, toVars) => {
-    if (typeof gsap === 'undefined') return;
-
-    const arr = gsap.utils ? gsap.utils.toArray(target) : (Array.isArray(target) ? target : [target]);
+    if (typeof gsap === "undefined") return;
+    const arr = gsap.utils
+        ? gsap.utils.toArray(target)
+        : Array.isArray(target)
+          ? target
+          : [target];
     if (!arr || arr.length === 0) return;
-
     gsap.fromTo(arr, fromVars, toVars);
 };
 
 const safeGsapTo = (target, vars) => {
-    if (typeof gsap === 'undefined') return;
-
-    const arr = gsap.utils ? gsap.utils.toArray(target) : (Array.isArray(target) ? target : [target]);
+    if (typeof gsap === "undefined") return;
+    const arr = gsap.utils
+        ? gsap.utils.toArray(target)
+        : Array.isArray(target)
+          ? target
+          : [target];
     if (!arr || arr.length === 0) return;
-
     gsap.to(arr, vars);
 };
 
+// ---------- Scroll to top (Alpine data global) ----------
+document.addEventListener("alpine:init", () => {
+    Alpine.data("scrollToTop", () => ({
+        show: false,
+        init() {
+            window.addEventListener("scroll", () => {
+                this.show = window.scrollY > 300;
+            });
+            this.show = window.scrollY > 300;
+
+            this.$nextTick(() => {
+                const button = this.$el.querySelector("button");
+                if (!button) return;
+
+                const textWrapper = button.querySelector("[data-text]");
+                const arrow = button.querySelector("svg");
+
+                if (
+                    typeof window.SplitText !== "undefined" &&
+                    typeof window.gsap !== "undefined"
+                ) {
+                    try {
+                        const split = new window.SplitText(textWrapper, {
+                            type: "chars",
+                        });
+                        const chars = split.chars;
+                        const tl = window.gsap.timeline({ paused: true });
+                        tl.to(chars, {
+                            keyframes: [
+                                {
+                                    y: -10,
+                                    opacity: 0,
+                                    duration: 0.2,
+                                    ease: "power2.in",
+                                },
+                                { y: 10, opacity: 0, duration: 0 },
+                                {
+                                    y: 0,
+                                    opacity: 1,
+                                    duration: 0.2,
+                                    ease: "power2.out",
+                                },
+                            ],
+                            stagger: 0.02,
+                        });
+                        tl.to(
+                            arrow,
+                            {
+                                keyframes: [
+                                    {
+                                        y: -30,
+                                        duration: 0.25,
+                                        ease: "power2.in",
+                                    },
+                                    { y: 30, duration: 0 },
+                                    {
+                                        y: 0,
+                                        duration: 0.25,
+                                        ease: "power2.out",
+                                    },
+                                ],
+                            },
+                            0.1,
+                        );
+                        button.addEventListener("mouseenter", () => tl.play());
+                        button.addEventListener("mouseleave", () =>
+                            tl.reverse(),
+                        );
+                    } catch (e) {
+                        console.warn(
+                            "GSAP animation failed (scroll-to-top)",
+                            e,
+                        );
+                    }
+                }
+            });
+        },
+    }));
+});
+
+// ---------- Cookie Consent (Alpine data global) ----------
 const registerCookieConsentAlpineData = () => {
     const register = () => {
         Alpine.data("cookieConsent", () => ({
@@ -93,7 +175,6 @@ const registerCookieConsentAlpineData = () => {
             init() {
                 const getWireId = () => {
                     let element = this.$el;
-
                     while (element) {
                         if (
                             element.hasAttribute &&
@@ -101,10 +182,8 @@ const registerCookieConsentAlpineData = () => {
                         ) {
                             return element.getAttribute("wire:id");
                         }
-
                         element = element.parentElement;
                     }
-
                     return null;
                 };
 
@@ -113,7 +192,6 @@ const registerCookieConsentAlpineData = () => {
                     const component = wireId
                         ? window.Livewire?.find(wireId)
                         : null;
-
                     if (!component) {
                         document.addEventListener(
                             "livewire:load",
@@ -122,19 +200,17 @@ const registerCookieConsentAlpineData = () => {
                         );
                         return;
                     }
-
                     this.show = component.entangle("showBanner");
                     this.preferences = component.entangle("showPreferences");
                 };
-
                 bindEntangle();
 
-                if (this.show && typeof gsap !== "undefined") {
+                if (this.show && typeof window.gsap !== "undefined") {
                     const banner = this.$refs.banner;
                     if (banner) {
-                        gsap.set(banner, { yPercent: 120, opacity: 0 });
+                        window.gsap.set(banner, { yPercent: 120, opacity: 0 });
                         setTimeout(() => {
-                            gsap.to(banner, {
+                            window.gsap.to(banner, {
                                 yPercent: 0,
                                 opacity: 1,
                                 duration: 0.7,
@@ -149,9 +225,9 @@ const registerCookieConsentAlpineData = () => {
                     if (
                         !value &&
                         this.$refs.banner &&
-                        typeof gsap !== "undefined"
+                        typeof window.gsap !== "undefined"
                     ) {
-                        gsap.to(this.$refs.banner, {
+                        window.gsap.to(this.$refs.banner, {
                             yPercent: 120,
                             opacity: 0,
                             duration: 0.5,
@@ -161,12 +237,9 @@ const registerCookieConsentAlpineData = () => {
                 });
 
                 this.$watch("preferences", (value) => {
-                    if (typeof gsap === "undefined") {
-                        return;
-                    }
-
+                    if (typeof window.gsap === "undefined") return;
                     if (value) {
-                        gsap.fromTo(
+                        window.gsap.fromTo(
                             this.$refs.modal,
                             { y: 40, opacity: 0, scale: 0.96 },
                             {
@@ -177,20 +250,20 @@ const registerCookieConsentAlpineData = () => {
                                 ease: "back.out(1.1)",
                             },
                         );
-                        gsap.fromTo(
+                        window.gsap.fromTo(
                             this.$refs.backdrop,
                             { opacity: 0 },
                             { opacity: 1, duration: 0.4 },
                         );
                     } else {
-                        gsap.to(this.$refs.modal, {
+                        window.gsap.to(this.$refs.modal, {
                             y: 20,
                             opacity: 0,
                             scale: 0.96,
                             duration: 0.25,
                             ease: "power2.in",
                         });
-                        gsap.to(this.$refs.backdrop, {
+                        window.gsap.to(this.$refs.backdrop, {
                             opacity: 0,
                             duration: 0.25,
                         });
@@ -203,73 +276,69 @@ const registerCookieConsentAlpineData = () => {
     if (window.Alpine) {
         register();
     }
-
     document.addEventListener("alpine:init", register, { once: true });
 };
 
 registerCookieConsentAlpineData();
 
-// ==========================================
-// GLOBAL PRO ANIMATIONS (FILAMENT PRO STYLE)
-// ==========================================
-
+// ---------- Global Pro Animations (Filament style) ----------
 const initGlobalAnimations = () => {
-    // Prevent re-initialization on elements that are already animated
-    ScrollTrigger.refresh();
+    if (
+        typeof window.gsap === "undefined" ||
+        typeof window.ScrollTrigger === "undefined"
+    )
+        return;
 
-    // 1. SPLIT TEXT HEADINGS ANIMATION
-    // Target h1, h2, h3 for a premium staggered word reveal
-    const headings = gsap.utils.toArray(
+    window.ScrollTrigger.refresh();
+
+    // 1. Titres avec SplitText
+    const headings = window.gsap.utils.toArray(
         "main h1, main h2, main h3, .prose h1, .prose h2, .prose h3",
     );
     headings.forEach((heading) => {
-        // Skip if already animated, hidden, or explicitly marked no-animate
         if (heading.dataset.gsapAnimated || heading.closest(".no-animate"))
             return;
         heading.dataset.gsapAnimated = "true";
 
-        // Prevent layout shift during split
-        const split = new SplitText(heading, { type: "words,lines" });
-
-        // Guard: ensure split and words exist before animating
-        const splitWords = (split && split.words) ? (Array.isArray(split.words) ? split.words : gsap.utils.toArray(split.words)) : [];
-        if (!splitWords || splitWords.length === 0) {
-            // If SplitText generated nothing, revert any changes and skip
-            try {
-                if (typeof split.revert === 'function') split.revert();
-            } catch (e) {
-                // noop
+        try {
+            const split = new window.SplitText(heading, {
+                type: "words,lines",
+            });
+            const splitWords =
+                split && split.words
+                    ? window.gsap.utils.toArray(split.words)
+                    : [];
+            if (!splitWords.length) {
+                if (typeof split.revert === "function") split.revert();
+                return;
             }
-            return;
-        }
-
-        safeGsapFromTo(
-            splitWords,
-            { opacity: 0, y: 20, rotateX: -20 },
-            {
-                opacity: 1,
-                y: 0,
-                rotateX: 0,
-                duration: 0.8,
-                stagger: 0.03,
-                ease: "power3.out",
-                scrollTrigger: {
-                    trigger: heading,
-                    start: "top 92%",
-                    once: true, // Only animate once per page load
+            safeGsapFromTo(
+                splitWords,
+                { opacity: 0, y: 20, rotateX: -20 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    rotateX: 0,
+                    duration: 0.8,
+                    stagger: 0.03,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: heading,
+                        start: "top 92%",
+                        once: true,
+                    },
                 },
-            },
-        );
+            );
+        } catch (e) {
+            console.warn("SplitText animation failed on heading", e);
+        }
     });
 
-    // 2. BATCH FADE-UP FOR CONTENT BLOCKS
-    // Target paragraphs, cards, images for smooth scrolling entrance
-    const contentBlocks = gsap.utils.toArray(
+    // 2. Content blocks batch fade-up
+    const contentBlocks = window.gsap.utils.toArray(
         "main p, main img, main ul, .flux-card, .prose > div, article, .rounded-3xl, .grid > a.group, .grid > div.group, .gsap-reveal",
     );
-
     const blocksToAnimate = contentBlocks.filter((block) => {
-        // Skip elements inside specific interactive components to avoid conflict
         if (
             block.dataset.gsapAnimated ||
             block.closest(".no-animate") ||
@@ -281,18 +350,16 @@ const initGlobalAnimations = () => {
         }
         return true;
     });
-
     blocksToAnimate.forEach((block) => {
         block.dataset.gsapAnimated = "true";
     });
 
-    ScrollTrigger.batch(blocksToAnimate, {
+    window.ScrollTrigger.batch(blocksToAnimate, {
         start: "top 92%",
-        once: true, // Only animate once per page load
+        once: true,
         onEnter: (batch) => {
-            const items = gsap.utils ? gsap.utils.toArray(batch) : (Array.isArray(batch) ? batch : [batch]);
-            if (!items || items.length === 0) return;
-
+            const items = window.gsap.utils.toArray(batch);
+            if (!items.length) return;
             safeGsapFromTo(
                 items,
                 { opacity: 0, y: 30, scale: 0.98 },
@@ -307,15 +374,13 @@ const initGlobalAnimations = () => {
                 },
             );
         },
-
     });
 
-    // 3. PAGE LOAD FADE-IN
-    // Ensure the main container enters smoothly on initial load/navigate
+    // 3. Page load fade-in
     const mainContainer = document.querySelector(".flex-1");
     if (mainContainer && !mainContainer.dataset.pageAnimated) {
         mainContainer.dataset.pageAnimated = "true";
-        gsap.fromTo(
+        window.gsap.fromTo(
             mainContainer,
             { opacity: 0, y: 15 },
             { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", delay: 0.1 },
@@ -323,13 +388,10 @@ const initGlobalAnimations = () => {
     }
 };
 
-// Hook into Livewire navigation events (SPA mode)
 document.addEventListener("livewire:navigated", () => {
-    // Short delay to let Livewire render the DOM
     setTimeout(initGlobalAnimations, 50);
 });
 
-// Hook into standard DOM load
 document.addEventListener("DOMContentLoaded", () => {
     initGlobalAnimations();
 });

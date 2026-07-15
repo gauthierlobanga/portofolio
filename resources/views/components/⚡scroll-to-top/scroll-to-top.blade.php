@@ -1,58 +1,9 @@
-<div
-    x-data="{
-        show: false,
-        init() {
-            window.addEventListener('scroll', () => {
-                this.show = window.scrollY > 300;
-            });
-            this.show = window.scrollY > 300;
-
-            this.$nextTick(() => {
-                const button = this.$el.querySelector('button');
-                if (!button) return;
-
-                const textWrapper = button.querySelector('[data-text]');
-                const arrow = button.querySelector('svg');
-
-                if (typeof window.SplitText !== 'undefined' && typeof window.gsap !== 'undefined') {
-                    try {
-                        const split = new window.SplitText(textWrapper, { type: 'chars' });
-                        const chars = split.chars;
-                        const tl = window.gsap.timeline({ paused: true });
-                        tl.to(chars, {
-                            keyframes: [
-                                { y: -10, opacity: 0, duration: 0.2, ease: 'power2.in' },
-                                { y: 10, opacity: 0, duration: 0 },
-                                { y: 0, opacity: 1, duration: 0.2, ease: 'power2.out' }
-                            ],
-                            stagger: 0.02
-                        });
-                        tl.to(arrow, {
-                            keyframes: [
-                                { y: -30, duration: 0.25, ease: 'power2.in' },
-                                { y: 30, duration: 0 },
-                                { y: 0, duration: 0.25, ease: 'power2.out' }
-                            ]
-                        }, 0.1);
-                        button.addEventListener('mouseenter', () => tl.play());
-                        button.addEventListener('mouseleave', () => tl.reverse());
-                    } catch (e) {
-                        console.warn('GSAP animation failed', e);
-                    }
-                }
-            });
-        }
-    }"
-    x-show="show"
-    x-transition:enter="transition ease-out duration-300"
+<div x-data="scrollToTop" x-show="show" x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0 translate-y-8 scale-90"
-    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-    x-transition:leave="transition ease-in duration-300"
+    x-transition:enter-end="opacity-100 translate-y-0 scale-100" x-transition:leave="transition ease-in duration-300"
     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-    x-transition:leave-end="opacity-0 translate-y-8 scale-90"
-    class="fixed bottom-6 right-6 z-50 sm:bottom-8 sm:right-8"
-    style="display: none;"
->
+    x-transition:leave-end="opacity-0 translate-y-8 scale-90" class="fixed bottom-6 right-6 z-50 sm:bottom-8 sm:right-8"
+    style="display: none;">
     <button data-button-pulse type="button" aria-label="Remonter en haut de la page"
         x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })"
         class="inline-flex h-12 items-center gap-2 rounded-full bg-emerald-50 dark:bg-zinc-800 pr-5 pl-1.5 font-medium text-sm text-zinc-900 dark:text-zinc-100 shadow-xl shadow-emerald-500/10 transition-all duration-300 ease-out will-change-transform hover:scale-105 hover:bg-emerald-100 dark:hover:bg-emerald-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50">
