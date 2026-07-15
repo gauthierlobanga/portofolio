@@ -83,17 +83,31 @@ class ServiceForm
                 Section::make('Média')
                     ->icon('heroicon-o-photo')
                     ->schema([
-                        SpatieMediaLibraryFileUpload::make('image')
-                            ->collection('image')
-                            ->image()
-                            ->imageEditor()
-                            ->disk('public')
-                            ->directory('services/images')
-                            ->visibility('public')
-                            ->maxSize(5120)
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->columnSpanFull()
-                            ->helperText('Format 16:9 recommandé, max 5 Mo.'),
+                        Grid::make(2)
+                            ->schema([
+                                SpatieMediaLibraryFileUpload::make('image')
+                                    ->label('Image principale')
+                                    ->collection('image')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->disk('public')
+                                    ->directory('services/images')
+                                    ->visibility('public')
+                                    ->maxSize(5120)
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->helperText('Format 16:9 recommandé, max 5 Mo.'),
+
+                                SpatieMediaLibraryFileUpload::make('service_icon')
+                                    ->label('Icône (Image)')
+                                    ->collection('service_icon')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('services/icons')
+                                    ->visibility('public')
+                                    ->maxSize(2048)
+                                    ->acceptedFileTypes(['image/png', 'image/webp', 'image/svg+xml'])
+                                    ->helperText('Format carré recommandé (PNG, SVG, WEBP), max 2 Mo.'),
+                            ]),
                     ]),
 
                 // ========== NOUVELLE SECTION : DOCUMENTS PDF ==========
@@ -125,9 +139,9 @@ class ServiceForm
                         Grid::make(3)
                             ->schema([
                                 TextInput::make('icon')
-                                    ->label('Icône (classe CSS)')
+                                    ->label('Icône (Texte/Classe CSS)')
                                     ->maxLength(255)
-                                    ->helperText('Exemple : heroicon-o-academic-cap'),
+                                    ->helperText('Optionnel si une image est fournie. Exemple : heroicon-o-academic-cap, fas fa-leaf ou code SVG.'),
 
                                 Toggle::make('is_active')
                                     ->label('Actif')

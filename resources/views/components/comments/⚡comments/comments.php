@@ -50,6 +50,7 @@ new class extends Component
             // envoyer un toast FluxUI côté serveur pour inviter à se connecter
             Flux::toast(variant: 'warning', text: 'Veuillez vous connecter pour poster un commentaire.');
             session()->flash('error', 'Veuillez vous connecter pour poster un commentaire.');
+
             return;
         }
 
@@ -74,6 +75,4 @@ new class extends Component
         // succès : petit toast FluxUI côté serveur
         Flux::toast(variant: 'success', text: 'Commentaire publié avec succès.');
     }
-
-
 };

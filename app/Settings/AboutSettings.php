@@ -194,10 +194,8 @@ class AboutSettings extends Settings
 
     /**
      * Return the primary about description (first block or legacy field).
-     *
-     * @return string|null
      */
-    public function aboutText(): string|null
+    public function aboutText(): ?string
     {
         $block = $this->aboutBlocks()[0] ?? null;
 
