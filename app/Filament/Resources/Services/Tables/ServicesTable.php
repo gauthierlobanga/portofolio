@@ -10,6 +10,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -24,8 +25,16 @@ class ServicesTable
                 ImageColumn::make('image')
                     ->label('Visuel')
                     ->getStateUsing(fn ($record) => $record->getFirstMediaUrl('image', 'thumb'))
-                    ->size(40)
+                    ->imageSize(40)
                     ->toggleable(),
+
+                SpatieMediaLibraryImageColumn::make('service_icon')
+                    ->collection('service_icon')
+                    ->label('Icon')
+                    ->conversion('service_icon')
+                    ->visibility('public')
+                    ->imageSize(50)
+                    ->square(),
 
                 TextColumn::make('title')
                     ->label('Service')

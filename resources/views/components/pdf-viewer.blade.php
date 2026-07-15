@@ -29,105 +29,96 @@
             <span>{{ $label }}</span>
         </button>
 
-        {{-- ===== MODALE ===== --}}
+        {{-- ===== MODALE PLEIN ECRAN (Style Liseuse Moderne) ===== --}}
         <div data-pdf-modal x-show="open"
              x-cloak
              x-transition:enter.duration.300.opacity
              x-transition:leave.duration.200.opacity
-             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/70 backdrop-blur-sm"
-             @click.self="closeModal()"
+             class="fixed inset-0 z-[100] flex flex-col bg-zinc-900 backdrop-blur-md"
              @keydown.escape.window="closeModal()"
              role="dialog"
              aria-modal="true"
              aria-labelledby="pdf-modal-title">
 
-            <div class="relative w-full max-w-6xl max-h-[95vh] bg-white dark:bg-zinc-900 shadow-2xl overflow-hidden flex flex-col"
-                 x-transition:enter.duration.500.scale.90
-                 x-transition:leave.duration.300.scale.95
-                 @click.stop>
-
-                {{-- En-tête --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            {{-- En-tête de la liseuse --}}
+            <div class="flex items-center justify-between px-6 py-4 bg-zinc-950 border-b border-zinc-800 shrink-0 shadow-sm"
+                 x-transition:enter.duration.400.translate.y.-100
+                 x-transition:leave.duration.300.translate.y.-100>
+                <div class="flex items-center gap-4 text-zinc-100">
+                    <button type="button" data-pdf-close-button
+                            @click="closeModal()"
+                            class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors rounded-full"
+                            aria-label="Fermer la liseuse">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        <span id="pdf-modal-title" class="font-semibold text-zinc-900 dark:text-white">{{ $modalTitle }}</span>
+                    </button>
+                    <div class="flex flex-col">
+                        <span id="pdf-modal-title" class="font-medium text-lg tracking-wide">{{ $modalTitle }}</span>
+                        <span class="text-xs text-zinc-400">Lecteur PDF intégré</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <a href="{{ $pdfUrl }}"
-                           download
-                           class="p-2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                           aria-label="Télécharger le PDF"
-                           title="Télécharger">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                        </a>
-                        <button type="button" data-pdf-close-button
-                                @click="closeModal()"
-                                class="p-2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                                aria-label="Fermer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <a href="{{ $pdfUrl }}"
+                       download
+                       class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 transition-colors rounded-full"
+                       aria-label="Télécharger le document">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        <span class="hidden sm:inline">Télécharger</span>
+                    </a>
+                </div>
+            </div>
+
+            {{-- Contenu PDF --}}
+            <div class="flex-1 w-full h-full relative overflow-hidden flex items-center justify-center">
+                {{-- État de chargement --}}
+                <div x-show="loading"
+                     x-transition.opacity.duration.300
+                     class="absolute inset-0 flex items-center justify-center z-10">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="w-12 h-12 border-4 border-zinc-700 border-t-emerald-500 rounded-full animate-spin"></div>
+                        <span class="text-sm font-medium text-zinc-300">Préparation du document...</span>
                     </div>
                 </div>
 
-                {{-- Contenu PDF --}}
-                <div class="flex-1 p-2 bg-zinc-100 dark:bg-zinc-800 overflow-hidden relative min-h-[60vh]">
-                    {{-- État de chargement --}}
-                    <div x-show="loading"
-                         x-transition.opacity.duration.300
-                         class="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 z-10">
-                        <div class="flex flex-col items-center gap-3">
-                            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400">Chargement du document...</span>
+                {{-- Message d'erreur --}}
+                <div x-show="error"
+                     x-cloak
+                     x-transition.opacity.duration.300
+                     class="absolute inset-0 flex items-center justify-center bg-zinc-900 z-10">
+                    <div class="text-center max-w-md px-6 py-8 bg-zinc-800 rounded-2xl shadow-xl">
+                        <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-white text-lg font-medium">Impossible d'afficher le document</p>
+                        <p class="text-sm text-zinc-400 mt-2 mb-6">Le lecteur natif du navigateur a rencontré un problème. Vous pouvez réessayer ou ouvrir le fichier manuellement.</p>
+                        <div class="flex items-center justify-center gap-3">
+                            <button type="button"
+                                    @click="retry()"
+                                    class="px-5 py-2.5 bg-zinc-700 text-white hover:bg-zinc-600 rounded-lg transition font-medium">
+                                Réessayer
+                            </button>
+                            <a x-bind:href="pdfUrl"
+                               target="_blank"
+                               rel="noopener"
+                               class="px-5 py-2.5 bg-emerald-600 text-white hover:bg-emerald-500 rounded-lg transition font-medium">
+                                Ouvrir l'original
+                            </a>
                         </div>
                     </div>
-
-                    {{-- Message d'erreur --}}
-                    <div x-show="error"
-                         x-transition.opacity.duration.300
-                         class="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 z-10">
-                        <div class="text-center max-w-md px-6">
-                            <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p class="text-zinc-800 dark:text-zinc-200 font-medium">Impossible d'afficher le document</p>
-                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Veuillez réessayer ou télécharger le fichier.</p>
-                            <div class="mt-4 flex items-center justify-center gap-3">
-                                <button type="button"
-                                        @click="retry()"
-                                        class="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 transition">
-                                    Réessayer
-                                </button>
-                                <a x-bind:href="pdfUrl"
-                                   target="_blank"
-                                   rel="noopener"
-                                   class="px-4 py-2 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
-                                    Ouvrir dans un nouvel onglet
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Lecteur PDF (iframe) --}}
-                    <iframe x-ref="pdfIframe"
-                                                x-bind:src="pdfUrl"
-                            class="w-full h-full min-h-[60vh]"
-                            frameborder="0"
-                            x-on:load="handleIframeLoad()"
-                            x-on:error="handleIframeError()">
-                    </iframe>
                 </div>
 
-                {{-- Pied de page --}}
-                <div class="flex items-center justify-between px-6 py-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
-                    <span>Lisez le document directement dans votre navigateur.</span>
-                    <span>PDF · <span x-text="pdfUrl ? '✓' : 'Indisponible'"></span></span>
-                </div>
+                {{-- Lecteur PDF (iframe) --}}
+                <iframe x-ref="pdfIframe"
+                        class="w-full h-full border-none shadow-inner bg-white"
+                        title="Lecteur PDF"
+                        frameborder="0"
+                        x-on:load="handleIframeLoad()"
+                        x-on:error="handleIframeError()">
+                </iframe>
             </div>
         </div>
     @else
@@ -161,7 +152,7 @@
                         this.iframeLoaded = false;
                         this.$nextTick(() => {
                             const iframe = this.$refs.pdfIframe;
-                            if (iframe) iframe.src = this.pdfUrl;
+                            if (iframe) iframe.src = this.pdfUrl ? this.pdfUrl + '#toolbar=0&navpanes=0&view=FitH' : '';
                         });
                     },
 
@@ -192,7 +183,7 @@
                         this.error = false;
                         this.iframeLoaded = false;
                         const iframe = this.$refs.pdfIframe;
-                        if (iframe) iframe.src = this.pdfUrl;
+                        if (iframe) iframe.src = this.pdfUrl ? this.pdfUrl + '#toolbar=0&navpanes=0&view=FitH' : '';
                     },
 
                     openPdfExternal() {
@@ -229,7 +220,7 @@
                         modal.style.display = 'flex';
                     }
                     if (iframe && pdfUrl) {
-                        iframe.src = pdfUrl;
+                        iframe.src = pdfUrl + '#toolbar=0&navpanes=0&view=FitH';
                     }
                 } catch (err) {
                     // silent

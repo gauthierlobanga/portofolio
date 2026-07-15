@@ -41,18 +41,24 @@
                                 <div
                                     class="relative transition duration-300 ease-out will-change-transform group-hover:translate-x-4.5">
                                     <div
-                                        class="flex h-12 w-12 items-center justify-center border border-{{ $color }}-200/50 bg-{{ $color }}-50 text-{{ $color }}-600 transition-all duration-300 group-hover:scale-110 dark:border-{{ $color }}-700/30 dark:bg-{{ $color }}-900/20 dark:text-{{ $color }}-400">
-                                        @if (Str::startsWith($service->icon, '<svg') || Str::startsWith($service->icon, '<path'))
-                                            @if (Str::startsWith($service->icon, '<path'))
-                                                <svg class="h-6 w-6" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
+                                        class="flex h-20 w-20 items-center justify-center bg-{{ $color }}-50 text-{{ $color }}-600 transition-all duration-300 group-hover:scale-110 dark:bg-{{ $color }}-900/20 dark:text-{{ $color }}-400">
+                                        @if ($service->hasMedia('service_icon'))
+                                            <img src="{{ $service->getFirstMediaUrl('service_icon') }}" alt="{{ $service->title }}" class="h-20 w-20 object-contain" />
+                                        @elseif ($service->icon)
+                                            @if (Str::startsWith($service->icon, '<svg') || Str::startsWith($service->icon, '<path'))
+                                                @if (Str::startsWith($service->icon, '<path'))
+                                                    <svg class="h-20 w-20" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        {!! $service->icon !!}
+                                                    </svg>
+                                                @else
                                                     {!! $service->icon !!}
-                                                </svg>
+                                                @endif
                                             @else
-                                                {!! $service->icon !!}
+                                                <i class="{{ $service->icon }} text-xl"></i>
                                             @endif
                                         @else
-                                            <i class="{{ $service->icon ?: 'fas fa-leaf' }} text-xl"></i>
+                                            <i class="fas fa-leaf text-xl"></i>
                                         @endif
                                     </div>
                                 </div>

@@ -64,15 +64,16 @@ class SecurityHeaders
             // In development we do not set report-only by default
             $response->headers->set('Content-Security-Policy', $policy);
         } else {
-            // Production: strict CSP — NO unsafe-inline / unsafe-eval
-            // We allow scripts from self and stripe; include a per-request nonce for safe inline scripts if used
+            // Production CSP — Alpine.js/Livewire require unsafe-eval for expression evaluation,
+            // and Tailwind/GSAP/Flux UI manipulate inline styles extensively so unsafe-inline is needed for style-src.
+            // External script sources include Google Analytics, Flowbite CDN, and Stripe.
             $csp = [
                 "default-src 'self'",
-                "script-src 'self' 'nonce-{$nonce}' https://js.stripe.com",
-                "style-src 'self' https://fonts.bunny.net https://fonts.googleapis.com",
-                "img-src 'self' data: https:",
-                "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com",
-                "connect-src 'self' https://api.stripe.com",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+                "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com https://cdn.jsdelivr.net",
+                "img-src 'self' data: https: blob:",
+                "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com https://cdn.jsdelivr.net",
+                "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com",
                 "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
                 "media-src 'self'",
                 "object-src 'none'",
