@@ -2,10 +2,12 @@ Proposal: Replace inline Alpine expressions with named function calls (CSP-safe)
 
 Goal
 ----
+
 Replace inline Alpine expressions that are evaluated as strings (which trigger AsyncFunction/eval under the hood) with references to named functions. This avoids 'unsafe-eval' usage and keeps a strict CSP in production.
 
 Strategy
 --------
+
 1. Scan for inline Alpine attributes that contain code strings: x-on:*, x-init, x-effect, x-text (when used with complex inline code), x-bind (complex), etc.
 2. For each occurrence, replace the inline expression with a function call (no string evaluation) and define the function in a centralized, CSP-allowed script block.
    - Option A (recommended): Add a Blade partial that injects a small <script nonce="{{ request()->header('X-CSP-Nonce') }}"> with named functions used by templates.
@@ -15,6 +17,7 @@ Strategy
 
 Files found (scan summary)
 ------------------------
+
 The following files contain inline Alpine expressions that may be evaluated as strings and should be reviewed/refactored:
 
 - resources\views\components\⚡scroll-to-top\scroll-to-top.blade.php
@@ -52,6 +55,7 @@ The following files contain inline Alpine expressions that may be evaluated as s
   - public\js\filament\forms\components\tags-input.js
 
 Other files scanned (non-exhaustive list produced by the scan):
+
 - resources\views\vendor\filament\components\toggle.blade.php
 - resources\views\components\footer\⚡footer\footer.blade.php
 - resources\views\layouts\app\header.blade.php
@@ -67,6 +71,7 @@ Other files scanned (non-exhaustive list produced by the scan):
 
 Recommended change pattern (examples)
 -------------------------------------
+
 1) Inline action -> named function
    Before:
      <button x-on:click="window.scrollTo({ top: 0, behavior: 'smooth' })">Top</button>
@@ -89,6 +94,7 @@ Recommended change pattern (examples)
 
 Notes and caveats
 -----------------
+
 - Compiled templates under storage/framework/views should not be edited; find their source Blade files when possible.
 - Filament vendor files: where possible prefer overriding the component or copying to resources/views/vendor/ to patch; some may already be using function references and only need small tweaks.
 - For complex per-component logic, define a namespaced function (e.g., cdr_about_animate) to avoid collisions.
@@ -96,6 +102,7 @@ Notes and caveats
 
 Proposed next steps
 -------------------
+
 1. Review this proposal and approve the approach.
 2. If approved, implement automated replacements for straightforward cases (simple inline expressions and arrow functions) and create a follow-up PR with code changes (I can do this). For complex handlers, implement by-hand and test.
 3. Verify in dev with strict CSP (no unsafe-eval) and in production build.
