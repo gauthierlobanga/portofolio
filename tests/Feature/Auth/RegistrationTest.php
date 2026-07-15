@@ -13,6 +13,8 @@ test('registration screen can be rendered', function () {
 });
 
 test('new users can register', function () {
+    $this->get(route('register'));
+
     $response = $this->post(route('register.store'), [
         'name' => 'John Doe',
         'email' => 'test@example.com',
