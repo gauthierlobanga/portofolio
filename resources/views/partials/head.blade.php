@@ -15,6 +15,9 @@
     {!! $schema ?? '' !!}
 </x-seo>
 
+{{-- Script anti‑CSP Alpine --}}
+<script>window.Alpine = window.Alpine || {}; Alpine.csp = false;</script>
+
 {{-- Google Analytics (ne se chargera que si "Analytiques" est accepté) --}}
 <x-cookie-script type="analytics">
     <!-- Remplacez G-XXXXXXX par votre vrai code Analytics -->
