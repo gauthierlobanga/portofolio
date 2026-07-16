@@ -51,7 +51,16 @@ gsap.registerPlugin(
 
 
 // Rendre disponibles globalement (utile dans les données Alpine)
-Alpine.autoAnimate = autoAnimate;
+const registerAlpineExtensions = () => {
+    if (typeof Alpine === "undefined") {
+        return;
+    }
+
+    Alpine.autoAnimate = Alpine.autoAnimate || autoAnimate;
+};
+
+registerAlpineExtensions();
+
 globalThis.gsap = globalThis.gsap || gsap;
 globalThis.SplitText = globalThis.SplitText || SplitText;
 globalThis.ScrollTrigger = globalThis.ScrollTrigger || ScrollTrigger;
@@ -63,6 +72,8 @@ if (typeof window !== "undefined") {
     window.ScrollTrigger = window.ScrollTrigger || ScrollTrigger;
     window.autoAnimate = window.autoAnimate || autoAnimate;
 }
+
+document.addEventListener("alpine:init", registerAlpineExtensions, { once: true });
 
 // ---------- Utilitaires sécurisés ----------
 const safeGsapFromTo = (target, fromVars, toVars) => {

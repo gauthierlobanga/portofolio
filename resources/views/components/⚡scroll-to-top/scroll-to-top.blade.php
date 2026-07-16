@@ -1,5 +1,5 @@
 <div
-    x-data="scrollToTop"
+    x-data="scrollToTop()"
     x-show="show"
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0 translate-y-8 scale-90"
