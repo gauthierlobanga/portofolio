@@ -81,27 +81,7 @@ new #[Layout('layouts::main')] class extends Component {
     </div>
 
     {{-- Hero Section Projet --}}
-    <section x-cloak class="relative flex min-h-[70vh] items-center overflow-hidden" x-data="{
-        init() {
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: $el,
-                    start: 'top 80%',
-                    once: true,
-                },
-            });
-    
-            tl.from($refs.bg, { scale: 1.1, duration: 2.5, ease: 'power3.out' }, 0);
-    
-            const title = new SplitText($refs.title, { type: 'words,chars' });
-            const subtitle = new SplitText($refs.subtitle, { type: 'words' });
-    
-            tl.from($refs.badges, { opacity: 0, y: 20, duration: 0.4, ease: 'power2.out' }, 0)
-                .from(title.chars, { opacity: 0, y: 60, rotateX: -15, stagger: 0.025, duration: 0.9, ease: 'back.out(1.6)' }, '-=0.4')
-                .from(subtitle.words, { opacity: 0, y: 20, stagger: 0.04, duration: 0.6, ease: 'power3.out' }, '-=0.5')
-                .from($refs.meta, { opacity: 0, y: 30, duration: 0.6, ease: 'power3.out' }, '-=0.3');
-        }
-    }">
+    <section x-cloak class="relative flex min-h-[70vh] items-center overflow-hidden" x-data="projectShowHeroReveal()">
 
         {{-- Background Image --}}
         <div x-ref="bg" class="absolute inset-0">

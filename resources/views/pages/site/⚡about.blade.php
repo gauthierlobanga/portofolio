@@ -16,25 +16,7 @@ new #[Layout('layouts::main')] class extends Component {
 
 <div>
 
-    <section x-cloak class="relative isolate overflow-hidden" x-data="{
-        init: function() {
-            const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.2 } });
-
-            // Background image slight zoom
-            tl.from($refs.bgImage, { scale: 1.1, duration: 2.5, ease: 'power3.out' }, 0);
-
-            // Splits
-            const authorSplit = new SplitText($refs.author, { type: 'words' });
-
-            // Staggered reveal for text elements
-            tl.from($refs.badge, { y: 40, opacity: 0 }, 0.3)
-                .from($refs.buttons, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' }, '-=0.15')
-                .from(authorSplit.words, { opacity: 0, y: 10, stagger: 0.02, duration: 0.35, ease: 'power2.out' }, '-=0.25')
-                .from($refs.title, { y: 50, opacity: 0 }, 0.5)
-                .from($refs.subtitle, { y: 30, opacity: 0 }, 0.7)
-                .from($refs.cta, { y: 30, opacity: 0 }, 0.9);
-        }
-    }">
+    <section x-cloak class="relative isolate overflow-hidden" x-data="aboutHeroReveal()">
         {{-- Image de fond --}}
         @php
             $heroImage = $this->about->hero_image_url
@@ -124,34 +106,7 @@ new #[Layout('layouts::main')] class extends Component {
             <div class="absolute right-0 bottom-0 h-112 w-md rounded-full bg-teal-500/5 blur-[140px] transform-gpu">
             </div>
         </div>
-        <div x-data="{
-            init: function() {
-                const tl = gsap.timeline({
-                    defaults: { ease: 'power2.out' },
-                    scrollTrigger: {
-                        trigger: $el,
-                        start: 'top 80%',
-                        once: true,
-                    },
-                });
-
-                // Zoom image (plus rapide)
-                tl.from($refs.bgImage, { scale: 1.08, duration: 1.6, ease: 'power2.out' }, 0);
-
-                // Splits
-                const quoteSplit = new SplitText($refs.quote, { type: 'chars' });
-                const authorSplit = new SplitText($refs.author, { type: 'words' });
-                const subtitleSplit = new SplitText($refs.subtitle, { type: 'lines' });
-
-                // Séquence accélérée
-                tl.from($refs.badge, { opacity: 0, y: 12, duration: 0.35, ease: 'power1.out' }, 0)
-                    .from(quoteSplit.chars, { opacity: 0, y: 25, rotateX: -10, stagger: 0.012, duration: 0.5, ease: 'back.out(1.2)' }, '-=0.15')
-                    .from(authorSplit.words, { opacity: 0, y: 10, stagger: 0.02, duration: 0.35, ease: 'power2.out' }, '-=0.25')
-                    .from(subtitleSplit.lines, { opacity: 0, y: 12, stagger: 0.04, duration: 0.4, ease: 'power2.out' }, '-=0.2')
-                    .from($refs.buttons, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' }, '-=0.15')
-                    .from($refs.decoLine, { scaleX: 0, duration: 0.5, ease: 'power1.out' }, '-=0.1');
-            }
-        }" class="relative mx-auto max-w-7xl px-6 lg:px-8">
+        <div x-data="aboutQuoteReveal()" class="relative mx-auto max-w-7xl px-6 lg:px-8">
             {{-- About Section : Image à gauche, Contenu à droite --}}
             <div class="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16 items-center mb-24">
                 {{-- En‑tête animé (Texte) --}}
@@ -457,48 +412,7 @@ new #[Layout('layouts::main')] class extends Component {
                 @endphp
 
                 @foreach ($stats as $index => $stat)
-                    <div x-cloak x-data="{
-                        shown: false,
-                        count: 0,
-                        targetRaw: @js($stat['value']),
-                        parsedTarget: 0,
-                        suffix: '',
-                        initializeTarget() {
-                            const raw = String(this.targetRaw).trim();
-                            const numericOnly = raw.replace(/\s+/g, '').match(/^(\d+(?:[.,]\d+)?)/);
-                            if (numericOnly) {
-                                this.parsedTarget = Number(numericOnly[1].replace(',', '.'));
-                                const suffixMatch = raw.match(/^[\d\s,.]+(.*)$/);
-                                this.suffix = suffixMatch ? suffixMatch[1].trim() : '';
-                            } else {
-                                this.suffix = raw;
-                            }
-                        },
-                        formatValue(value) {
-                            if (!this.parsedTarget) {
-                                return this.targetRaw;
-                            }
-                            return `${Math.round(value).toLocaleString('fr-FR')}${this.suffix ? ' ' + this.suffix : ''}`;
-                        },
-                        animate() {
-                            if (!this.parsedTarget || this.count) {
-                                return;
-                            }
-                            const start = performance.now();
-                            const duration = 1100;
-                            const target = this.parsedTarget;
-                            const tick = (timestamp) => {
-                                const progress = Math.min((timestamp - start) / duration, 1);
-                                this.count = target * progress;
-                                if (progress < 1) {
-                                    window.requestAnimationFrame(tick);
-                                } else {
-                                    this.count = target;
-                                }
-                            };
-                            window.requestAnimationFrame(tick);
-                        },
-                    }" x-init="initializeTarget()" x-intersect.once="shown = true"
+                    <div x-cloak x-data="animatedStat(@js($stat['value']))" x-intersect.once="shown = true"
                         x-effect="if (shown) animate()"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
                         class="transition-all duration-700 ease-out" style="transition-delay: {{ $index * 100 }}ms">
@@ -593,18 +507,4 @@ new #[Layout('layouts::main')] class extends Component {
         </div>
     </section>
 
-    <!-- Smooth scroll behavior script for Safari/older browsers -->
-    <script>
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-    </script>
 </div>

@@ -90,25 +90,7 @@ new #[Layout('layouts::main')] class extends Component {
     </div>
 
     {{-- Hero Section Service --}}
-    <section x-cloak class="relative flex min-h-[60vh] items-center overflow-hidden" x-data="{
-        init() {
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: $el,
-                    start: 'top 80%',
-                    once: true,
-                },
-            });
-    
-            tl.from($refs.bg, { scale: 1.1, duration: 2.5, ease: 'power3.out' }, 0);
-    
-            const title = new SplitText($refs.title, { type: 'words,chars' });
-            const excerpt = new SplitText($refs.excerpt, { type: 'lines' });
-    
-            tl.from(title.chars, { opacity: 0, y: 60, rotateX: -15, stagger: 0.025, duration: 0.9, ease: 'back.out(1.6)' }, '-=0.4')
-                .from(excerpt.lines, { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power3.out' }, '-=0.5');
-        }
-    }">
+    <section x-cloak class="relative flex min-h-[60vh] items-center overflow-hidden" x-data="serviceHeroReveal()">
 
         {{-- Background Image --}}
         <div x-ref="bg" class="absolute inset-0">
@@ -326,49 +308,7 @@ new #[Layout('layouts::main')] class extends Component {
                                     {{-- Titre avec losange animé --}}
                                     <div
                                         class="relative transition duration-300 ease-out will-change-transform group-hover:translate-x-4.5">
-                                        <div x-data="{
-                                            init() {
-                                                const tweens = [];
-                                                let playing = false;
-                                                const rotatingEl = $el.querySelector('[data-rotating]');
-                                                const rotate = () => {
-                                                    gsap.to(rotatingEl, {
-                                                        rotation: '+=60',
-                                                        duration: 0.5,
-                                                        ease: 'sine.out',
-                                                        onComplete: () => { if (playing) gsap.delayedCall(0.5, rotate); },
-                                                    });
-                                                };
-                                                const boxes = $el.querySelectorAll('[data-box]');
-                                                const delays = [0, 0.2, 0.1];
-                                                boxes.forEach((box, i) => {
-                                                    tweens.push(
-                                                        gsap.to(box, {
-                                                            opacity: 0.3,
-                                                            repeat: -1,
-                                                            yoyo: true,
-                                                            duration: 0.4,
-                                                            delay: delays[i] || 0,
-                                                            ease: 'power1.inOut',
-                                                            paused: true,
-                                                        })
-                                                    );
-                                                });
-                                                const group = $el.closest('.group');
-                                                if (group) {
-                                                    group.addEventListener('mouseenter', () => {
-                                                        playing = true;
-                                                        tweens.forEach((t) => t.resume());
-                                                        rotate();
-                                                    });
-                                                    group.addEventListener('mouseleave', () => {
-                                                        playing = false;
-                                                        tweens.forEach((t) => t.pause());
-                                                    });
-                                                }
-                                            }
-                                        }"
-                                            class="absolute top-1/2 -left-4 -translate-y-1/2">
+                                        <div x-data="rotatingBadge()" class="absolute top-1/2 -left-4 -translate-y-1/2">
                                             <div
                                                 class="translate-x-0.5 opacity-0 transition duration-300 ease-out will-change-transform group-hover:translate-x-0 group-hover:opacity-100">
                                                 <div data-rotating class="flex items-center gap-0.75">

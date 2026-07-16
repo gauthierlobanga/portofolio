@@ -99,36 +99,8 @@
 
         {{-- Bouton "Voir tous les domaines" --}}
         <nav class="mt-14 flex justify-center">
-            <div x-data
-                class="border border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 transition-colors duration-200"
-                x-init="function() {
-                    if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') return;
-                    const button = $el.querySelector('a');
-                    if (!button) return;
-                    const textWrapper = button.querySelector('[data-text]');
-                    const arrow = button.querySelector('[data-icon] svg');
-                    if (!textWrapper || !arrow) return;
-                    const split = new SplitText(textWrapper, { type: 'chars' });
-                    const chars = split.chars;
-                    const tl = gsap.timeline({ paused: true });
-                    tl.to(chars, {
-                        keyframes: [
-                            { y: -10, opacity: 0, duration: 0.2, ease: 'power2.in' },
-                            { y: 10, opacity: 0, duration: 0 },
-                            { y: 0, opacity: 1, duration: 0.2, ease: 'power2.out' }
-                        ],
-                        stagger: 0.02
-                    }, 0);
-                    tl.to(arrow, {
-                        keyframes: [
-                            { y: -30, duration: 0.25, ease: 'power2.in' },
-                            { y: 30, duration: 0 },
-                            { y: 0, duration: 0.25, ease: 'power2.out' }
-                        ]
-                    }, 0.1);
-                    button.addEventListener('mouseenter', () => tl.play());
-                    button.addEventListener('mouseleave', () => tl.reverse());
-                }">
+            <div x-data="buttonTextReveal()"
+                class="border border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 transition-colors duration-200">
 
                 <a href="{{ route('services.index') }}" wire:navigate
                     aria-label="Voir tous les domaines d'intervention"

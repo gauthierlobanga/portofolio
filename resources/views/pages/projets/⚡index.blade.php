@@ -134,27 +134,7 @@ new #[Layout('layouts::main')] class extends Component {
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'">
                 <div class="flex flex-wrap justify-start gap-5" aria-label="Statistiques des projets">
                     @foreach ($this->stats as $label => $value)
-                        <div x-data="{
-                            init() {
-                                const card = $el
-                                const background = $refs.background
-                                const topLeftCorner = $refs.topLeftCorner
-                                const bottomLeftCorner = $refs.bottomLeftCorner
-                                const topRightCorner = $refs.topRightCorner
-                                const bottomRightCorner = $refs.bottomRightCorner
-
-                                const tl = gsap.timeline({ paused: true })
-
-                                tl.fromTo(background, { scale: 1 }, { scale: 1.02, duration: 0.25, ease: 'power2.out' }, 0)
-                                tl.to(topLeftCorner, { x: -5, y: -5, duration: 0.25, ease: 'power2.out' }, 0)
-                                tl.to(topRightCorner, { x: 5, y: -5, duration: 0.25, ease: 'power2.out' }, 0)
-                                tl.to(bottomLeftCorner, { x: -5, y: 5, duration: 0.25, ease: 'power2.out' }, 0)
-                                tl.to(bottomRightCorner, { x: 5, y: 5, duration: 0.25, ease: 'power2.out' }, 0)
-
-                                card.addEventListener('mouseenter', () => tl.play())
-                                card.addEventListener('mouseleave', () => tl.reverse())
-                            }
-                        }" class="group relative min-w-24 px-4 text-center xs:min-w-27 py-3">
+                        <div x-data="hoverStatsCard()" class="group relative min-w-24 px-4 text-center xs:min-w-27 py-3">
 
                             <div x-ref="background"
                                 class="absolute inset-0 rounded-lg bg-zinc-100 transition duration-300 ease-out group-hover:bg-emerald-100/50 dark:bg-zinc-800 dark:group-hover:bg-emerald-900/20"
@@ -225,28 +205,7 @@ new #[Layout('layouts::main')] class extends Component {
                 </div>
 
                 {{-- Bouton avec animation corrigée --}}
-                <div x-data="{
-                    init() {
-                        const btn = this.$el.querySelector('a');
-                        const text = btn.querySelector('[data-text]');
-                        const icon = btn.querySelector('[data-icon]');
-                        const arrow = btn.querySelector('[data-arrow]');
-
-                        // État initial
-                        gsap.set(icon, { x: -15, opacity: 0 });
-                        gsap.set(text, { x: 0 });
-                        gsap.set(arrow, { x: 0, opacity: 1 });
-
-                        const tl = gsap.timeline({ paused: true });
-
-                        tl.to(arrow, { x: 20, opacity: 0, duration: 0.2, ease: 'power2.in' }, 0)
-                            .to(icon, { x: 0, opacity: 1, duration: 0.25, ease: 'back.out(1.4)' }, 0.08)
-                            .to(text, { x: 12, duration: 0.2, ease: 'power2.out' }, 0.08);
-
-                        btn.addEventListener('mouseenter', () => tl.play());
-                        btn.addEventListener('mouseleave', () => tl.reverse());
-                    }
-                }">
+                <div x-data="buttonTextReveal()">
                     <a href="{{ route('contact') }}"
                         class="relative inline-flex h-11 items-center justify-center border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition-colors duration-200 hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-300">
 
@@ -326,12 +285,15 @@ new #[Layout('layouts::main')] class extends Component {
                 </button>
 
                 {{-- Bouton Reset --}}
-                <div class="grid transition-[grid-template-columns] duration-500 ease-out"
-                    style="grid-template-columns: 0fr"
-                    :style="`grid-template-columns: ${activeFilterCount > 0 ? '1fr' : '0fr'}; transition-delay: ${activeFilterCount > 0 ? '0ms' : '400ms'}`">
+                <div x-show="activeFilterCount > 0" x-cloak x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="grid transition-all duration-500 ease-out">
                     <div class="flex items-center overflow-hidden">
-                        <div class="px-1 transition-opacity duration-500 ease-out"
-                            :style="`opacity: ${activeFilterCount > 0 ? '1' : '0'}; transition-delay: ${activeFilterCount > 0 ? '0ms' : '400ms'}`">
+                        <div class="px-1 transition-opacity duration-500 ease-out opacity-100">
                             <svg class="h-px w-5 text-zinc-300 dark:text-zinc-600" viewBox="0 0 20 1" fill="none">
                                 <line stroke="currentColor" y1="0.5" x2="20" y2="0.5"
                                     stroke-dasharray="4 4" />
@@ -343,8 +305,8 @@ new #[Layout('layouts::main')] class extends Component {
                                    text-zinc-600 shadow-sm transition-all duration-300 ease-out
                                    hover:border-red-300 hover:bg-red-50 hover:text-red-600
                                    dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-400
-                                   active:scale-[0.97]"
-                            :style="`opacity: ${activeFilterCount > 0 ? '1' : '0'}; visibility: ${activeFilterCount > 0 ? 'visible' : 'hidden'}; pointer-events: ${activeFilterCount > 0 ? 'auto' : 'none'}; transition-delay: ${activeFilterCount > 0 ? '0ms' : '400ms'}`">
+                                   active:scale-[0.97] opacity-100"
+                            style="visibility: visible; pointer-events: auto;">
                             <svg class="size-4 transition-transform duration-300 group-hover:rotate-180"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -372,7 +334,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <input autocomplete="off"
                         class="h-full w-full border-0 bg-transparent pl-10 pr-12 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
                         x-model.debounce.250ms="search" x-ref="searchInput" placeholder="Rechercher un projet...">
-                    <button x-cloak x-show="search.length > 0" @click="search = ''; $refs.searchInput.focus()"
+                    <button x-cloak x-show="search.length > 0" @click="clearSearch()"
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-75" x-transition:enter-end="opacity-100 scale-100"
                         x-transition:leave="transition ease-in duration-150"
@@ -512,51 +474,7 @@ new #[Layout('layouts::main')] class extends Component {
                         {{-- Titre avec animation de losanges --}}
                         <div
                             class="relative transition duration-300 ease-out will-change-transform group-hover:translate-x-4.5">
-                            <div x-data x-init="() => {
-                                const tweens = []
-                                let playing = false
-
-                                const rotatingEl = $el.querySelector('[data-rotating]')
-                                const rotate = () => {
-                                    gsap.to(rotatingEl, {
-                                        rotation: '+=60',
-                                        duration: 0.5,
-                                        ease: 'sine.out',
-                                        onComplete: () => {
-                                            if (playing) gsap.delayedCall(0.5, rotate)
-                                        },
-                                    })
-                                }
-
-                                const boxes = $el.querySelectorAll('[data-box]')
-                                const delays = [0, 0.2, 0.1]
-                                boxes.forEach((box, i) => {
-                                    tweens.push(
-                                        gsap.to(box, {
-                                            opacity: 0.3,
-                                            repeat: -1,
-                                            yoyo: true,
-                                            duration: 0.4,
-                                            delay: delays[i] || 0,
-                                            ease: 'power1.inOut',
-                                            paused: true,
-                                        }),
-                                    )
-                                })
-
-                                const group = $el.closest('.group')
-                                if (group) {
-                                    group.addEventListener('mouseenter', () => {
-                                        playing = true
-                                        tweens.forEach((t) => t.resume())
-                                        rotate()
-                                    })
-                                    group.addEventListener('mouseleave', () => {
-                                        playing = false
-                                        tweens.forEach((t) => t.pause())
-                                    })
-                                }
-                            }" class="absolute top-1/2 -left-4 -translate-y-1/2">
+                            <div x-data="rotatingBadge()" class="absolute top-1/2 -left-4 -translate-y-1/2">
                                 <div
                                     class="translate-x-0.5 opacity-0 transition duration-300 ease-out will-change-transform group-hover:translate-x-0 group-hover:opacity-100">
                                     <div data-rotating class="flex items-center gap-0.75">

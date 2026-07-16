@@ -3,31 +3,7 @@
         <div
             class="relative w-full h-auto"
             x-cloak
-            x-data="{
-                showRecoveryInput: @js($errors->has('recovery_code')),
-                code: '',
-                recovery_code: '',
-                focusOtp: function() {
-                    this.$nextTick(() => this.$refs.otp?.querySelector('input')?.focus());
-                },
-                init: function() {
-                    if (! this.showRecoveryInput) {
-                        this.focusOtp();
-                    }
-                },
-                toggleInput: function() {
-                    this.showRecoveryInput = !this.showRecoveryInput;
-
-                    this.code = '';
-                    this.recovery_code = '';
-
-                    $nextTick(() => {
-                        this.showRecoveryInput
-                            ? this.$refs.recovery_code?.focus()
-                            : this.focusOtp();
-                    });
-                },
-            }"
+            x-data="twoFactorChallenge(@js($errors->has('recovery_code')))"
         >
             <div x-show="!showRecoveryInput">
                 <x-auth-header

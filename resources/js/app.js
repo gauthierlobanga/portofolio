@@ -272,6 +272,20 @@ document.addEventListener("alpine:init", () => {
                 target.scrollIntoView({ behavior: "smooth" });
             }
         },
+        clearSearch() {
+            this.search = "";
+            this.$nextTick(() => {
+                if (this.$refs.searchInput) {
+                    this.$refs.searchInput.focus();
+                }
+            });
+        },
+        selectSort(value) {
+            this.sortBy = value;
+            if (this.$refs.filtersButton) {
+                this.$refs.filtersButton.focus();
+            }
+        },
         rotateListeningMessage() {
             this.listeningIndex++;
         },
@@ -296,6 +310,20 @@ document.addEventListener("alpine:init", () => {
             const target = document.querySelector("#scroll-to-reference");
             if (target) {
                 target.scrollIntoView({ behavior: "smooth" });
+            }
+        },
+        clearSearch() {
+            this.search = "";
+            this.$nextTick(() => {
+                if (this.$refs.searchInput) {
+                    this.$refs.searchInput.focus();
+                }
+            });
+        },
+        selectSort(value) {
+            this.sortBy = value;
+            if (this.$refs.filtersButton) {
+                this.$refs.filtersButton.focus();
             }
         },
     }));
@@ -628,6 +656,341 @@ document.addEventListener("alpine:init", () => {
             this.listeningIndex++;
         },
     }));
+
+    Alpine.data("animatedStat", () => (targetRaw) => ({
+        show: false,
+        count: 0,
+        targetRaw,
+        parsedTarget: 0,
+        suffix: "",
+        init() {
+            this.initializeTarget();
+        },
+        initializeTarget() {
+            const raw = String(this.targetRaw).trim();
+            const numericOnly = raw.replace(/\s+/g, "").match(/^(\d+(?:[.,]\d+)?)/);
+            if (numericOnly) {
+                this.parsedTarget = Number(numericOnly[1].replace(",", "."));
+                const suffixMatch = raw.match(/^[\d\s,.]+(.*)$/);
+                this.suffix = suffixMatch ? suffixMatch[1].trim() : "";
+            } else {
+                this.suffix = raw;
+            }
+        },
+        formatValue(value) {
+            if (!this.parsedTarget) {
+                return this.targetRaw;
+            }
+            return `${Math.round(value).toLocaleString("fr-FR")}${this.suffix ? " " + this.suffix : ""}`;
+        },
+        animate() {
+            if (!this.parsedTarget || this.count) {
+                return;
+            }
+
+            const start = performance.now();
+            const duration = 1100;
+            const target = this.parsedTarget;
+
+            const tick = (timestamp) => {
+                const progress = Math.min((timestamp - start) / duration, 1);
+                this.count = target * progress;
+                if (progress < 1) {
+                    window.requestAnimationFrame(tick);
+                } else {
+                    this.count = target;
+                }
+            };
+
+            window.requestAnimationFrame(tick);
+        },
+    }));
+
+    Alpine.data("passkeyRegistration", () => ({
+        supported: false,
+        showForm: false,
+        name: "",
+        loading: false,
+        error: null,
+        init() {
+            this.name = this.getDefaultPasskeyName();
+            this.updateSupport();
+            window.addEventListener("passkeys:ready", () => this.updateSupport(), { once: true });
+        },
+        updateSupport() {
+            this.supported = Boolean(window.Passkeys?.isSupported());
+        },
+        getDefaultPasskeyName() {
+            const ua = navigator.userAgent;
+            const browser = [
+                { pattern: /Edg|Edge/, name: "Edge" },
+                { pattern: /OPR|Opera|OPiOS/, name: "Opera" },
+                { pattern: /Firefox|FxiOS/, name: "Firefox" },
+                { pattern: /Chrome|CriOS/, name: "Chrome" },
+                { pattern: /Safari/, name: "Safari" },
+            ].find((item) => item.pattern.test(ua))?.name;
+            const os = [
+                { pattern: /iPhone/, name: "iPhone" },
+                { pattern: /iPad|Macintosh(?=.*Mobile)/, name: "iPad" },
+                { pattern: /Android/, name: "Android" },
+                { pattern: /Mac/, name: "Mac" },
+                { pattern: /Windows/, name: "Windows" },
+            ].find((item) => item.pattern.test(ua))?.name;
+            return [browser, os].filter(Boolean).join(" on ") || "";
+        },
+        focusInput() {
+            this.$nextTick(() => {
+                this.$refs.passkeyNameInput?.focus();
+            });
+        },
+        async register() {
+            if (!this.name.trim()) {
+                return;
+            }
+            this.loading = true;
+            this.error = null;
+            try {
+                await window.Passkeys.register({ name: this.name });
+                this.name = "";
+                this.showForm = false;
+                await $wire.loadPasskeys();
+            } catch (e) {
+                if (e.constructor?.name !== "UserCancelledError") {
+                    this.error = e.message;
+                }
+            } finally {
+                this.loading = false;
+            }
+        },
+        cancel() {
+            this.showForm = false;
+            this.name = "";
+            this.error = null;
+        },
+    }));
+
+    Alpine.data("passkeyVerify", () => ({
+        supported: false,
+        loading: false,
+        error: null,
+        optionsRoute: "",
+        submitRoute: "",
+        init() {
+            this.updateSupport();
+            this.optionsRoute = this.$el.dataset.optionsRoute || "";
+            this.submitRoute = this.$el.dataset.submitRoute || "";
+            window.addEventListener("passkeys:ready", () => this.updateSupport(), { once: true });
+        },
+        updateSupport() {
+            this.supported = Boolean(window.Passkeys?.isSupported());
+        },
+        async verify() {
+            this.loading = true;
+            this.error = null;
+            try {
+                const response = await window.Passkeys.verify({
+                    routes: {
+                        options: this.optionsRoute,
+                        submit: this.submitRoute,
+                    },
+                });
+                Livewire.navigate(response.redirect || "/dashboard");
+            } catch (e) {
+                if (e.constructor?.name !== "UserCancelledError") {
+                    this.error = e.message;
+                }
+            } finally {
+                this.loading = false;
+            }
+        },
+    }));
+
+    Alpine.data("focusFirstInput", () => ({
+        init() {
+            this.$nextTick(function () {
+                const input = this.$el.querySelector("input");
+                if (input) {
+                    input.focus();
+                }
+            });
+        },
+    }));
+
+    Alpine.data("twoFactorChallenge", () => ({
+        showRecoveryInput: false,
+        code: "",
+        recovery_code: "",
+        init(initialRecovery = false) {
+            this.showRecoveryInput = Boolean(initialRecovery);
+            if (!this.showRecoveryInput) {
+                this.focusOtp();
+            }
+        },
+        focusOtp() {
+            this.$nextTick(() => {
+                const input = this.$refs.otp?.querySelector("input");
+                if (input) {
+                    input.focus();
+                }
+            });
+        },
+        toggleInput() {
+            this.showRecoveryInput = !this.showRecoveryInput;
+            this.code = "";
+            this.recovery_code = "";
+
+            this.$nextTick(() => {
+                if (this.showRecoveryInput) {
+                    this.$refs.recovery_code?.focus();
+                } else {
+                    this.focusOtp();
+                }
+            });
+        },
+    }));
+
+    Alpine.data("clipboardCopy", () => ({
+        copied: false,
+        async copy() {
+            try {
+                const text = this.$el.dataset.copyText || "";
+                await navigator.clipboard.writeText(text);
+                this.copied = true;
+                setTimeout(() => {
+                    this.copied = false;
+                }, 1500);
+            } catch (e) {
+                console.warn("Could not copy to clipboard", e);
+            }
+        },
+    }));
+
+    Alpine.data("homeHeroReveal", () => ({
+        init() {
+            if (typeof gsap === "undefined" || typeof SplitText === "undefined") {
+                return;
+            }
+
+            const tl = gsap.timeline({ defaults: { ease: "expo.out", duration: 1.2 } });
+            tl.from(this.$refs.bgImage, { scale: 1.1, duration: 2.5, ease: "power3.out" }, 0);
+
+            const authorSplit = new SplitText(this.$refs.author, { type: "words" });
+
+            tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3)
+                .from(this.$refs.buttons, { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" }, "-=0.15")
+                .from(authorSplit.words, { opacity: 0, y: 10, stagger: 0.02, duration: 0.35, ease: "power2.out" }, "-=0.25")
+                .from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
+                .from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7)
+                .from(this.$refs.cta, { y: 30, opacity: 0 }, 0.9);
+        },
+    }));
+
+    Alpine.data("aboutHeroReveal", () => ({
+        init() {
+            if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") {
+                return;
+            }
+
+            const tl = gsap.timeline({
+                defaults: { ease: "expo.out", duration: 1.2 },
+                scrollTrigger: {
+                    trigger: this.$el,
+                    start: "top 80%",
+                    once: true,
+                },
+            });
+
+            tl.from(this.$refs.bgImage, { scale: 1.1, duration: 2.5, ease: "power3.out" }, 0);
+            const authorSplit = new SplitText(this.$refs.author, { type: "words" });
+
+            tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3)
+                .from(this.$refs.buttons, { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" }, "-=0.15")
+                .from(authorSplit.words, { opacity: 0, y: 10, stagger: 0.02, duration: 0.35, ease: "power2.out" }, "-=0.25")
+                .from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
+                .from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7)
+                .from(this.$refs.cta, { y: 30, opacity: 0 }, 0.9);
+        },
+    }));
+
+    Alpine.data("aboutQuoteReveal", () => ({
+        init() {
+            if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") {
+                return;
+            }
+
+            const tl = gsap.timeline({
+                defaults: { ease: "power2.out" },
+                scrollTrigger: {
+                    trigger: this.$el,
+                    start: "top 80%",
+                    once: true,
+                },
+            });
+
+            tl.from(this.$refs.bgImage, { scale: 1.08, duration: 1.6, ease: "power2.out" }, 0);
+
+            const quoteSplit = new SplitText(this.$refs.quote, { type: "chars" });
+            const authorSplit = new SplitText(this.$refs.author, { type: "words" });
+            const subtitleSplit = new SplitText(this.$refs.subtitle, { type: "lines" });
+
+            tl.from(this.$refs.badge, { opacity: 0, y: 12, duration: 0.35, ease: "power1.out" }, 0)
+                .from(quoteSplit.chars, { opacity: 0, y: 25, rotateX: -10, stagger: 0.012, duration: 0.5, ease: "back.out(1.2)" }, "-=0.15")
+                .from(authorSplit.words, { opacity: 0, y: 10, stagger: 0.02, duration: 0.35, ease: "power2.out" }, "-=0.25")
+                .from(subtitleSplit.lines, { opacity: 0, y: 12, stagger: 0.04, duration: 0.4, ease: "power2.out" }, "-=0.2")
+                .from(this.$refs.buttons, { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" }, "-=0.15")
+                .from(this.$refs.decoLine, { scaleX: 0, duration: 0.5, ease: "power1.out" }, "-=0.1");
+        },
+    }));
+
+    Alpine.data("serviceHeroReveal", () => ({
+        init() {
+            if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") {
+                return;
+            }
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: this.$el,
+                    start: "top 80%",
+                    once: true,
+                },
+            });
+
+            tl.from(this.$refs.bg, { scale: 1.1, duration: 2.5, ease: "power3.out" }, 0);
+
+            const title = new SplitText(this.$refs.title, { type: "words,chars" });
+            const excerpt = new SplitText(this.$refs.excerpt, { type: "lines" });
+
+            tl.from(title.chars, { opacity: 0, y: 60, rotateX: -15, stagger: 0.025, duration: 0.9, ease: "back.out(1.6)" }, "-=0.4")
+                .from(excerpt.lines, { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: "power3.out" }, "-=0.5");
+        },
+    }));
+
+    Alpine.data("projectShowHeroReveal", () => ({
+        init() {
+            if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") {
+                return;
+            }
+
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: this.$el,
+                    start: "top 80%",
+                    once: true,
+                },
+            });
+
+            tl.from(this.$refs.bg, { scale: 1.1, duration: 2.5, ease: "power3.out" }, 0);
+
+            const title = new SplitText(this.$refs.title, { type: "words,chars" });
+            const subtitle = new SplitText(this.$refs.subtitle, { type: "words" });
+
+            tl.from(this.$refs.badges, { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 0)
+                .from(title.chars, { opacity: 0, y: 60, rotateX: -15, stagger: 0.025, duration: 0.9, ease: "back.out(1.6)" }, "-=0.4")
+                .from(subtitle.words, { opacity: 0, y: 20, stagger: 0.04, duration: 0.6, ease: "power3.out" }, "-=0.5")
+                .from(this.$refs.meta, { opacity: 0, y: 30, duration: 0.6, ease: "power3.out" }, "-=0.3");
+        },
+    }));
 });
 
 // ---------- Cookie Consent (Alpine data global) ----------
@@ -853,10 +1216,39 @@ const initGlobalAnimations = () => {
     }
 };
 
+const initAnchorSmoothScroll = () => {
+    if (typeof document === "undefined") {
+        return;
+    }
+
+    document.querySelectorAll('a[href^="#"]:not([href="#"])').forEach((anchor) => {
+        anchor.addEventListener("click", (event) => {
+            const href = anchor.getAttribute("href");
+            if (!href || href === "#") {
+                return;
+            }
+
+            const target = document.querySelector(href);
+            if (!target) {
+                return;
+            }
+
+            event.preventDefault();
+            target.scrollIntoView({ behavior: "smooth" });
+        });
+    });
+};
+
 document.addEventListener("livewire:navigated", () => {
     setTimeout(initGlobalAnimations, 50);
+    setTimeout(initAnchorSmoothScroll, 50);
 });
 
 document.addEventListener("DOMContentLoaded", () => {
     initGlobalAnimations();
+    initAnchorSmoothScroll();
 });
+
+if (document.readyState === "interactive" || document.readyState === "complete") {
+    initAnchorSmoothScroll();
+}

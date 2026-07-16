@@ -94,25 +94,7 @@ new #[Layout('layouts::main')] class extends Component {
 <div class="bg-white text-zinc-700 antialiased dark:bg-zinc-950 dark:text-zinc-300">
 
 
-    <section x-cloak class="relative isolate overflow-hidden" x-data="{
-        init: function() {
-            const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.2 } });
-
-            // Background image slight zoom
-            tl.from($refs.bgImage, { scale: 1.1, duration: 2.5, ease: 'power3.out' }, 0);
-
-            // Splits
-            const authorSplit = new SplitText($refs.author, { type: 'words' });
-
-            // Staggered reveal for text elements
-            tl.from($refs.badge, { y: 40, opacity: 0 }, 0.3)
-                .from($refs.buttons, { opacity: 0, y: 15, duration: 0.4, ease: 'power2.out' }, '-=0.15')
-                .from(authorSplit.words, { opacity: 0, y: 10, stagger: 0.02, duration: 0.35, ease: 'power2.out' }, '-=0.25')
-                .from($refs.title, { y: 50, opacity: 0 }, 0.5)
-                .from($refs.subtitle, { y: 30, opacity: 0 }, 0.7)
-                .from($refs.cta, { y: 30, opacity: 0 }, 0.9);
-        }
-    }">
+    <section x-cloak class="relative isolate overflow-hidden" x-data="homeHeroReveal()">
         {{-- Image de fond --}}
         @php
             $heroImage = $this->about->hero_image_url
