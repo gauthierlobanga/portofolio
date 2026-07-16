@@ -33,7 +33,7 @@ class SecurityHeaders
         $host = (string) $request->getHost();
         $isViteDev = false;
 
-        if (str_contains($referer, ':5174') || str_contains($referer, 'localhost:5174') || str_contains($referer, '[::1]:5174')) {
+        if (str_contains($referer, ':5173') || str_contains($referer, ':5174') || str_contains($host, 'localhost') || str_contains($host, '127.0.0.1')) {
             $isViteDev = true;
         }
 
@@ -43,14 +43,14 @@ class SecurityHeaders
             $csp = [
                 "default-src 'self'",
                 // Allow eval in dev for tools that require it (vite, dev plugins, some libs)
-                "script-src 'self' http://localhost:5174 http://127.0.0.1:5174 http://[::1]:5174 blob: 'unsafe-inline' 'unsafe-eval'",
+                "script-src 'self' http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 http://localhost:5174 http://127.0.0.1:5174 http://[::1]:5174 blob: 'unsafe-inline' 'unsafe-eval'",
                 // Allow loading styles from the Vite dev server
-                "style-src 'self' http://localhost:5174 http://127.0.0.1:5174 http://[::1]:5174 'unsafe-inline'",
+                "style-src 'self' http://localhost:5173 http://127.0.0.1:5173 http://[::1]:5173 http://localhost:5174 http://127.0.0.1:5174 http://[::1]:5174 'unsafe-inline'",
                 // Images, fonts, connections should also accept dev server and data/blobs
                 'img-src * data: blob:',
                 'font-src * data:',
                 // Allow websocket connections for HMR
-                "connect-src 'self' http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5174 ws://127.0.0.1:5174 ws://[::1]:5174 wss://localhost:5174",
+                "connect-src 'self' http://localhost:5173 http://127.0.0.1:5173 ws://localhost:5173 ws://127.0.0.1:5173 ws://[::1]:5173 wss://localhost:5173 http://localhost:5174 http://127.0.0.1:5174 ws://localhost:5174 ws://127.0.0.1:5174 ws://[::1]:5174 wss://localhost:5174",
                 'frame-src *',
                 'media-src *',
                 "object-src 'none'",
