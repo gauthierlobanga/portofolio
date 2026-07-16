@@ -198,33 +198,7 @@ new #[Layout('layouts::main')] class extends Component {
 
 
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="{
-        search: $wire.entangle('search').live,
-        showFilters: false,
-        category: $wire.entangle('category').live,
-        sortBy: $wire.entangle('sort').live,
-        sortDropdownOpen: false,
-        get activeFilterCount() {
-            return this.category ? 1 : 0
-        },
-        resetFilters() {
-            this.category = null
-            this.sortBy = 'newest'
-            this.search = ''
-            this.showFilters = false
-            $refs.filtersButton.focus()
-            document.querySelector('#scroll-to-reference')?.scrollIntoView({ behavior: 'smooth' })
-        },
-        listeningMessages: [`Whatcha looking for? 🔍`, `I'm listening... 👀`, `Go ahead, I'm ready 🎯`, `Type away! ⌨️`, `Searching is fun! 🤓`, `What can I find for you? 🕵️‍♂️`],
-        listeningIndex: 0,
-        get listeningMessage() {
-            return this.listeningMessages[this.listeningIndex % this.listeningMessages.length]
-        },
-        rotateListeningMessage() {
-            this.listeningIndex++
-        },
-    }"
-        x-effect="if (category) { showFilters = true; /* keep panel visible when category present */ }"
+    <section x-cloak id="scroll-to-reference" x-data="postSearchFilters()"
         aria-label="Plugin search and listing"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
         <div class="mb-5">

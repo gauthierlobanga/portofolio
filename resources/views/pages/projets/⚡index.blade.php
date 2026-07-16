@@ -195,23 +195,8 @@ new #[Layout('layouts::main')] class extends Component {
     </section>
 
     {{-- ========== SECTION FILTRES + LISTE (identique au blog, adaptée aux projets) ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="{
-        search: $wire.entangle('search').live,
-        showFilters: false,
-        filter: $wire.entangle('filter').live,
-        sortBy: $wire.entangle('sort').live,
-        get activeFilterCount() {
-            return this.filter !== 'all' ? 1 : 0
-        },
-        resetFilters() {
-            this.filter = 'all'
-            this.sortBy = 'newest'
-            this.search = ''
-            this.showFilters = false
-            $refs.filtersButton.focus()
-            document.querySelector('#scroll-to-reference')?.scrollIntoView({ behavior: 'smooth' })
-        },
-    }" aria-label="Recherche et filtres des projets"
+    <section x-cloak id="scroll-to-reference" x-data="projectSearchFilters()"
+        aria-label="Recherche et filtres des projets"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
         <div class="mb-5">
             <h2 class="text-2xl font-bold text-zinc-900 dark:text-white">Tous les projets</h2>

@@ -178,11 +178,7 @@ new #[Layout('layouts::main')] class extends Component {
 
 <div class="min-h-screen bg-white dark:bg-zinc-950">
     {{-- Barre de progression de lecture --}}
-    <div x-data="{ progress: 0 }" x-init="window.addEventListener('scroll', () => {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        progress = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
-    })"
+    <div x-data="pageProgress()"
         class="fixed top-0 left-0 z-50 h-0.5 w-full bg-zinc-200 dark:bg-zinc-800">
         <div class="h-full bg-emerald-500 transition-all duration-150" :style="{ width: progress + '%' }"></div>
     </div>
@@ -565,69 +561,67 @@ new #[Layout('layouts::main')] class extends Component {
                     {{-- Newsletter CTA --}}
                     <livewire:newsletter-subscribe origin="post_show" />
                     {{-- Partager --}}
-                    <div class="border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800/50 dark:bg-zinc-900/30">
+                    @php
+                        $shareUrl = url()->current();
+                        $shareTitle = urlencode($post->title);
+                    @endphp
+                    <div class="border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800/50 dark:bg-zinc-900/30"
+                        x-data="socialShare()"
+                        data-share-url="{{ $shareUrl }}"
+                        data-share-title="{{ $shareTitle }}">
                         <h3
                             class="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
                             Partager cet article
                         </h3>
                         <div class="flex items-center justify-center gap-3">
-                            @php
-                                $shareUrl = url()->current();
-                                $shareTitle = urlencode($post->title);
-                            @endphp
 
                             {{-- Facebook --}}
-                            <a href="#"
-                                @click.prevent="window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('{{ $shareUrl }}')}`, '_blank')"
+                            <button type="button"
+                                @click="share('facebook')"
                                 aria-label="Partager sur Facebook" title="Facebook"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
                                 </svg>
-                            </a>
+                            </button>
 
                             {{-- X --}}
-                            <a href="#"
-                                @click.prevent="window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent('{{ $shareUrl }}')}&text=${encodeURIComponent('{{ $shareTitle }}')}`, '_blank')"
+                            <button type="button"
+                                @click="share('twitter')"
                                 aria-label="Partager sur X" title="X"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-black hover:text-white hover:border-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                                 </svg>
-                            </a>
+                            </button>
 
                             {{-- LinkedIn --}}
-                            <a href="#"
-                                @click.prevent="window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent('{{ $shareUrl }}')}&title=${encodeURIComponent('{{ $shareTitle }}')}`, '_blank')"
+                            <button type="button"
+                                @click="share('linkedin')"
                                 aria-label="Partager sur LinkedIn" title="LinkedIn"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
                                 </svg>
-                            </a>
+                            </button>
 
                             {{-- WhatsApp --}}
-                            <a href="#"
-                                @click.prevent="window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('{{ $shareTitle }} - {{ $shareUrl }}')}`, '_blank')"
+                            <button type="button"
+                                @click="share('whatsapp')"
                                 aria-label="Partager sur WhatsApp" title="WhatsApp"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-[#25D366] hover:text-white hover:border-[#25D366] dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c-.001 2.106.549 4.16 1.595 5.975L0 24l6.335-1.652c1.747.96 3.711 1.468 5.704 1.469h.004c6.58 0 11.939-5.336 11.943-11.893.002-3.181-1.238-6.173-3.466-8.475zm-8.476 19.333c-1.785-.001-3.536-.48-5.068-1.387l-.363-.214-3.766.982.999-3.655-.235-.373c-1.004-1.591-1.532-3.428-1.531-5.335.003-5.526 4.512-10.024 10.045-10.024 2.68 0 5.197 1.042 7.089 2.932 1.892 1.889 2.935 4.398 2.933 7.07-.003 5.523-4.512 10.004-10.003 10.004zm5.518-7.502c-.302-.15-1.789-.882-2.066-.983-.277-.1-.478-.15-.68.15s-.781.983-.957 1.183c-.176.2-.352.225-.654.075-1.921-.976-3.32-2.457-4.108-4.593-.075-.205.228-.182.523-.765.1-.2.05-.375-.025-.525s-.68-1.631-.932-2.233c-.246-.587-.496-.508-.68-.517-.176-.008-.377-.01-.579-.01-.2 0-.527.075-.803.375s-1.054 1.025-1.054 2.5 1.08 2.898 1.231 3.098c.15.2 2.115 3.208 5.12 4.49 2.112.903 2.87.777 3.931.625.816-.118 2.516-1.031 2.87-2.025.352-.993.352-1.844.247-2.025-.105-.175-.377-.275-.68-.425z" />
                                 </svg>
-                            </a>
+                            </button>
 
                             {{-- Copier le lien --}}
-                            <button x-data="{ copied: false }"
-                                @click="
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                copied = true;
-                setTimeout(() => copied = false, 3000);
-            });
-        "
+                            <button type="button"
+                                @click="copyLink()"
                                 aria-label="Copier le lien" title="Copier le lien"
                                 class="relative flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor"
@@ -822,28 +816,4 @@ new #[Layout('layouts::main')] class extends Component {
         </section>
     @endif
 
-    {{-- Bouton retour en haut --}}
-    <button x-data="{ visible: false }" x-init="window.addEventListener('scroll', () => { visible = window.scrollY > 500 })" x-show="visible"
-        @click="window.scrollTo({top:0,behavior:'smooth'})"
-        class="fixed bottom-6 right-6 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 shadow-lg transition hover:bg-emerald-50 hover:text-emerald-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
-    </button>
-
-    {{-- Script de partage --}}
-    <script>
-        function share() {
-            if (navigator.share) {
-                navigator.share({
-                    title: '{{ $post->title }}',
-                    text: '{{ $post->getPlainTextContent(150) }}',
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Lien copié !');
-            }
-        }
-    </script>
 </div>

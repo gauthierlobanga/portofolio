@@ -48,16 +48,8 @@
         {{-- Actions à droite --}}
         <div class="flex items-center gap-2">
             {{-- Bouton dark mode --}}
-            <button x-cloak x-data="{ tooltip: false }" x-on:mouseenter="tooltip = true" x-on:mouseleave="tooltip = false"
-                x-on:click="
-        tooltip = false;
-        document.documentElement.classList.add('no-transition');
-        $flux.dark = !$flux.dark;
-        setTimeout(() => document.documentElement.classList.remove('no-transition'), 100);
-    "
-                aria-label="Changer le thème"
-                class="relative flex h-9 w-9 items-center justify-center rounded-xl text-zinc-500 transition-all duration-200
-           hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200">
+            <button x-data aria-label="Changer le thème" x-on:click="$flux.dark = !$flux.dark"
+                class="relative flex h-9 w-9 items-center justify-center rounded-xl text-zinc-500 transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200">
                 <flux:icon.sun x-show="!$flux.dark" variant="mini" class="h-5 w-5 transition-all duration-300" />
                 <flux:icon.moon x-show="$flux.dark" variant="mini" class="h-5 w-5 transition-all duration-300" />
             </button>

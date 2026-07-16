@@ -1,27 +1,7 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     {{-- ========== HEADER  ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="{
-        search: $wire.entangle('search').live,
-        showFilters: false,
-        category: $wire.entangle('category').live,
-        sortBy: $wire.entangle('sort').live,
-        sortDropdownOpen: false,
-        activeFilterCount: 0,
-        resetFilters: function() {
-            this.category = null
-            this.sortBy = 'newest'
-            this.search = ''
-            this.showFilters = false
-            $refs.filtersButton.focus()
-            document.querySelector('#scroll-to-reference')?.scrollIntoView({ behavior: 'smooth' })
-        },
-        listeningMessages: [`Whatcha looking for? 🔍`, `I'm listening... 👀`, `Go ahead, I'm ready 🎯`, `Type away! ⌨️`, `Searching is fun! 🤓`, `What can I find for you? 🕵️‍♂️`],
-        listeningIndex: 0,
-        listeningMessage: 'Whatcha looking for? 🔍',
-        rotateListeningMessage: function() {
-            this.listeningIndex++
-        },
-    }" x-effect="activeFilterCount = category ? 1 : 0; listeningMessage = listeningMessages[listeningIndex % listeningMessages.length]" aria-label="Plugin search and listing"
+    <section x-cloak id="scroll-to-reference" x-data="formationSearchFilters()"
+        aria-label="Plugin search and listing"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
          <div class="mb-16 max-w-3xl" x-data="{ shown: false }" x-intersect="shown = true">
              <h2 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl transition-all duration-700 delay-100 ease-out"
@@ -38,7 +18,7 @@
         {{-- Grille des articles --}}
         <div wire:loading.class="opacity-50 pointer-events-none"
             class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-7 transition-opacity duration-300"
-            x-init="window.autoAnimate($el, { duration: 250 })" aria-label="Liste des articles">
+            x-data="autoAnimateGrid()" aria-label="Liste des articles">
             @forelse ($posts as $post)
                 <a href="{{ route('posts.show', $post) }}" wire:navigate
                     class="gsap-reveal group relative flex flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
@@ -69,48 +49,7 @@
                         {{-- Titre avec losange animé --}}
                         <div
                             class="relative transition duration-300 ease-out will-change-transform group-hover:translate-x-4.5">
-                            <div x-data="{
-                                init: function() {
-                                    const tweens = [];
-                                    let playing = false;
-                                    const rotatingEl = $el.querySelector('[data-rotating]');
-                                    const rotate = () => {
-                                        gsap.to(rotatingEl, {
-                                            rotation: '+=60',
-                                            duration: 0.5,
-                                            ease: 'sine.out',
-                                            onComplete: () => { if (playing) gsap.delayedCall(0.5, rotate); },
-                                        });
-                                    };
-                                    const boxes = $el.querySelectorAll('[data-box]');
-                                    const delays = [0, 0.2, 0.1];
-                                    boxes.forEach((box, i) => {
-                                        tweens.push(
-                                            gsap.to(box, {
-                                                opacity: 0.3,
-                                                repeat: -1,
-                                                yoyo: true,
-                                                duration: 0.4,
-                                                delay: delays[i] || 0,
-                                                ease: 'power1.inOut',
-                                                paused: true,
-                                            })
-                                        );
-                                    });
-                                    const group = $el.closest('.group');
-                                    if (group) {
-                                        group.addEventListener('mouseenter', () => {
-                                            playing = true;
-                                            tweens.forEach((t) => t.resume());
-                                            rotate();
-                                        });
-                                        group.addEventListener('mouseleave', () => {
-                                            playing = false;
-                                            tweens.forEach((t) => t.pause());
-                                        });
-                                    }
-                                }
-                            }" class="absolute top-1/2 -left-4 -translate-y-1/2">
+                            <div x-data="rotatingBadge()" class="absolute top-1/2 -left-4 -translate-y-1/2">
                                 <div
                                     class="translate-x-0.5 opacity-0 transition duration-300 ease-out will-change-transform group-hover:translate-x-0 group-hover:opacity-100">
                                     <div data-rotating class="flex items-center gap-0.75">
@@ -208,36 +147,8 @@
 
         {{-- Bouton "Voir tous les domaines" --}}
         <nav class="mt-14 flex justify-center">
-            <div x-data
-                class="border border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 transition-colors duration-200"
-                x-init="function() {
-                    if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') return;
-                    const button = $el.querySelector('a');
-                    if (!button) return;
-                    const textWrapper = button.querySelector('[data-text]');
-                    const arrow = button.querySelector('[data-icon] svg');
-                    if (!textWrapper || !arrow) return;
-                    const split = new SplitText(textWrapper, { type: 'chars' });
-                    const chars = split.chars;
-                    const tl = gsap.timeline({ paused: true });
-                    tl.to(chars, {
-                        keyframes: [
-                            { y: -10, opacity: 0, duration: 0.2, ease: 'power2.in' },
-                            { y: 10, opacity: 0, duration: 0 },
-                            { y: 0, opacity: 1, duration: 0.2, ease: 'power2.out' }
-                        ],
-                        stagger: 0.02
-                    }, 0);
-                    tl.to(arrow, {
-                        keyframes: [
-                            { y: -30, duration: 0.25, ease: 'power2.in' },
-                            { y: 30, duration: 0 },
-                            { y: 0, duration: 0.25, ease: 'power2.out' }
-                        ]
-                    }, 0.1);
-                    button.addEventListener('mouseenter', () => tl.play());
-                    button.addEventListener('mouseleave', () => tl.reverse());
-                }">
+            <div x-data="buttonTextReveal()"
+                class="border border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 transition-colors duration-200">
 
                 <a href="{{ route('posts.index', ['cat' => 'formation']) }}" wire:navigate
                     aria-label="Voir toutes les formations"
