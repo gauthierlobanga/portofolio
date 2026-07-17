@@ -10,8 +10,12 @@ use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Cache;
 use App\Settings\AboutSettings;
 use Illuminate\Support\Facades\Storage;
+use App\Concerns\Traits\HasImageUrl;
 
 new #[Layout('layouts::main')] class extends Component {
+
+    use HasImageUrl;
+
     #[Computed]
     public function about(): AboutSettings
     {
@@ -97,27 +101,33 @@ new #[Layout('layouts::main')] class extends Component {
     <section x-cloak class="relative isolate overflow-hidden" x-data="homeHeroReveal">
         @php
             $heroImage = $this->about->hero_image_url
-                ? Storage::url($this->about->hero_image_url)
-                : 'https://images.unsplash.com/photo-1595804470216-9d32d0ff05e6?q=80&w=1200&auto=format&fit=crop';
+                ? $this->imageUrl($this->about->hero_image_url)
+                : $this->imageUrl('images/cadersa-about.jpeg');
         @endphp
 
         <div class="absolute inset-0">
             <img x-ref="bgImage" src="{{ $heroImage }}" alt="Paysage rural de la RDC"
                 class="h-full w-full object-cover origin-center" />
             <div class="absolute inset-0 bg-linear-to-br from-zinc-950/80 via-zinc-900/60 to-emerald-950/60"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_40%_20%,rgba(16,185,129,.12),transparent_50%)]"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,255,255,.06),transparent_40%)]"></div>
-            <div x-ref="decoLine" class="absolute bottom-0 left-0 h-0.5 w-0 bg-linear-to-r from-emerald-500 via-teal-400 to-transparent origin-left"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_40%_20%,rgba(16,185,129,.12),transparent_50%)]">
+            </div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,255,255,.06),transparent_40%)]">
+            </div>
+            <div x-ref="decoLine"
+                class="absolute bottom-0 left-0 h-0.5 w-0 bg-linear-to-r from-emerald-500 via-teal-400 to-transparent origin-left">
+            </div>
         </div>
 
         <div class="relative mx-auto flex min-h-[90svh] max-w-7xl items-center px-6 pt-26 pb-24 lg:px-8">
             <div class="max-w-4xl">
-                <div x-ref="badge" class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-xl">
+                <div x-ref="badge"
+                    class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-xl">
                     <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
                     <span class="text-sm font-medium tracking-wide text-zinc-200">{{ $this->about->hero_badge }}</span>
                 </div>
 
-                <h1 x-ref="title" class="mt-8 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
+                <h1 x-ref="title"
+                    class="mt-8 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
                     {{ $this->about->hero_title }}
                 </h1>
 
@@ -136,8 +146,10 @@ new #[Layout('layouts::main')] class extends Component {
                         class="group relative inline-flex h-14 items-center justify-center border-2 border-emerald-500 bg-emerald-500 px-8 font-semibold text-white transition-all duration-300 hover:bg-emerald-600 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-[0.97]">
                         <span class="relative z-10 flex items-center gap-2 whitespace-nowrap">
                             Découvrir nos projets
-                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </span>
                     </a>
@@ -146,8 +158,10 @@ new #[Layout('layouts::main')] class extends Component {
                         class="group relative inline-flex h-14 items-center justify-center border border-white/20 px-8 font-semibold text-white transition-all duration-300 hover:bg-white/10 hover:border-white/40 active:scale-[0.97]">
                         <span class="relative z-10 flex items-center gap-2 whitespace-nowrap">
                             En savoir plus
-                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </span>
                     </a>

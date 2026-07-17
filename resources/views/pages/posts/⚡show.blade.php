@@ -33,7 +33,7 @@ new #[Layout('layouts::main')] class extends Component {
             $this->isBookmarked = $post->isBookmarkedBy($user);
         }
     }
-    // ===== MÉTHODE POUR LES PDF =====
+
     #[Computed]
     public function pdfs()
     {
@@ -113,9 +113,7 @@ new #[Layout('layouts::main')] class extends Component {
     #[Computed]
     public function galleryImages()
     {
-        // Vider le cache pour cet article spécifique à chaque chargement
         Cache::forget("post_{$this->post->id}_gallery_images");
-
         return $this->post->gallery_images ?? [];
     }
 
@@ -123,7 +121,6 @@ new #[Layout('layouts::main')] class extends Component {
     public function headings()
     {
         $content = $this->post->renderRichContent('content');
-
         if (empty($content)) {
             return [];
         }
@@ -177,16 +174,14 @@ new #[Layout('layouts::main')] class extends Component {
 ?>
 
 <div class="min-h-screen bg-white dark:bg-zinc-950">
-    {{-- Barre de progression de lecture --}}
-    <div x-data="pageProgress()"
-        class="fixed top-0 left-0 z-50 h-0.5 w-full bg-zinc-200 dark:bg-zinc-800">
+    {{-- Barre de progression --}}
+    <div x-data="pageProgress()" class="fixed top-0 left-0 z-50 h-0.5 w-full bg-zinc-200 dark:bg-zinc-800">
         <div class="h-full bg-emerald-500 transition-all duration-150" :style="{ width: progress + '%' }"></div>
     </div>
 
     {{-- Fil d'Ariane --}}
-    <div class="mx-auto max-w-7xl px-6 lg:px-8 py-4">
-        <nav aria-label="Fil d'Ariane" class="flex items-center gap-1.5 text-sm">
-            {{-- Accueil --}}
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+        <nav aria-label="Fil d'Ariane" class="flex items-center gap-1 text-xs sm:text-sm">
             <a href="{{ route('home') }}" wire:navigate
                 class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-zinc-500 transition-all duration-200
                   hover:bg-emerald-50 hover:text-emerald-600
@@ -197,28 +192,20 @@ new #[Layout('layouts::main')] class extends Component {
                 </svg>
                 <span>Accueil</span>
             </a>
-
-            {{-- Séparateur --}}
             <svg class="h-4 w-4 shrink-0 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-
-            {{-- Blog --}}
             <a href="{{ route('posts.index') }}" wire:navigate
                 class="rounded-lg px-2.5 py-1.5 text-zinc-500 transition-all duration-200
                   hover:bg-emerald-50 hover:text-emerald-600
                   dark:text-zinc-400 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400">
                 Blog
             </a>
-
-            {{-- Séparateur --}}
             <svg class="h-4 w-4 shrink-0 text-zinc-300 dark:text-zinc-600" fill="none" stroke="currentColor"
                 viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-
-            {{-- Titre de l'article (page courante, non cliquable) --}}
             <span class="max-w-xs truncate rounded-lg px-2.5 py-1.5 font-medium text-zinc-900 dark:text-white"
                 aria-current="page">
                 {{ $post->title }}
@@ -227,23 +214,23 @@ new #[Layout('layouts::main')] class extends Component {
     </div>
 
     {{-- Hero --}}
-    <section class="relative flex min-h-[75vh] items-end pb-16 lg:pb-24 overflow-hidden bg-zinc-900">
+    <section
+        class="relative flex min-h-[50vh] sm:min-h-[65vh] lg:min-h-[75vh] items-end pb-10 sm:pb-16 lg:pb-24 overflow-hidden bg-zinc-900">
         @if ($post->hasMedia('featured'))
             <img src="{{ $post->getFirstMediaUrl('featured') }}" alt="{{ $post->title }}"
                 class="absolute inset-0 h-full w-full object-cover opacity-30 dark:opacity-20">
         @endif
-        {{-- Overlay plus doux, dégradé vertical accentué en bas --}}
         <div class="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/60 to-zinc-900/20"></div>
 
-        <div class="relative z-10 mx-auto w-full max-w-5xl px-6 lg:px-8" x-data="cspState()"
+        <div class="relative z-10 mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8" x-data="cspState()"
             x-intersect="shown = true">
             <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
-                {{-- Badge catégorie --}}
                 @if ($post->categories->isNotEmpty())
                     <span
-                        class="mb-8 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-700"
+                        class="mb-6 sm:mb-8 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white backdrop-blur-md transition-all duration-700"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                        <svg class="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-3 w-3 sm:h-4 sm:w-4 text-emerald-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
@@ -251,14 +238,12 @@ new #[Layout('layouts::main')] class extends Component {
                     </span>
                 @endif
 
-                {{-- Titre --}}
-                <h1 class="max-w-4xl text-balance text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl font-serif transition-all duration-700 delay-100"
+                <h1 class="max-w-4xl text-balance text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight tracking-tight text-white font-serif transition-all duration-700 delay-100"
                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                     {{ $post->title }}
                 </h1>
 
-                {{-- Métadonnées --}}
-                <div class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-base text-zinc-200 lg:justify-start transition-all duration-700 delay-200"
+                <div class="mt-6 sm:mt-10 flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-8 gap-y-2 sm:gap-y-3 text-sm sm:text-base text-zinc-200 lg:justify-start transition-all duration-700 delay-200"
                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                     <time datetime="{{ $post->published_at?->format('Y-m-d') ?? $post->created_at->format('Y-m-d') }}"
                         class="flex items-center gap-2.5">
@@ -268,7 +253,6 @@ new #[Layout('layouts::main')] class extends Component {
                         </svg>
                         {{ $post->published_at?->translatedFormat('d F Y') ?? $post->created_at->translatedFormat('d F Y') }}
                     </time>
-
                     @if ($post->user)
                         <span class="flex items-center gap-2.5">
                             <flux:avatar size="sm" circle src="{{ $post->user->avatar_url }}"
@@ -276,7 +260,6 @@ new #[Layout('layouts::main')] class extends Component {
                             {{ $post->user->name }}
                         </span>
                     @endif
-
                     <span class="flex items-center gap-2.5">
                         <svg class="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -291,23 +274,24 @@ new #[Layout('layouts::main')] class extends Component {
         </div>
     </section>
 
-    {{-- Contenu principal avec sidebar --}}
-    <div class="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-        <div class="grid gap-16 lg:grid-cols-12">
+    {{-- Contenu principal + sidebar --}}
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+        <div class="grid gap-8 sm:gap-12 lg:grid-cols-12 lg:gap-16">
 
             {{-- Colonne principale --}}
             <div class="lg:col-span-8" x-cloak x-data="cspState()" x-intersect.once="shown = true"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
                 class="transition-all duration-1000 ease-out">
 
-                {{-- Barre d'actions flottante --}}
-                <div
-                    class="sticky top-20 z-20 mb-12 flex flex-wrap items-center justify-between border-0 border-zinc-200/80 bg-white/90 px-4 py-2 dark:border-zinc-800/80 dark:bg-zinc-900/90">
-                    <div class="flex items-center gap-2">
+                {{-- Barre d'actions flottante (responsive) --}}
+                <div class="sticky top-16 sm:top-20 z-20 mb-6 sm:mb-12 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/80 bg-white/90 px-2 sm:px-4 py-1.5 sm:py-2 dark:border-zinc-800/80 dark:bg-zinc-900/90"
+                    x-data="socialShare()" data-share-url="{{ url()->current() }}"
+                    data-share-title="{{ $post->title }}">
+                    <div class="flex items-center gap-1 sm:gap-2">
                         <button wire:click="like"
-                            class="group flex h-10 items-center gap-2 px-4 text-sm font-medium transition-all
+                            class="group flex h-8 sm:h-10 items-center gap-1 sm:gap-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-all
                                    {{ $isLiked ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 ring-1 ring-emerald-200 dark:ring-emerald-500/30' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800' }}">
-                            <svg class="h-5 w-5 transition-transform group-active:scale-90"
+                            <svg class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-active:scale-90"
                                 fill="{{ $isLiked ? 'currentColor' : 'none' }}" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -315,11 +299,11 @@ new #[Layout('layouts::main')] class extends Component {
                             </svg>
                             <span>{{ $likesCount }}</span>
                         </button>
-                        <div class="h-5 w-px bg-zinc-200 dark:bg-zinc-700"></div>
+                        <div class="h-4 sm:h-5 w-px bg-zinc-200 dark:bg-zinc-700"></div>
                         <button wire:click="bookmark"
-                            class="group flex h-10 items-center gap-2 px-4 text-sm font-medium transition-all
+                            class="group flex h-8 sm:h-10 items-center gap-1 sm:gap-2 px-2 sm:px-4 text-xs sm:text-sm font-medium transition-all
                                    {{ $isBookmarked ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 ring-1 ring-amber-200 dark:ring-amber-500/30' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800' }}">
-                            <svg class="h-5 w-5 transition-transform group-active:scale-90"
+                            <svg class="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-active:scale-90"
                                 fill="{{ $isBookmarked ? 'currentColor' : 'none' }}" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -329,8 +313,9 @@ new #[Layout('layouts::main')] class extends Component {
                         </button>
                     </div>
                     <button @click="share()"
-                        class="flex h-10 items-center gap-2 bg-zinc-900 px-5 text-sm font-medium text-white transition-all hover:bg-emerald-600 dark:bg-white dark:text-zinc-900 dark:hover:bg-emerald-400">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex h-8 sm:h-10 items-center gap-1 sm:gap-2 bg-zinc-900 px-3 sm:px-5 text-xs sm:text-sm font-medium text-white transition-all hover:bg-emerald-600 dark:bg-white dark:text-zinc-900 dark:hover:bg-emerald-400">
+                        <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
@@ -338,32 +323,37 @@ new #[Layout('layouts::main')] class extends Component {
                     </button>
                 </div>
 
+                {{-- Extrait --}}
                 @if ($post->excerpt)
                     <div
-                        class="mb-10 fi-prose max-w-none text-2xl font-light leading-relaxed text-slate-600 dark:text-slate-300">
+                        class="mb-6 sm:mb-10 fi-prose max-w-none text-lg sm:text-2xl font-light leading-relaxed text-slate-600 dark:text-slate-300">
                         {!! $post->renderRichContent('excerpt') !!}
                     </div>
                 @endif
-                {{-- Galerie d'images --}}
+
+                {{-- Galerie d'images responsive --}}
                 @if (count($this->galleryImages) > 0)
                     <div x-cloak x-data="cspState()" x-intersect.once="shown = true"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
-                        class="mt-16 transition-all duration-700 ease-out">
+                        class="mt-10 sm:mt-16 transition-all duration-700 ease-out">
 
                         <div
-                            class="mb-6 flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
-                            <h3 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Galerie média
+                            class="mb-4 sm:mb-6 flex items-center justify-between border-b border-zinc-200 pb-2 sm:pb-3 dark:border-zinc-800">
+                            <h3 class="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                                Galerie média
                             </h3>
-                            <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                            <span class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
                                 {{ count($this->galleryImages) }}
                                 {{ count($this->galleryImages) > 1 ? 'médias' : 'média' }}
                             </span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 md:grid-cols-3" x-data="cspState()">
+                        {{-- Grille : 1 colonne mobile, 2 sm, 3 md+ --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
+                            x-data="cspState()">
                             @foreach ($this->galleryImages as $image)
                                 <div @click="open = true; active = '{{ $image['large'] ?? ($image['medium'] ?? $image['url']) }}'"
-                                    class="group cursor-zoom-in overflow-hidden border border-zinc-200/50 bg-zinc-100 transition-all duration-300 hover:border-emerald-300 dark:border-zinc-700/50 dark:bg-zinc-800 dark:hover:border-emerald-700">
+                                    class="group cursor-zoom-in overflow-hidden rounded-lg border border-zinc-200/50 bg-zinc-100 transition-all duration-300 hover:border-emerald-300 active:scale-95 dark:border-zinc-700/50 dark:bg-zinc-800 dark:hover:border-emerald-700">
                                     <img src="{{ $image['medium'] ?? ($image['small'] ?? $image['url']) }}"
                                         alt="{{ $image['alt_text'] ?? $post->title }}"
                                         class="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -371,26 +361,30 @@ new #[Layout('layouts::main')] class extends Component {
                                 </div>
                             @endforeach
 
-                            {{-- Lightbox --}}
+                            {{-- Lightbox optimisée mobile --}}
                             <template x-teleport="body">
                                 <div x-show="open" x-transition:enter="transition ease-out duration-300"
                                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                                     x-transition:leave="transition ease-in duration-200"
                                     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                                    class="fixed inset-0 z-100 flex items-center justify-center bg-zinc-950/90 p-4 sm:p-6"
+                                    class="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-950/95 p-3 sm:p-6"
                                     @keydown.escape.window="open = false" x-cloak>
 
+                                    {{-- Fond cliquable --}}
                                     <div class="absolute inset-0" @click="open = false"></div>
 
+                                    {{-- Bouton fermer --}}
                                     <button @click="open = false"
-                                        class="absolute right-6 top-6 z-10 flex h-12 w-12 items-center justify-center bg-white/10 text-white transition hover:bg-white/20 hover:scale-105">
-                                        <svg class="h-6 w-6" fill="none" stroke="currentColor"
+                                        class="absolute top-3 right-3 sm:top-6 sm:right-6 z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20 hover:scale-110 active:scale-95"
+                                        aria-label="Fermer la galerie">
+                                        <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
 
+                                    {{-- Image en plein écran --}}
                                     <div class="relative z-0 mx-auto max-h-full max-w-7xl" x-show="open"
                                         x-transition:enter="transition ease-out duration-400 delay-100"
                                         x-transition:enter-start="opacity-0 scale-95 translate-y-8"
@@ -398,7 +392,8 @@ new #[Layout('layouts::main')] class extends Component {
                                         x-transition:leave="transition ease-in duration-200"
                                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                                         x-transition:leave-end="opacity-0 scale-95 translate-y-4">
-                                        <img :src="active" class="max-h-[85vh] w-auto object-contain"
+                                        <img :src="active"
+                                            class="max-h-[80vh] sm:max-h-[85vh] max-w-[95vw] sm:max-w-full w-auto object-contain rounded-lg shadow-2xl"
                                             @click.stop="">
                                     </div>
                                 </div>
@@ -411,12 +406,16 @@ new #[Layout('layouts::main')] class extends Component {
                     {!! $post->renderRichContent('content') !!}
                 </div>
 
-                {{-- Navigation article précédent / suivant --}}
-                <div class="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {{-- Navigation précédent/suivant --}}
+                <div class="mt-8 sm:mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     @if ($this->previousPost)
                         <a href="{{ route('posts.show', $this->previousPost) }}" wire:navigate
-                            class="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-
+                            class="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow dark:border-zinc-800 dark:bg-zinc-900">
+                            <svg class="ml-auto h-5 w-5 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
                             <div class="flex flex-col text-left">
                                 <span class="text-xs text-zinc-400">Article précédent</span>
                                 <span
@@ -424,19 +423,11 @@ new #[Layout('layouts::main')] class extends Component {
                                     {{ \Illuminate\Support\Str::limit($this->previousPost->title, 80) }}
                                 </span>
                             </div>
-
-                            <svg class="ml-auto h-5 w-5 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7" />
-                            </svg>
                         </a>
                     @endif
-
                     @if ($this->nextPost)
                         <a href="{{ route('posts.show', $this->nextPost) }}" wire:navigate
-                            class="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-
+                            class="group flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow dark:border-zinc-800 dark:bg-zinc-900">
                             <div class="flex flex-col text-left">
                                 <span class="text-xs text-zinc-400">Article suivant</span>
                                 <span
@@ -444,7 +435,6 @@ new #[Layout('layouts::main')] class extends Component {
                                     {{ \Illuminate\Support\Str::limit($this->nextPost->title, 80) }}
                                 </span>
                             </div>
-
                             <svg class="ml-auto h-5 w-5 text-emerald-500 transition-transform duration-300 group-hover:translate-x-1"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -453,22 +443,19 @@ new #[Layout('layouts::main')] class extends Component {
                         </a>
                     @endif
                 </div>
-
             </div>
 
             {{-- Sidebar --}}
-            <aside class="hidden lg:col-span-4 lg:block">
-                <div class="sticky top-28 flex flex-col gap-8">
-
-                    {{-- Carte Auteur Premium --}}
+            <aside class="lg:col-span-4">
+                <div class="sticky top-28 flex flex-col gap-6 sm:gap-8">
+                    {{-- Carte Auteur --}}
                     @if ($post->user)
                         <div x-data="cspState()" @mouseenter="hover = true" @mouseleave="hover = false"
-                            class="group relative overflow-hidden border border-zinc-200/50 bg-white/80 p-1 backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 dark:border-zinc-800/60 dark:bg-zinc-900/80">
+                            class="group relative overflow-hidden rounded-2xl border border-zinc-200/50 bg-white/80 p-1 backdrop-blur-xl shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-800/60 dark:bg-zinc-900/80">
                             <div
                                 class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-emerald-100/40 via-transparent to-transparent opacity-50 transition-opacity duration-700 group-hover:opacity-100 dark:from-emerald-900/20">
                             </div>
-
-                            <div class="relative bg-white/50 px-6 pb-8 pt-8  dark:bg-zinc-900/50">
+                            <div class="relative bg-white/50 px-6 pb-8 pt-8 dark:bg-zinc-900/50">
                                 <div class="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center">
                                     <div
                                         class="absolute inset-0 rounded-full transition-all duration-500 group-hover:bg-emerald-400/40 dark:bg-emerald-500/10">
@@ -477,7 +464,6 @@ new #[Layout('layouts::main')] class extends Component {
                                         alt="{{ $post->user->name }}"
                                         class="relative h-20 w-20 ring-1 ring-white dark:ring-zinc-800" />
                                 </div>
-
                                 <div class="text-center">
                                     <h3 class="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                                         {{ $post->user->name }}
@@ -495,10 +481,10 @@ new #[Layout('layouts::main')] class extends Component {
                         </div>
                     @endif
 
-                    {{-- ==================== DOCUMENTS PDF ==================== --}}
+                    {{-- Documents PDF --}}
                     @if ($post->hasPdf())
                         <div
-                            class="border border-zinc-200/50 bg-zinc-50/50 p-5 backdrop-blur-lg dark:border-zinc-800/50 dark:bg-zinc-900/30">
+                            class="rounded-2xl border border-zinc-200/50 bg-zinc-50/50 p-5 backdrop-blur-lg shadow-sm dark:border-zinc-800/50 dark:bg-zinc-900/30">
                             <h3
                                 class="mb-4 flex items-center gap-2.5 text-sm font-semibold text-zinc-900 dark:text-white">
                                 <svg class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none"
@@ -538,10 +524,10 @@ new #[Layout('layouts::main')] class extends Component {
                         </div>
                     @endif
 
-                    {{-- Thématiques (Pills Modernes) --}}
+                    {{-- Thématiques --}}
                     @if ($post->tags && $post->tags->count() > 0)
                         <div
-                            class="border border-zinc-200/50 bg-zinc-50/50 p-8 backdrop-blur-lg dark:border-zinc-800/50 dark:bg-zinc-900/30">
+                            class="rounded-2xl border border-zinc-200/50 bg-zinc-50/50 p-8 backdrop-blur-lg shadow-sm dark:border-zinc-800/50 dark:bg-zinc-900/30">
                             <h3
                                 class="mb-5 flex items-center gap-3 text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white">
                                 <span class="h-2 w-2 bg-emerald-500"></span>
@@ -558,71 +544,56 @@ new #[Layout('layouts::main')] class extends Component {
                         </div>
                     @endif
 
-                    {{-- Newsletter CTA --}}
+                    {{-- Newsletter --}}
                     <livewire:newsletter-subscribe origin="post_show" />
+
                     {{-- Partager --}}
                     @php
                         $shareUrl = url()->current();
                         $shareTitle = urlencode($post->title);
                     @endphp
-                    <div class="border border-zinc-200 bg-zinc-50/50 p-6 dark:border-zinc-800/50 dark:bg-zinc-900/30"
-                        x-data="socialShare()"
-                        data-share-url="{{ $shareUrl }}"
+                    <div class="rounded-2xl border border-zinc-200 bg-zinc-50/50 p-6 shadow-sm dark:border-zinc-800/50 dark:bg-zinc-900/30"
+                        x-data="socialShare()" data-share-url="{{ $shareUrl }}"
                         data-share-title="{{ $shareTitle }}">
                         <h3
                             class="mb-4 text-center text-sm font-semibold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
                             Partager cet article
                         </h3>
                         <div class="flex items-center justify-center gap-3">
-
-                            {{-- Facebook --}}
-                            <button type="button"
-                                @click="share('facebook')"
-                                aria-label="Partager sur Facebook" title="Facebook"
+                            <button type="button" @click="share('facebook')" aria-label="Partager sur Facebook"
+                                title="Facebook"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
                                 </svg>
                             </button>
-
-                            {{-- X --}}
-                            <button type="button"
-                                @click="share('twitter')"
-                                aria-label="Partager sur X" title="X"
+                            <button type="button" @click="share('twitter')" aria-label="Partager sur X"
+                                title="X"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-black hover:text-white hover:border-black dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                                 </svg>
                             </button>
-
-                            {{-- LinkedIn --}}
-                            <button type="button"
-                                @click="share('linkedin')"
-                                aria-label="Partager sur LinkedIn" title="LinkedIn"
+                            <button type="button" @click="share('linkedin')" aria-label="Partager sur LinkedIn"
+                                title="LinkedIn"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" />
                                 </svg>
                             </button>
-
-                            {{-- WhatsApp --}}
-                            <button type="button"
-                                @click="share('whatsapp')"
-                                aria-label="Partager sur WhatsApp" title="WhatsApp"
+                            <button type="button" @click="share('whatsapp')" aria-label="Partager sur WhatsApp"
+                                title="WhatsApp"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:bg-[#25D366] hover:text-white hover:border-[#25D366] dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path
                                         d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c-.001 2.106.549 4.16 1.595 5.975L0 24l6.335-1.652c1.747.96 3.711 1.468 5.704 1.469h.004c6.58 0 11.939-5.336 11.943-11.893.002-3.181-1.238-6.173-3.466-8.475zm-8.476 19.333c-1.785-.001-3.536-.48-5.068-1.387l-.363-.214-3.766.982.999-3.655-.235-.373c-1.004-1.591-1.532-3.428-1.531-5.335.003-5.526 4.512-10.024 10.045-10.024 2.68 0 5.197 1.042 7.089 2.932 1.892 1.889 2.935 4.398 2.933 7.07-.003 5.523-4.512 10.004-10.003 10.004zm5.518-7.502c-.302-.15-1.789-.882-2.066-.983-.277-.1-.478-.15-.68.15s-.781.983-.957 1.183c-.176.2-.352.225-.654.075-1.921-.976-3.32-2.457-4.108-4.593-.075-.205.228-.182.523-.765.1-.2.05-.375-.025-.525s-.68-1.631-.932-2.233c-.246-.587-.496-.508-.68-.517-.176-.008-.377-.01-.579-.01-.2 0-.527.075-.803.375s-1.054 1.025-1.054 2.5 1.08 2.898 1.231 3.098c.15.2 2.115 3.208 5.12 4.49 2.112.903 2.87.777 3.931.625.816-.118 2.516-1.031 2.87-2.025.352-.993.352-1.844.247-2.025-.105-.175-.377-.275-.68-.425z" />
                                 </svg>
                             </button>
-
-                            {{-- Copier le lien --}}
-                            <button type="button"
-                                @click="copyLink()"
-                                aria-label="Copier le lien" title="Copier le lien"
+                            <button type="button" @click="copyLink()" aria-label="Copier le lien"
+                                title="Copier le lien"
                                 class="relative flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                                 <svg x-show="!copied" class="h-4 w-4" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -631,8 +602,6 @@ new #[Layout('layouts::main')] class extends Component {
                                 </svg>
                                 <span x-show="copied" class="text-sm font-semibold text-emerald-600">✓</span>
                             </button>
-
-                            {{-- Email --}}
                             <a href="mailto:?subject={{ $shareTitle }}&body={{ $shareUrl }}"
                                 aria-label="Partager par email" title="Email"
                                 class="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-white text-zinc-600 transition-colors hover:border-emerald-400 hover:bg-emerald-50 hover:text-emerald-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
@@ -643,7 +612,6 @@ new #[Layout('layouts::main')] class extends Component {
                             </a>
                         </div>
                     </div>
-
                 </div>
             </aside>
         </div>
@@ -651,18 +619,17 @@ new #[Layout('layouts::main')] class extends Component {
 
     {{-- Articles connexes --}}
     @if (count($this->relatedPosts) > 0)
-        <div class="border-t border-zinc-200 bg-zinc-50/40 py-12 dark:border-zinc-800 dark:bg-zinc-950/50">
-            <div class="mx-auto max-w-7xl px-6 lg:px-8">
-                <h2 class="mb-8 text-2xl font-bold text-zinc-900 dark:text-white">Articles similaires</h2>
-
-                <div class="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3">
+        <div class="border-t border-zinc-200 bg-zinc-50/40 py-8 sm:py-12 dark:border-zinc-800 dark:bg-zinc-950/50">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <h2 class="mb-6 sm:mb-8 text-xl sm:text-2xl font-bold text-zinc-900 dark:text-white">Articles
+                    similaires</h2>
+                <div class="grid grid-cols-1 gap-4 sm:gap-7 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($this->relatedPosts as $related)
                         <a wire:navigate href="{{ route('posts.show', $related->slug) }}"
                             class="gsap-reveal group relative flex flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
                                hover:-translate-y-1 hover:border-emerald-300 hover:shadow hover:shadow-emerald-100/30
                                dark:border-zinc-700/60 dark:bg-zinc-900 dark:hover:border-emerald-700 dark:hover:shadow-emerald-900/20"
                             aria-label="{{ $related->title }}">
-
                             {{-- Image --}}
                             <div
                                 class="relative overflow-hidden ring-1 ring-zinc-200 transition duration-500 ease-out group-hover:ring-emerald-300 dark:ring-zinc-700 dark:group-hover:ring-emerald-700">
@@ -682,10 +649,8 @@ new #[Layout('layouts::main')] class extends Component {
                                     </div>
                                 @endif
                             </div>
-
-                            {{-- Corps de la carte --}}
+                            {{-- Corps --}}
                             <div class="flex flex-1 flex-col gap-2 p-4">
-                                {{-- Titre avec losange animé --}}
                                 <div
                                     class="relative transition duration-300 ease-out will-change-transform group-hover:translate-x-4.5">
                                     <div x-data="rotatingBadge()" class="absolute top-1/2 -left-4 -translate-y-1/2">
@@ -700,20 +665,15 @@ new #[Layout('layouts::main')] class extends Component {
                                             </div>
                                         </div>
                                     </div>
-
                                     <p
                                         class="line-clamp-1 font-outfit font-medium text-zinc-900 transition-colors duration-300
                                           group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
                                         {{ $related->title }}
                                     </p>
                                 </div>
-
-                                {{-- Extrait --}}
                                 <p class="line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">
                                     {{ $related->getPlainTextContent(100) }}
                                 </p>
-
-                                {{-- Métadonnées : catégorie + date --}}
                                 <div class="mt-3 flex items-center justify-between gap-3">
                                     <span class="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
                                         @if ($related->categories->isNotEmpty())
@@ -728,8 +688,6 @@ new #[Layout('layouts::main')] class extends Component {
                                     </time>
                                 </div>
                             </div>
-
-                            {{-- Barre d'action : "Lire" avec fond émeraude --}}
                             <div class="flex h-11 items-stretch text-sm font-medium">
                                 <div
                                     class="inline-flex grow items-center justify-between gap-3 px-4
@@ -752,14 +710,12 @@ new #[Layout('layouts::main')] class extends Component {
         </div>
     @endif
 
-    {{-- ==================== SECTION COMMENTAIRES ==================== --}}
+    {{-- Commentaires --}}
     @if (isset($post) && method_exists($post, 'comments'))
         <section class="bg-white py-8 antialiased lg:py-16 dark:bg-zinc-950">
             <div class="mx-auto max-w-6xl px-4">
                 <div class="mb-6 flex items-center justify-between">
-                    <h2 class="text-lg font-bold text-zinc-900 lg:text-2xl dark:text-white">
-                        Discussion
-                    </h2>
+                    <h2 class="text-lg font-bold text-zinc-900 lg:text-2xl dark:text-white">Discussion</h2>
                     <span
                         class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -769,12 +725,8 @@ new #[Layout('layouts::main')] class extends Component {
                         {{ $post->comments_count ?? 0 }}
                     </span>
                 </div>
-
                 <livewire:comments.comments commentableType="App\Models\Post" :commentableId="$post->id" />
             </div>
         </section>
     @endif
-
 </div>
-
-

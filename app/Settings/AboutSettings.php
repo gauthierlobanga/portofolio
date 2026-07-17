@@ -2,6 +2,7 @@
 
 namespace App\Settings;
 
+use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelSettings\Settings;
 
 class AboutSettings extends Settings
@@ -374,6 +375,23 @@ class AboutSettings extends Settings
     public function setMissionBlocksAttribute(?array $value): void
     {
         $this->mission_blocks = self::normalizeBlocks($value ?? []);
+    }
+
+    /**
+     * Retourne l'URL publique d'une image, compatible local (disque public) et externe (http).
+     */
+    public function imageUrl(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+        // Si c'est déjà une URL complète, on la retourne telle quelle
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        // Sinon, on génère l'URL à partir du disque public (local ou cloud selon la config)
+        return Storage::disk('public')->url(ltrim($path, '/'));
     }
 
     public ?string $about_image_url = null;

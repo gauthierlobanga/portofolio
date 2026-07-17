@@ -71,33 +71,28 @@ new #[Layout('layouts::main')] class extends Component {
 ?>
 
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-    {{-- ========== HEADER  ========== --}}
+    {{-- ========== HEADER ========== --}}
     <section x-cloak class="relative overflow-hidden bg-[#fafaf9] py-18 sm:py-24 lg:py-28 dark:bg-zinc-950"
-        x-data="cspState()" x-intersect.once="shown = true">
+        x-data="cspState" x-intersect.once="shown = true">
 
-        {{-- Ambiance lumineuse de fond (Gradients Radiaux Vercel/Stripe) --}}
+        {{-- Ambiance lumineuse de fond --}}
         <div class="pointer-events-none absolute inset-0 z-0">
-            {{-- En-haut à droite --}}
             <div
                 class="absolute -top-40 right-0 h-150 w-150 rounded-full bg-linear-to-br from-emerald-200/20 to-teal-100/0 blur-3xl dark:from-emerald-500/5 dark:to-transparent">
             </div>
-            {{-- En-bas à gauche --}}
             <div
                 class="absolute -bottom-20 -left-20 h-125 w-125 rounded-full bg-linear-to-tr from-zinc-200/40 to-emerald-100/0 blur-3xl dark:from-zinc-900/50 dark:to-transparent">
             </div>
-            {{-- Subtile grille de fond pixel-perfect optionnelle --}}
             <div
                 class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[14px_24px] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]">
             </div>
         </div>
 
         <div class="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
-            {{-- Grille Asymétrique Premium (Ratio 7:5 sur écrans larges) --}}
             <div class="grid grid-cols-1 items-start gap-16 lg:grid-cols-12 lg:gap-24">
 
-                {{-- BLOC TEXTE PRINCIPAL (7 colonnes) --}}
+                {{-- BLOC TEXTE PRINCIPAL --}}
                 <div class="flex flex-col items-start gap-6 lg:col-span-7">
-                    {{-- Badge Minimaliste Micro-Interactions --}}
                     <div class="inline-flex items-center gap-2.5 rounded-full border border-zinc-200 bg-white/80 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-500 shadow-[0_1px_2px_rgba(0,0,0,0.02)] backdrop-blur-md transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'">
                         <span class="relative flex h-1.5 w-1.5">
@@ -109,14 +104,12 @@ new #[Layout('layouts::main')] class extends Component {
                         Blog & Actualités
                     </div>
 
-                    {{-- Titre : Hiérarchie Ultra-Marquée --}}
                     <h1 class="text-pretty text-4xl font-bold tracking-tight text-zinc-950 sm:text-6xl xl:text-7xl font-serif dark:text-zinc-50 transition-all duration-1000 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         Le pouls de <span
-                            class="relative inline-block bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-emerald-300 dark:to-teal-400">CADERSA</span>
+                            class="relative inline-block bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-emerald-300 dark:to-teal-400">CADERSA asbl</span>
                     </h1>
 
-                    {{-- Description : Espace Négatif & Confort de Lecture --}}
                     <p class="max-w-xl text-lg leading-relaxed text-zinc-600/90 dark:text-zinc-400 font-sans transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         Plongez au cœur de nos actions : <span
@@ -125,18 +118,13 @@ new #[Layout('layouts::main')] class extends Component {
                     </p>
                 </div>
 
-                {{-- PANNEAU D'INFORMATION ET STATISTIQUES (5 colonnes) --}}
+                {{-- PANNEAU D'INFORMATION ET STATISTIQUES --}}
                 <div class="w-full lg:col-span-5 lg:pt-4 transition-all duration-1000 delay-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'">
-
-                    {{-- Carte Unique Style Bento Box / Glassmorphism --}}
                     <div
                         class="group relative overflow-hidden bg-white/40 p-8 transition-all duration-500 dark:border-zinc-800 dark:bg-zinc-900/40">
-
                         <div class="relative z-10 flex flex-col gap-8">
-                            {{-- Grille Interne des Stats --}}
                             <div class="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-2">
-
                                 @foreach ($this->stats as $label => $value)
                                     <div x-data="cspState()" @mouseenter="hover = true" @mouseleave="hover = false"
                                         class="group relative min-w-24 px-4 py-3 text-center xs:min-w-27 transition-all duration-700 delay-{{ 300 + $loop->index * 100 }}"
@@ -149,7 +137,6 @@ new #[Layout('layouts::main')] class extends Component {
                                             <span
                                                 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $value }}</span>
                                         </div>
-                                        {{-- Coins décoratifs animés --}}
                                         <svg class="absolute top-0 left-0 h-2.5 text-emerald-400 transition-transform duration-300 ease-out"
                                             :class="{ '-translate-x-1 -translate-y-1': hover }" viewBox="0 0 11 11"
                                             fill="none">
@@ -174,8 +161,6 @@ new #[Layout('layouts::main')] class extends Component {
                                 @endforeach
                             </div>
                         </div>
-
-                        {{-- Coins graphiques ultra-discrets (Signature Tech/Pro) --}}
                         <div
                             class="absolute top-3 left-3 size-1.5 border-t border-l border-zinc-300 opacity-40 dark:border-zinc-700">
                         </div>
@@ -189,18 +174,15 @@ new #[Layout('layouts::main')] class extends Component {
                             class="absolute bottom-3 right-3 size-1.5 border-b border-r border-zinc-300 opacity-40 dark:border-zinc-700">
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </section>
 
-
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="postSearchFilters()"
-        aria-label="Plugin search and listing"
+    <section x-cloak id="scroll-to-reference" x-data="postSearchFilters()" aria-label="Recherche et filtres des articles"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
+
         <div class="mb-5">
             <h2 class="text-2xl font-bold text-zinc-900 dark:text-white">Tous les articles</h2>
             <p class="text-sm text-zinc-500 dark:text-zinc-400">Parcourez les actualités et publications de CADERSA</p>
@@ -208,23 +190,14 @@ new #[Layout('layouts::main')] class extends Component {
 
         {{-- Barre de recherche + bouton filtres --}}
         <section class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center" role="search">
-            {{-- Groupe de boutons Filtres / Reset --}}
             <div class="flex items-center">
                 {{-- Bouton Filtres --}}
-                <button x-cloak type="button" x-ref="filtersButton" @click="showFilters = !showFilters"
+                <button x-cloak type="button" x-ref="filtersButton" @click="toggleFilters()"
                     :aria-expanded="showFilters" aria-controls="filters-panel"
-                    class="group inline-flex h-10 items-center cursor-pointer gap-2 border border-zinc-200 bg-white px-4 text-sm font-medium
-           text-zinc-600 transition-all duration-300 ease-out
-           hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800
-           dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-100
-           focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2
-           active:scale-[0.97]"
-                    :class="showFilters
-                        ?
-                        'border-emerald-500! bg-emerald-50! text-emerald-700! shadow-emerald-100 hover:bg-emerald-100! dark:border-emerald-400! dark:bg-emerald-900/20! dark:text-emerald-300! dark:hover:bg-emerald-900/30!' :
+                    class="group inline-flex h-10 items-center cursor-pointer gap-2 border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-600 transition-all duration-300 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 active:scale-[0.97]"
+                    :class="showFilters ?
+                        '!border-emerald-500 !bg-emerald-50 !text-emerald-700 !shadow-emerald-100 hover:!bg-emerald-100 dark:!border-emerald-400 dark:!bg-emerald-900/20 dark:!text-emerald-300 dark:hover:!bg-emerald-900/30' :
                         ''">
-
-                    {{-- Icône filtre animée path par path --}}
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -256,30 +229,25 @@ new #[Layout('layouts::main')] class extends Component {
                             class="transition-all duration-200 ease-out opacity-40 group-hover:opacity-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
                             style="transition-delay: 240ms;" />
                     </svg>
-
                     <span>Filtres</span>
                 </button>
 
-                {{-- Bouton Reset (apparaît si des filtres sont actifs) --}}
-                <div class="grid transition-[grid-template-columns] duration-500 ease-out"
-                    style="grid-template-columns: 0fr"
-                    :style="`grid-template-columns: ${activeFilterCount > 0 ? '1fr' : '0fr'}; transition-delay: ${activeFilterCount > 0 ? '0ms' : '400ms'}`">
+                {{-- Bouton Reset (affiché si au moins un filtre actif) --}}
+                <div x-show="$wire.category || $wire.sort !== 'newest' || $wire.search.length > 0" x-cloak
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                    class="grid transition-all duration-500 ease-out">
                     <div class="flex items-center overflow-hidden">
-                        <div class="px-1 transition-opacity duration-500 ease-out"
-                            :style="`opacity: ${activeFilterCount > 0 ? '1' : '0'}; transition-delay: ${activeFilterCount > 0 ? '0ms' : '400ms'}`">
+                        <div class="px-1 transition-opacity duration-500 ease-out opacity-100">
                             <svg class="h-px w-5 text-zinc-300 dark:text-zinc-600" viewBox="0 0 20 1" fill="none">
                                 <line stroke="currentColor" y1="0.5" x2="20" y2="0.5"
                                     stroke-dasharray="4 4" />
                             </svg>
                         </div>
-                        <button type="button" @click="resetFilters()" wire:click="clearFilters" :inert="activeFilterCount === 0"
-                            :aria-hidden="activeFilterCount === 0"
-                            class="group inline-flex h-10 items-center justify-center gap-1.5 border border-zinc-200 bg-white px-3 text-sm font-medium
-                           text-zinc-600 shadow-sm transition-all duration-300 ease-out
-                           hover:border-red-300 hover:bg-red-50 hover:text-red-600
-                           dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-400
-                           active:scale-[0.97]"
-                            :style="`opacity: ${activeFilterCount > 0 ? '1' : '0'}; visibility: ${activeFilterCount > 0 ? 'visible' : 'hidden'}; pointer-events: ${activeFilterCount > 0 ? 'auto' : 'none'}; transition-delay: ${activeFilterCount > 0 ? '0ms' : '400ms'}`">
+                        <button type="button" @click="resetFilters()"
+                            class="group inline-flex h-10 items-center justify-center gap-1.5 border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-600 shadow-sm transition-all duration-300 ease-out hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-400 active:scale-[0.97]">
                             <svg class="size-4 transition-transform duration-300 group-hover:rotate-180"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -287,17 +255,16 @@ new #[Layout('layouts::main')] class extends Component {
                             <span>Réinitialiser</span>
                             <span
                                 class="inline-grid h-5 min-w-5 place-items-center rounded-full bg-emerald-500 px-1 text-xs font-bold text-white"
-                                x-text="activeFilterCount"></span>
+                                x-text="($wire.category ? 1 : 0) + ($wire.sort !== 'newest' ? 1 : 0) + ($wire.search.length > 0 ? 1 : 0)"></span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            {{-- Champ de recherche (un seul bouton clear) --}}
+            {{-- Champ de recherche --}}
             <div class="grow">
                 <div
                     class="group relative flex h-10 items-center border border-zinc-200 bg-white transition-all duration-300 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800">
-                    {{-- Icône de recherche --}}
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="h-5 w-5 text-zinc-400 transition-colors duration-300 group-focus-within:text-emerald-500 dark:text-zinc-500 dark:group-focus-within:text-emerald-400"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -305,14 +272,11 @@ new #[Layout('layouts::main')] class extends Component {
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-
-                    {{-- Champ de saisie --}}
                     <input autocomplete="off"
                         class="h-full w-full border-0 bg-transparent pl-10 pr-12 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                        x-model.debounce.250ms="search" wire:model.debounce.250ms="search" x-ref="searchInput" placeholder="Rechercher un article...">
-
-                    {{-- Bouton d'effacement --}}
-                    <button x-cloak x-show="search.length > 0" @click="search = ''; $refs.searchInput.focus()"
+                        wire:model.live.debounce.250ms="search" x-ref="searchInput"
+                        placeholder="Rechercher un article...">
+                    <button x-cloak x-show="$wire.search.length > 0" @click="clearSearch()"
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-75" x-transition:enter-end="opacity-100 scale-100"
                         x-transition:leave="transition ease-in duration-150"
@@ -332,125 +296,47 @@ new #[Layout('layouts::main')] class extends Component {
         <div x-cloak id="filters-panel" x-show="showFilters" x-collapse style="display: none">
             <div class="mt-5 flex flex-col gap-4">
                 <fieldset>
-                    <legend class="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Catégorie :
-                    </legend>
+                    <legend class="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">Catégorie :</legend>
                     <div class="flex flex-wrap gap-2">
-                        {{-- Bouton "Toutes" --}}
                         <label for="cat-all"
-                            class="cursor-pointer select-none px-4 py-2 text-sm font-medium
-                           transition-all duration-300 ease-out
-                           transform hover:scale-101 active:scale-95
-                           bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800
-                           dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200
-                           "
+                            class="cursor-pointer select-none px-4 py-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-101 active:scale-95 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                             :class="{
-                                'bg-emerald-500! text-white! hover:bg-emerald-500! dark:bg-emerald-500! dark:hover:bg-emerald-400! shadow-emerald-500/20':
-                                    !category
+                                '!bg-emerald-500 !text-white hover:!bg-emerald-500 dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20':
+                                    !$wire.category
                             }">
                             Toutes
                         </label>
                         <input type="radio" id="cat-all" name="category-filter" value=""
-                                                    class="sr-only peer" x-model="category" wire:model="category" />
+                            class="sr-only peer" wire:model.live="category" />
 
                         @foreach ($categories as $cat)
                             <label for="cat-{{ $cat->slug }}"
-                                class="cursor-pointer select-none px-4 py-2 text-sm font-medium
-                               transition-all duration-300 ease-out
-                               transform hover:scale-105 active:scale-95
-                               bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800
-                               dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200
-                               shadow-sm hover:shadow-md"
-                                :class="{ 'bg-emerald-500! text-white! hover:bg-emerald-600! dark:bg-emerald-500! dark:hover:bg-emerald-400! shadow-emerald-500/20': category === '{{ $cat->slug }}' }">
+                                class="cursor-pointer select-none px-4 py-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 shadow-sm hover:shadow-md"
+                                :class="{
+                                    '!bg-emerald-500 !text-white hover:!bg-emerald-600 dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20': $wire
+                                        .category === '{{ $cat->slug }}'
+                                }">
                                 {{ $cat->nom }}
                             </label>
                             <input type="radio" id="cat-{{ $cat->slug }}" name="category-filter"
-                                                            value="{{ $cat->slug }}" class="sr-only peer" x-model="category" wire:model="category" />
+                                value="{{ $cat->slug }}" class="sr-only peer" wire:model.live="category" />
                         @endforeach
                     </div>
                 </fieldset>
             </div>
         </div>
 
-        {{-- Zone de tri --}}
-        <div class="custom-top-dashed-border mt-5 flex flex-wrap items-center justify-between gap-4 pt-5">
-            <div class="flex flex-wrap items-center gap-4">
-                {{-- Tri --}}
-                <div x-cloak class="relative flex items-center gap-1.5 text-xs" x-data="cspState()"
-                    @click.outside="open = false" @keydown.escape.window="open = false">
-                    <span class="text-zinc-500 dark:text-zinc-400">Trier par</span>
-                    <button type="button" @click="open = !open" :aria-expanded="open"
-                        class="group inline-flex cursor-pointer h-8 items-center gap-1.5 bg-zinc-100 px-3 text-sm font-medium text-zinc-700 transition-all duration-300 ease-out hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50">
-                        <span
-                            x-text="{
-                    'newest': 'Plus récents',
-                    'oldest': 'Plus anciens',
-                    'popular': 'Plus vus',
-                    'name-asc': 'Titre AZ',
-                    'name-desc': 'Titre ZA'
-                }[sortBy] || 'Plus récents'"></span>
-                        <svg class="size-3.5 transition-transform duration-300 ease-out" :class="open && 'rotate-180'"
-                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
-                        </svg>
-                    </button>
-
-                    {{-- Dropdown --}}
-                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
-                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave-end="opacity-0 -translate-y-1 scale-95"
-                        class="absolute top-full left-0 z-20 mt-1 w-40 overflow-hidden border border-zinc-200/60 bg-white shadow-md shadow-zinc-200/20 backdrop-blur-sm dark:border-zinc-700/60 dark:bg-zinc-900 dark:shadow-zinc-950/50"
-                        role="listbox">
-                        <div class="py-1">
-                            @foreach (['newest' => 'Plus récents', 'oldest' => 'Plus anciens', 'popular' => 'Plus vus', 'name-asc' => 'Titre A→Z', 'name-desc' => 'Titre Z→A'] as $value => $label)
-                                <button type="button" role="option"
-                                    :aria-selected="sortBy === '{{ $value }}'"
-                                    @click="sortBy = '{{ $value }}'; open = false" wire:click="$set('sort', '{{ $value }}')"
-                                    class="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors duration-150 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                                    :class="sortBy === '{{ $value }}' ?
-                                        'bg-emerald-50 font-semibold text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' :
-                                        'text-zinc-600 dark:text-zinc-400'">
-                                    <span class="size-4 flex items-center justify-center">
-                                        <svg class="size-4 transition-opacity"
-                                            :class="sortBy === '{{ $value }}' ? 'opacity-100' : 'opacity-0'"
-                                            fill="none" stroke="currentColor" stroke-width="2.5"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </span>
-                                    {{ $label }}
-                                </button>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Compteur --}}
-                <div class="flex items-center gap-1.5 text-xs">
-                    <span class="text-zinc-500 dark:text-zinc-400">Articles trouvés :</span>
-                    <span
-                        class="inline-grid h-7 min-w-8 place-items-center rounded-full bg-emerald-100 px-2 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                        {{ $posts->total() }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        {{-- Grille des articles --}}
+        {{-- Grille des articles (animation stable) --}}
         <div wire:loading.class="opacity-50 pointer-events-none"
             class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-7 transition-opacity duration-300"
-            x-init="autoAnimate($el, { duration: 250 })" aria-label="Liste des articles">
+            x-data="autoAnimateGrid" aria-label="Liste des articles">
             @forelse ($posts as $post)
                 <a href="{{ route('posts.show', $post) }}" wire:navigate
                     class="gsap-reveal group relative flex flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
-                   hover:-translate-y-1 hover:border-emerald-300 hover:shadow hover:shadow-emerald-100/30
-                   dark:border-zinc-700/60 dark:bg-zinc-900 dark:hover:border-emerald-700 dark:hover:shadow-emerald-900/20"
+                       hover:-translate-y-1 hover:border-emerald-300 hover:shadow hover:shadow-emerald-100/30
+                       dark:border-zinc-700/60 dark:bg-zinc-900 dark:hover:border-emerald-700 dark:hover:shadow-emerald-900/20"
                     wire:key="{{ $post->id }}" aria-label="{{ $post->title }}">
-
-                    {{-- Image --}}
+                    {{-- Image + badge statut --}}
                     <div
                         class="relative overflow-hidden ring-1 ring-zinc-200 transition duration-500 ease-out group-hover:ring-emerald-300 dark:ring-zinc-700 dark:group-hover:ring-emerald-700">
                         @if ($post->hasMedia('featured'))
@@ -485,10 +371,8 @@ new #[Layout('layouts::main')] class extends Component {
                                     </div>
                                 </div>
                             </div>
-
                             <p
-                                class="line-clamp-1 font-outfit font-medium text-zinc-900 transition-colors duration-300
-                              group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
+                                class="line-clamp-1 font-outfit font-medium text-zinc-900 transition-colors duration-300 group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
                                 {{ $post->title }}
                             </p>
                         </div>
@@ -498,7 +382,7 @@ new #[Layout('layouts::main')] class extends Component {
                             {{ $post->getPlainTextContent(120) }}
                         </p>
 
-                        {{-- Métadonnées : catégorie + date --}}
+                        {{-- Métadonnées --}}
                         <div class="mt-3 flex items-center justify-between gap-3">
                             <span class="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
                                 @if ($post->categories->isNotEmpty())
@@ -534,12 +418,10 @@ new #[Layout('layouts::main')] class extends Component {
                         </div>
                     </div>
 
-                    {{-- Barre d'action : "Lire l'article" --}}
+                    {{-- Barre d'action --}}
                     <div class="flex h-11 items-stretch text-sm font-medium">
                         <div
-                            class="inline-flex grow items-center justify-between gap-3 px-4
-                            bg-emerald-50 text-emerald-700 transition-all duration-300 ease-out
-                            group-hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:group-hover:bg-emerald-900/30">
+                            class="inline-flex grow items-center justify-between gap-3 px-4 bg-emerald-50 text-emerald-700 transition-all duration-300 ease-out group-hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:group-hover:bg-emerald-900/30">
                             <span>Lire l'article</span>
                             <span class="transition duration-300 ease-out group-hover:translate-x-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3" viewBox="0 0 28 22"
@@ -566,9 +448,7 @@ new #[Layout('layouts::main')] class extends Component {
                                         d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold text-zinc-900 dark:text-white">
-                                Aucun article trouvé
-                            </h3>
+                            <h3 class="text-xl font-bold text-zinc-900 dark:text-white">Aucun article trouvé</h3>
                             <p class="mt-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
                                 Il n'y a pas encore d'article correspondant à cette recherche. Essayez d'ajuster vos
                                 filtres ou votre terme de recherche.
@@ -589,13 +469,11 @@ new #[Layout('layouts::main')] class extends Component {
             @endforelse
         </div>
 
-        <!--Pagination-->
+        <!-- Pagination -->
         <div class="mt-5 flex flex-wrap items-center justify-between gap-4">
             <nav class="flex items-center gap-1">
                 {{ $posts->links('pagination::custom') }}
             </nav>
         </div>
-
     </section>
 </div>
-

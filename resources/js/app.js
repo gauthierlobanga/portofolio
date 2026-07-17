@@ -63,6 +63,7 @@ const safeGsapTo = (target, vars) => {
 document.addEventListener("alpine:init", () => {
     Alpine.data("scrollToTop", () => ({
         show: false,
+        hovering: false,
         init() {
             window.addEventListener(
                 "scroll",
@@ -174,23 +175,29 @@ document.addEventListener("alpine:init", () => {
             this.shareTitle = this.$el.dataset.shareTitle || "";
         },
         share(provider) {
-            if (!this.shareUrl) {
-                return;
+            // si un provider est passé, on l'utilise
+            if (provider) {
+                const urls = {
+                    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.shareUrl)}`,
+                    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(this.shareUrl)}&text=${encodeURIComponent(this.shareTitle)}`,
+                    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(this.shareUrl)}&title=${encodeURIComponent(this.shareTitle)}`,
+                    whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(`${this.shareTitle} - ${this.shareUrl}`)}`,
+                };
+                const url = urls[provider];
+                if (url) window.open(url, "_blank");
+            } else {
+                // Fallback : utiliser l'API Web Share si disponible, sinon copier le lien
+                if (navigator.share) {
+                    navigator
+                        .share({
+                            title: this.shareTitle,
+                            url: this.shareUrl,
+                        })
+                        .catch(() => {});
+                } else {
+                    this.copyLink();
+                }
             }
-
-            const urls = {
-                facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.shareUrl)}`,
-                twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(this.shareUrl)}&text=${encodeURIComponent(this.shareTitle)}`,
-                linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(this.shareUrl)}&title=${encodeURIComponent(this.shareTitle)}`,
-                whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(`${this.shareTitle} - ${this.shareUrl}`)}`,
-            };
-
-            const url = urls[provider];
-            if (!url) {
-                return;
-            }
-
-            window.open(url, "_blank");
         },
         copyLink() {
             navigator.clipboard
@@ -205,64 +212,26 @@ document.addEventListener("alpine:init", () => {
     }));
 
     Alpine.data("postSearchFilters", () => ({
-        search: "",
         showFilters: false,
-        category: null,
-        sortBy: "newest",
-        sortDropdownOpen: false,
-        listeningMessages: [
-            "Whatcha looking for? 🔍",
-            "I'm listening... 👀",
-            "Go ahead, I'm ready 🎯",
-            "Type away! ⌨️",
-            "Searching is fun! 🤓",
-            "What can I find for you? 🕵️‍♂️",
-        ],
-        listeningIndex: 0,
-        get activeFilterCount() {
-            return this.category ? 1 : 0;
+        sortOpen: false,
+
+        toggleFilters() {
+            this.showFilters = !this.showFilters;
         },
-        get listeningMessage() {
-            return this.listeningMessages[
-                this.listeningIndex % this.listeningMessages.length
-            ];
-        },
-        init() {
-            this.$watch("category", (value) => {
-                if (value) {
-                    this.showFilters = true;
-                }
-            });
-        },
+
         resetFilters() {
-            this.category = null;
-            this.sortBy = "newest";
-            this.search = "";
+            if (this.$wire) this.$wire.clearFilters();
             this.showFilters = false;
-            if (this.$refs.filtersButton) {
-                this.$refs.filtersButton.focus();
-            }
-            const target = document.querySelector("#scroll-to-reference");
-            if (target) {
-                target.scrollIntoView({ behavior: "smooth" });
-            }
         },
-        clearSearch() {
-            this.search = "";
-            this.$nextTick(() => {
-                if (this.$refs.searchInput) {
-                    this.$refs.searchInput.focus();
-                }
-            });
-        },
+
         selectSort(value) {
-            this.sortBy = value;
-            if (this.$refs.filtersButton) {
-                this.$refs.filtersButton.focus();
-            }
+            if (this.$wire) this.$wire.sort = value;
+            this.sortOpen = false;
         },
-        rotateListeningMessage() {
-            this.listeningIndex++;
+
+        clearSearch() {
+            if (this.$wire) this.$wire.search = "";
+            this.$nextTick(() => this.$refs.searchInput?.focus());
         },
     }));
 
@@ -271,19 +240,109 @@ document.addEventListener("alpine:init", () => {
         showFilters: false,
         filter: "all",
         sortBy: "newest",
+        // UI state for the sort dropdown (used in the Blade as sortOpen)
+        sortOpen: false,
         activeFilterCount: 0,
 
         init() {
-            // Synchroniser avec Livewire
-            if (typeof window.Livewire !== "undefined") {
-                const component = window.Livewire.find(
-                    this.$el.closest("[wire\\:id]")?.getAttribute("wire:id"),
-                );
-                if (component) {
-                    this.search = component.entangle("search").live;
-                    this.filter = component.entangle("filter").live;
-                    this.sortBy = component.entangle("sort").live;
+            // Synchroniser avec Livewire — faire une tentative immédiate, sinon attendre l'événement livewire:load
+            const tryBind = () => {
+                try {
+                    const wireSync = (w) => {
+                        try {
+                            // Read initial values
+                            const get = (name) =>
+                                typeof w.$get === "function"
+                                    ? w.$get(name)
+                                    : w[name];
+                            const set = (name, value) => {
+                                if (typeof w.$set === "function")
+                                    return w.$set(name, value);
+                                try {
+                                    w[name] = value;
+                                } catch (e) {
+                                    /* noop */
+                                }
+                            };
+                            this.search = get("search") ?? "";
+                            this.filter = get("filter") ?? "all";
+                            this.sortBy = get("sort") ?? "newest";
+
+                            // Wire -> Alpine updates
+                            if (typeof w.$watch === "function") {
+                                w.$watch("search", (v) => {
+                                    this.search = v;
+                                });
+                                w.$watch("filter", (v) => {
+                                    this.filter = v;
+                                });
+                                w.$watch("sort", (v) => {
+                                    this.sortBy = v;
+                                });
+                            }
+
+                            // Alpine -> Wire updates
+                            this.$watch("search", (v) => {
+                                set("search", v);
+                            });
+                            this.$watch("filter", (v) => {
+                                set("filter", v);
+                            });
+                            this.$watch("sortBy", (v) => {
+                                set("sort", v);
+                            });
+
+                            return true;
+                        } catch (e) {
+                            console.debug(
+                                "projectSearchFilters: wireSync failed",
+                                e,
+                            );
+                            return false;
+                        }
+                    };
+
+                    // 1) Si $wire est disponible sur le composant Alpine, l'utiliser (meilleure intégration)
+                    if (typeof this.$wire !== "undefined" && this.$wire) {
+                        return wireSync(this.$wire);
+                    }
+
+                    // 2) Sinon rechercher le composant Livewire le plus proche par wire:id
+                    if (typeof window.Livewire !== "undefined") {
+                        const closestEl = this.$el.closest("[wire\\:id]");
+                        const id = closestEl
+                            ? closestEl.getAttribute("wire:id")
+                            : null;
+                        if (id) {
+                            const component = window.Livewire.find(id);
+                            const w =
+                                component && component.$wire
+                                    ? component.$wire
+                                    : component;
+                            if (w) return wireSync(w);
+                        }
+                    }
+                } catch (e) {
+                    // Ne pas interrompre l'initialisation Alpine si entanglement échoue
+                    console.debug(
+                        "projectSearchFilters: entangle attempt failed",
+                        e,
+                    );
                 }
+
+                return false;
+            };
+
+            const bound = tryBind();
+            if (!bound) {
+                // attendre que Livewire soit prêt
+                document.addEventListener(
+                    "livewire:load",
+                    () => {
+                        tryBind();
+                    },
+                    { once: true },
+                );
             }
 
             this.activeFilterCount = this.filter !== "all" ? 1 : 0;
@@ -298,6 +357,38 @@ document.addEventListener("alpine:init", () => {
             this.search = "";
             this.showFilters = false;
             if (this.$refs.filtersButton) this.$refs.filtersButton.focus();
+
+            // Try to call server-side clearFilters() if available on the Livewire component
+            try {
+                if (
+                    typeof this.$wire !== "undefined" &&
+                    this.$wire &&
+                    typeof this.$wire.clearFilters === "function"
+                ) {
+                    this.$wire.clearFilters();
+                    return;
+                }
+                if (typeof window.Livewire !== "undefined") {
+                    const closestEl = this.$el.closest("[wire\\:id]");
+                    const id = closestEl
+                        ? closestEl.getAttribute("wire:id")
+                        : null;
+                    if (id) {
+                        const comp = window.Livewire.find(id);
+                        if (comp) {
+                            if (typeof comp.clearFilters === "function")
+                                return comp.clearFilters();
+                            if (typeof comp.call === "function")
+                                return comp.call("clearFilters");
+                        }
+                    }
+                }
+            } catch (e) {
+                console.debug(
+                    "projectSearchFilters: failed to call clearFilters on server",
+                    e,
+                );
+            }
         },
 
         clearSearch() {
@@ -309,7 +400,13 @@ document.addEventListener("alpine:init", () => {
 
         selectSort(value) {
             this.sortBy = value;
+            // close the sort dropdown (CSP-safe single call from Blade)
+            this.sortOpen = false;
             if (this.$refs.filtersButton) this.$refs.filtersButton.focus();
+        },
+
+        toggleFilters() {
+            this.showFilters = !this.showFilters;
         },
     }));
 
@@ -600,47 +697,61 @@ document.addEventListener("alpine:init", () => {
 
     Alpine.data("buttonTextReveal", () => ({
         init() {
-            if (typeof gsap === "undefined" || typeof SplitText === "undefined")
-                return;
-            const button = this.$el.querySelector("a");
-            if (!button) return;
-            const textWrapper = button.querySelector("[data-text]");
-            const arrow = button.querySelector("[data-icon]"); // <-- cible directe
-            if (!textWrapper || !arrow) return;
+            if (typeof gsap === "undefined") return;
+            const link = this.$el.querySelector("a");
+            if (!link) return;
 
-            const split = new SplitText(textWrapper, { type: "chars" });
-            const chars = split.chars;
+            const text = link.querySelector("[data-text]");
+            const icon = link.querySelector("svg");
+            const arrow = link.querySelector("svg:last-child");
+
+            if (!text || !icon || !arrow) return;
+
             const tl = gsap.timeline({ paused: true });
+
+            // Icône : rotation + zoom
             tl.to(
-                chars,
+                icon,
                 {
-                    keyframes: [
-                        {
-                            y: -10,
-                            opacity: 0,
-                            duration: 0.2,
-                            ease: "power2.in",
-                        },
-                        { y: 10, opacity: 0, duration: 0 },
-                        { y: 0, opacity: 1, duration: 0.2, ease: "power2.out" },
-                    ],
-                    stagger: 0.02,
+                    rotation: 360,
+                    scale: 1.15,
+                    duration: 0.35,
+                    ease: "power2.out",
                 },
                 0,
             );
+
+            // Texte : fondu + léger décalage (sans SplitText, espacement préservé)
+            tl.fromTo(
+                text,
+                {
+                    opacity: 0,
+                    y: 4,
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.3,
+                    ease: "power2.out",
+                },
+                0.05,
+            );
+
+            // Flèche
             tl.to(
                 arrow,
                 {
-                    keyframes: [
-                        { y: -30, duration: 0.25, ease: "power2.in" },
-                        { y: 30, duration: 0 },
-                        { y: 0, duration: 0.25, ease: "power2.out" },
-                    ],
+                    x: 3,
+                    duration: 0.25,
+                    ease: "power2.out",
                 },
                 0.1,
             );
-            button.addEventListener("mouseenter", () => tl.play());
-            button.addEventListener("mouseleave", () => tl.reverse());
+
+            link.addEventListener("mouseenter", () => tl.play());
+            link.addEventListener("mouseleave", () => {
+                tl.reverse();
+            });
         },
     }));
 
@@ -653,7 +764,53 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
 
-            Alpine.autoAnimate(this.$el, { duration: 250 });
+            Alpine.autoAnimate(this.$el, {
+                duration: 320,
+                easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            });
+
+            if (
+                typeof window.Livewire !== "undefined" &&
+                typeof window.Livewire.hook === "function"
+            ) {
+                const preserveHeight = () => {
+                    try {
+                        const height = this.$el.getBoundingClientRect().height;
+                        this.$el.style.minHeight = `${height}px`;
+                    } catch (e) {
+                        console.debug(
+                            "autoAnimateGrid: preserve height failed",
+                            e,
+                        );
+                    }
+                };
+
+                const releaseHeight = () => {
+                    try {
+                        this.$el.style.minHeight = "";
+                    } catch (e) {
+                        console.debug(
+                            "autoAnimateGrid: release height failed",
+                            e,
+                        );
+                    }
+                };
+
+                try {
+                    window.Livewire.hook("message.sent", () => {
+                        preserveHeight();
+                    });
+
+                    window.Livewire.hook("message.processed", () => {
+                        setTimeout(releaseHeight, 280);
+                    });
+                } catch (e) {
+                    console.debug(
+                        "autoAnimateGrid: livewire hooks unavailable",
+                        e,
+                    );
+                }
+            }
         },
     }));
 

@@ -3,9 +3,9 @@
 
     $about = app(AboutSettings::class);
 
-    $email = $about->contact_email ?? config('app.contact_email', 'contact@cadersa.org');
-    $phone = $about->contact_phone ?? config('app.contact_phone', '+243 812 345 678');
-    $address = $about->address ?? config('app.address', 'Goma, République Démocratique du Congo');
+    $email = $about->contact_email ?? config('app.contact_email', '');
+    $phone = $about->contact_phone ?? config('app.contact_phone', '');
+    $address = $about->address ?? config('app.address', '');
 @endphp
 
 <div class="mt-6 border-t border-zinc-100 pt-6 text-center dark:border-zinc-800">

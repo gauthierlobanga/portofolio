@@ -5,18 +5,17 @@
     @include('partials.head')
 </head>
 
-<body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
-    <flux:header class="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-        <flux:sidebar.toggle variant="ghost" class="lg:hidden mr-2 hover:!bg-emerald-50 dark:hover:!bg-emerald-900/20"
+<body class="min-h-screen bg-white dark:bg-zinc-900 antialiased">
+    <flux:header container class="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+        <flux:sidebar.toggle variant="ghost" class="lg:hidden mr-4 hover:bg-emerald-50! dark:hover:bg-emerald-900/20!"
             icon="bars-3" inset="left" />
         <a href="{{ route('home') }}" wire:navigate
-            class="group inline-flex items-center gap-3 rounded-lg py-1.5 transition duration-300 ease-out
-                  hover:-translate-x-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50
-                  focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900">
+            class="group inline-flex items-center gap-3  py-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50
+          focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900">
             <x-app-logo />
         </a>
 
-        <flux:navbar class="-mb-px max-lg:hidden">
+        <flux:navbar class="-mb-px max-lg:hidden ml-8">
             <flux:navbar.item :href="route('home')" :current="request()->routeIs('home')" wire:navigate
                 class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
                 {{ __('Accueil') }}
@@ -44,17 +43,18 @@
 
         <flux:spacer />
 
-        <flux:navbar class="me-4">
+        <flux:navbar class="me-4 gap-4">
             <button x-cloak x-data aria-label="Changer le thème" x-on:click="$flux.dark = !$flux.dark"
                 class="relative flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 transition-none hover:bg-emerald-50 hover:text-emerald-600 dark:text-zinc-500 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400">
                 <flux:icon.sun x-show="!$flux.dark" variant="mini" class="h-5 w-5" />
                 <flux:icon.moon x-show="$flux.dark" variant="mini" class="h-5 w-5" />
             </button>
+            <flux:separator vertical variant="subtle" class="my-4" />
             @auth
                 <x-desktop-user-menu />
             @else
                 <a href="{{ route('login') }}" wire:navigate
-                    class="group hidden lg:inline-flex items-center gap-2 rounded-xl border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-600 transition-all duration-300
+                    class="group hidden lg:inline-flex items-center gap-2 rounded border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-600 transition-all duration-300
           hover:bg-emerald-50 hover:shadow-sm
           dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-900/20">
                     <svg class="h-4 w-4 transition-transform group-hover:-translate-x-0.5" fill="none"

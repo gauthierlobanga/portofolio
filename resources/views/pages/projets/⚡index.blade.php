@@ -6,6 +6,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\WithPagination;
 use App\Settings\SettingApp;
+use Illuminate\Support\Facades\Storage;
 
 new #[Layout('layouts::main')] class extends Component {
     use WithPagination;
@@ -65,79 +66,7 @@ new #[Layout('layouts::main')] class extends Component {
     public function getHeroImageProperty(): string
     {
         $settings = app(SettingApp::class);
-        return $settings->logoUrl() ?? asset('images/cadersa-logo.png');
-    }
-};
-?>
-
-<?php
-
-use Livewire\Component;
-use App\Models\Project;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Url;
-use Livewire\WithPagination;
-use App\Settings\SettingApp;
-
-new #[Layout('layouts::main')] class extends Component {
-    use WithPagination;
-    protected $scrollToTop = false;
-
-    #[Url(as: 'status')]
-    public string $filter = 'all';
-
-    #[Url(as: 'q')]
-    public string $search = '';
-
-    #[Url(as: 'sort')]
-    public string $sort = 'newest';
-
-    public function with(): array
-    {
-        $query = Project::query()
-            ->with(['media', 'tags'])
-            ->active();
-
-        if ($this->filter !== 'all') {
-            $query->where('status', $this->filter);
-        }
-        if (!empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('title', 'LIKE', '%' . $this->search . '%')->orWhere('location', 'LIKE', '%' . $this->search . '%');
-            });
-        }
-
-        $query
-            ->when($this->sort === 'oldest', fn($q) => $q->oldest('start_date'))
-            ->when($this->sort === 'name-asc', fn($q) => $q->orderBy('title', 'asc'))
-            ->when($this->sort === 'name-desc', fn($q) => $q->orderBy('title', 'desc'))
-            ->when(!in_array($this->sort, ['oldest', 'name-asc', 'name-desc']), fn($q) => $q->latest('start_date'));
-
-        return [
-            'projects' => $query->paginate(9),
-            'statuses' => ['all' => 'Tous', 'planned' => 'Planifiés', 'ongoing' => 'En cours', 'completed' => 'Terminés'],
-        ];
-    }
-
-    public function clearFilters(): void
-    {
-        $this->reset(['filter', 'search', 'sort']);
-        $this->resetPage();
-    }
-
-    public function getStatsProperty()
-    {
-        return [
-            'projets' => Project::active()->count(),
-            'en_cours' => Project::active()->where('status', 'ongoing')->count(),
-            'termines' => Project::active()->where('status', 'completed')->count(),
-        ];
-    }
-
-    public function getHeroImageProperty(): string
-    {
-        $settings = app(SettingApp::class);
-        return $settings->logoUrl() ?? asset('images/cadersa-logo.png');
+        return $settings->logoUrl() ?? Storage::url('images/cadersa-logo.png');
     }
 };
 ?>
@@ -246,29 +175,7 @@ new #[Layout('layouts::main')] class extends Component {
     </section>
 
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="{
-        search: $wire.entangle('search').live,
-        filter: $wire.entangle('filter').live,
-        sortBy: $wire.entangle('sort').live,
-        showFilters: false,
-        sortOpen: false,
-        activeFilterCount: 0,
-        init() {
-            this.activeFilterCount = this.filter !== 'all' ? 1 : 0;
-            this.$watch('filter', val => this.activeFilterCount = val !== 'all' ? 1 : 0);
-        },
-        resetFilters() {
-            this.filter = 'all';
-            this.sortBy = 'newest';
-            this.search = '';
-            this.showFilters = false;
-            this.$refs.filtersButton.focus();
-        },
-        clearSearch() {
-            this.search = '';
-            this.$nextTick(() => { if (this.$refs.searchInput) this.$refs.searchInput.focus(); });
-        }
-    }" aria-label="Recherche et filtres des projets"
+    <section x-cloak id="scroll-to-reference" x-data="projectSearchFilters()" aria-label="Recherche et filtres des projets"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
 
         <div class="mb-5">
@@ -294,21 +201,26 @@ new #[Layout('layouts::main')] class extends Component {
                             développement rural.</p>
                     </div>
                 </div>
+                {{-- Bouton avec animation de texte --}}
                 <div x-data="buttonTextReveal">
-                    <a href="{{ route('contact') }}"
-                        class="relative inline-flex h-11 items-center justify-center border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition-colors duration-200 hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-300">
-                        <svg data-icon class="absolute left-4 h-4 w-4" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <a href="{{ route('contact') }}" wire:navigate
+                        class="group relative inline-flex items-center gap-2.5 rounded border border-zinc-200 bg-white/80 px-5 py-2.5 text-sm font-medium text-zinc-700 backdrop-blur-sm transition-all duration-500 ease-out hover:border-emerald-300/60 hover:bg-emerald-50/40 hover:shadow-lg hover:shadow-emerald-500/5 dark:border-zinc-700 dark:bg-zinc-900/80 dark:text-zinc-300 dark:hover:border-emerald-700/60 dark:hover:bg-emerald-900/30 dark:hover:shadow-emerald-500/10">
+                        {{-- Icône enveloppe --}}
+                        <svg class="h-4 w-4 shrink-0 transition-transform duration-500 group-hover:scale-110"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <span data-text class="relative z-10 whitespace-nowrap" style="padding-left: 0;">Proposer un
-                            projet</span>
-                        <svg data-arrow
-                            class="relative z-10 ml-1.5 h-3.5 shrink-0 transition-transform duration-300 group-hover:translate-x-1"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+
+                        {{-- Texte (animé sans SplitText) --}}
+                        <span data-text class="whitespace-nowrap">Proposer un projet</span>
+
+                        {{-- Flèche --}}
+                        <svg class="h-3.5 w-3.5 shrink-0 transition-transform duration-500 group-hover:translate-x-0.5"
+                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </a>
                 </div>
@@ -319,7 +231,7 @@ new #[Layout('layouts::main')] class extends Component {
         <section class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center" role="search">
             <div class="flex items-center">
                 {{-- Bouton Filtres --}}
-                <button x-cloak type="button" x-ref="filtersButton" @click="showFilters = !showFilters"
+                <button x-cloak type="button" x-ref="filtersButton" @click="toggleFilters()"
                     :aria-expanded="showFilters" aria-controls="filters-panel"
                     class="group inline-flex h-10 items-center cursor-pointer gap-2 border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-600 transition-all duration-300 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 active:scale-[0.97]"
                     :class="showFilters ?
@@ -448,75 +360,13 @@ new #[Layout('layouts::main')] class extends Component {
             </div>
         </div>
 
-        {{-- Zone de tri (intégrée dans le même x-data) --}}
-        <div class="custom-top-dashed-border mt-5 flex flex-wrap items-center justify-between gap-4 pt-5">
-            <div class="flex flex-wrap items-center gap-4">
-                <div x-cloak class="relative flex items-center gap-1.5 text-xs" @click.outside="sortOpen = false"
-                    @keydown.escape.window="sortOpen = false">
-                    <span class="text-zinc-500 dark:text-zinc-400">Trier par</span>
-                    <button type="button" @click="sortOpen = !sortOpen" :aria-expanded="sortOpen"
-                        class="group inline-flex cursor-pointer h-8 items-center gap-1.5 bg-zinc-100 px-3 text-sm font-medium text-zinc-700 transition-all duration-300 ease-out hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50">
-                        <span
-                            x-text="{
-                            'newest': 'Plus récents',
-                            'oldest': 'Plus anciens',
-                            'name-asc': 'Titre A→Z',
-                            'name-desc': 'Titre Z→A'
-                        }[sortBy] || 'Plus récents'"></span>
-                        <svg class="size-3.5 transition-transform duration-300 ease-out"
-                            :class="sortOpen && 'rotate-180'" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
-                        </svg>
-                    </button>
-                    <div x-show="sortOpen" x-cloak x-transition:enter="transition ease-out duration-200"
-                        x-transition:enter-start="opacity-0 -translate-y-1 scale-95"
-                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave="transition ease-in duration-150"
-                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                        x-transition:leave-end="opacity-0 -translate-y-1 scale-95"
-                        class="absolute top-full left-0 z-20 mt-1 w-40 overflow-hidden border border-zinc-200/60 bg-white shadow-md shadow-zinc-200/20 backdrop-blur-sm dark:border-zinc-700/60 dark:bg-zinc-900 dark:shadow-zinc-950/50"
-                        role="listbox">
-                        <div class="py-1">
-                            @foreach (['newest' => 'Plus récents', 'oldest' => 'Plus anciens', 'name-asc' => 'Titre A→Z', 'name-desc' => 'Titre Z→A'] as $value => $label)
-                                <button type="button" role="option"
-                                    :aria-selected="sortBy === '{{ $value }}'"
-                                    @click="sortBy = '{{ $value }}'; sortOpen = false"
-                                    class="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors duration-150 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
-                                    :class="sortBy === '{{ $value }}' ?
-                                        'bg-emerald-50 font-semibold text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' :
-                                        'text-zinc-600 dark:text-zinc-400'">
-                                    <span class="size-4 flex items-center justify-center">
-                                        <svg class="size-4 transition-opacity"
-                                            :class="sortBy === '{{ $value }}' ? 'opacity-100' : 'opacity-0'"
-                                            fill="none" stroke="currentColor" stroke-width="2.5"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </span>
-                                    {{ $label }}
-                                </button>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1.5 text-xs">
-                    <span class="text-zinc-500 dark:text-zinc-400">Projets trouvés :</span>
-                    <span
-                        class="inline-grid h-7 min-w-8 place-items-center rounded-full bg-emerald-100 px-2 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                        {{ $projects->total() }}
-                    </span>
-                </div>
-            </div>
-        </div>
-
         {{-- Grille des projets --}}
         <div wire:loading.class="opacity-50 pointer-events-none"
-            class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-7 transition-opacity duration-300"
+            class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7 transition-opacity duration-300"
             x-data="autoAnimateGrid" aria-label="Liste des projets">
             @forelse($projects as $project)
                 <a wire:navigate href="{{ route('projects.show', $project) }}"
-                    class="gsap-reveal group relative flex flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
+                    class="gsap-reveal group relative flex h-full flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
           hover:-translate-y-1 hover:border-emerald-300 hover:shadow hover:shadow-emerald-100/30
           dark:border-zinc-700/60 dark:bg-zinc-900 dark:hover:border-emerald-700 dark:hover:shadow-emerald-900/20"
                     wire:key="project-{{ $project->id }}" aria-label="{{ $project->title }}">

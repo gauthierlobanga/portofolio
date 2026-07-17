@@ -4,8 +4,11 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use App\Settings\AboutSettings;
+use App\Concerns\Traits\HasImageUrl;
 
 new #[Layout('layouts::main')] class extends Component {
+    use HasImageUrl;
+
     #[Computed]
     public function about(): AboutSettings
     {
@@ -18,9 +21,7 @@ new #[Layout('layouts::main')] class extends Component {
 
     <section x-cloak class="relative isolate overflow-hidden" x-data="homeHeroReveal"> {{-- Image de fond --}}
         @php
-            $heroImage = $this->about->hero_image_url
-                ? Storage::url($this->about->hero_image_url)
-                : 'https://images.unsplash.com/photo-1595804470216-9d32d0ff05e6?q=80&w=1200&auto=format&fit=crop';
+            $heroImage = $this->imageUrl($this->about->hero_image_url) ?: $this->imageUrl('images/cadersa-about.jpeg');
         @endphp
 
         <div class="absolute inset-0">
@@ -169,7 +170,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <div class="relative overflow-hidden transition-all duration-1000 delay-300 ease-out"
                         :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'">
                         @php $aboutImage = $aboutBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
-                        <img src="{{ $aboutImage ? Storage::url($aboutImage) : 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=800&auto=format&fit=crop' }}"
+                        <img src="{{ $aboutImage ? $this->imageUrl($aboutImage) : $this->imageUrl('images/cadersa-about.jpeg') }}"
                             alt="À propos de CADERSA" class="w-full object-cover aspect-4/3" />
                         <div class="absolute inset-0 ring-1 ring-inset ring-zinc-900/10 dark:ring-white/10">
                         </div>
@@ -201,7 +202,7 @@ new #[Layout('layouts::main')] class extends Component {
                         :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'">
                         <div class="overflow-hidden border border-zinc-200/60 dark:border-white/10">
                             @php $visionImage = $visionBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
-                            <img src="{{ $visionImage ? Storage::url($visionImage) : asset('images/agriculture.png') }}"
+                            <img src="{{ $visionImage ? $this->imageUrl($visionImage) : $this->imageUrl('images/agriculture.png') }}"
                                 alt="Vision CADERSA" class="aspect-4/3 w-full object-cover">
                         </div>
                     </div>
@@ -341,8 +342,8 @@ new #[Layout('layouts::main')] class extends Component {
                     <div class="relative order-2 transition-all duration-1200 ease-out delay-300"
                         :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'">
                         <div class="overflow-hidden border border-zinc-200/60 dark:border-white/10">
-                            @php $missionImage = $missionBlocks[0]['image_url'] ?? asset('images/reforestation.png'); @endphp
-                            <img src="{{ $missionImage ? Storage::url($missionImage) : asset('images/reforestation.png') }}"
+                            @php $missionImage = $missionBlocks[0]['image_url'] ?? null; @endphp
+                            <img src="{{ $missionImage ? $this->imageUrl($missionImage) : $this->imageUrl('images/cadersa-about.jpeg') }}"
                                 alt="Mission CADERSA" class="aspect-4/3 w-full object-cover">
                         </div>
                     </div>
@@ -355,7 +356,7 @@ new #[Layout('layouts::main')] class extends Component {
     <section id="impact" class="relative overflow-hidden py-24">
         {{-- Fond avec overlay --}}
         <div class="absolute inset-0 z-0">
-            <img src="{{ asset('images/reforestation.png') }}" alt="Reboisement communautaire"
+            <img src="{{ Storage::url('images/cadersa-about.jpeg') }}" alt="Reboisement communautaire"
                 class="h-full w-full object-cover" />
             <div class="absolute inset-0 bg-zinc-900/80 dark:bg-zinc-950/90"></div>
             <div class="absolute inset-0 bg-linear-to-t from-emerald-900/30 via-transparent to-transparent"></div>

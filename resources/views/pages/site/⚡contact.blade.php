@@ -16,6 +16,8 @@ new #[Layout('layouts::main')] class extends Component {
     #[Validate('required|email')]
     public string $email = '';
 
+    public string $contactEmail = ''; // ← nouvelle propriété pour l'affichage dans le Hero
+
     #[Validate('nullable|string|min:9')]
     public string $telephone = '';
 
@@ -44,7 +46,7 @@ new #[Layout('layouts::main')] class extends Component {
         $this->logoUrl = $appSettings->logoUrl();
         $this->socialLinks = $this->buildSocialLinks($appSettings);
         $this->phone = $appSettings->phone;
-        $this->email = $appSettings->email;
+        $this->contactEmail = $appSettings->email; // ← modifié
         $this->secondaryEmail = $appSettings->secondary_email;
         $this->addresses = $appSettings->addresses ?? [];
     }
@@ -179,8 +181,7 @@ new #[Layout('layouts::main')] class extends Component {
                     </span>
 
                     {{-- Titre --}}
-                    <h1
-                        class="mt-6 text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl transition-all duration-1000 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                    <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl transition-all duration-1000 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         Parlons de votre <span
                             class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">projet</span>
@@ -188,12 +189,12 @@ new #[Layout('layouts::main')] class extends Component {
 
                     {{-- Description --}}
                     <p class="mx-auto mt-4 transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-2xl text-lg text-zinc-600 dark:text-zinc-400"
-                    :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
+                        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         Notre équipe est disponible pour répondre à toutes vos questions et vous accompagner dans vos
                         projets de développement rural.
                     </p>
                     {{-- Coordonnées rapides --}}
-                    @if ($phone || $email || $secondaryEmail)
+                    @if ($phone || $contactEmail  || $secondaryEmail)
                         <div class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
                             @if ($phone)
                                 <a href="tel:{{ $phone }}"
@@ -206,15 +207,15 @@ new #[Layout('layouts::main')] class extends Component {
                                     {{ $phone }}
                                 </a>
                             @endif
-                            @if ($email)
-                                <a href="mailto:{{ $email }}"
+                            @if ($contactEmail )
+                                <a href="mailto:{{ $contactEmail }}"
                                     class="flex transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] items-center gap-2 text-zinc-600 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400"
                                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
-                                    {{ $email }}
+                                    {{ $contactEmail }}
                                 </a>
                             @endif
                             @if ($secondaryEmail)
@@ -569,4 +570,3 @@ new #[Layout('layouts::main')] class extends Component {
     {{-- ==================== FAQ ==================== --}}
     <livewire:faq.faq />
 </div>
-

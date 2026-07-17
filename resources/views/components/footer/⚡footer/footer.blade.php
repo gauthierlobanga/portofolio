@@ -1,4 +1,4 @@
-<flux:footer  container class="border-t border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 font-outfit">
+<flux:footer class="border-t my-8 border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 font-outfit">
     {{-- Ambiance lumineuse de fond --}}
     <div class="pointer-events-none absolute inset-0 z-0">
         <div
@@ -22,9 +22,9 @@
                         class="group inline-flex items-center rounded-lg py-1.5 transition duration-300 ease-out
                               hover:-translate-x-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50
                               focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900">
-                        <div class="h-16 w-46 shrink-0 overflow-hidden">
+                        <div class="h-16 w-auto max-w-full shrink-0 overflow-hidden">
                             <img src="{{ $this->logoUrl ?? Storage::url('images/cadersa-logo.png') }}"
-                                alt="{{ $this->appName }}" class="h-full w-full object-contain" />
+                                alt="{{ $this->appName }}" class="h-full w-auto object-contain object-left" />
                         </div>
                     </a>
                 </div>
@@ -38,7 +38,6 @@
                 </p>
             </div>
         </div>
-
         {{-- Zone Intermédiaire : Réseaux sociaux + Les 3 Colonnes de Navigation --}}
         <div class="mt-8 flex flex-col md:flex-row items-start justify-between gap-6 w-full">
             <div data-animate="enter-from-left" class="shrink-0">
@@ -193,8 +192,7 @@
             </div>
 
             {{-- Crédits --}}
-            <p data-animate="enter-from-right"
-                class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400" role="contentinfo">
+            <p class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400" role="contentinfo">
                 <span class="flex items-center gap-1">
                     <span>Site réalisé </span>
                     <span>par</span>

@@ -17,55 +17,73 @@
             @csrf
 
             <!-- Nom complet -->
-            <flux:input
-                name="name"
-                :label="__('Nom complet')"
-                :value="old('name')"
-                type="text"
-                required
-                autofocus
-                autocomplete="name"
-                placeholder="Jean Dupont"
-                class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
+            <div>
+                <flux:input
+                    name="name"
+                    :label="__('Nom complet')"
+                    :value="old('name')"
+                    type="text"
+                    required
+                    autofocus
+                    autocomplete="name"
+                    placeholder="Jean Dupont"
+                    class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+                @error('name')
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
 
             <!-- Adresse email -->
-            <flux:input
-                name="email"
-                :label="__('Adresse email')"
-                :value="old('email')"
-                type="email"
-                required
-                autocomplete="email"
-                placeholder="exemple@cadersa.org"
-                class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
+            <div>
+                <flux:input
+                    name="email"
+                    :label="__('Adresse email')"
+                    :value="old('email')"
+                    type="email"
+                    required
+                    autocomplete="email"
+                    placeholder="exemple@cadersa.org"
+                    class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+                @error('email')
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
 
             <!-- Mot de passe -->
-            <flux:input
-                name="password"
-                :label="__('Mot de passe')"
-                type="password"
-                required
-                autocomplete="new-password"
-                placeholder="••••••••"
-                passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
-                viewable
-                class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
+            <div>
+                <flux:input
+                    name="password"
+                    :label="__('Mot de passe')"
+                    type="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="••••••••"
+                    viewable
+                    class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+                @error('password')
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
 
             <!-- Confirmation du mot de passe -->
-            <flux:input
-                name="password_confirmation"
-                :label="__('Confirmer le mot de passe')"
-                type="password"
-                required
-                autocomplete="new-password"
-                placeholder="••••••••"
-                passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
-                viewable
-                class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
-            />
+            <div>
+                <flux:input
+                    name="password_confirmation"
+                    :label="__('Confirmer le mot de passe')"
+                    type="password"
+                    required
+                    autocomplete="new-password"
+                    placeholder="••••••••"
+                    viewable
+                    class="rounded-xl border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 dark:text-white"
+                />
+                @error('password_confirmation')
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
 
             <!-- Bouton d'inscription -->
             <flux:button type="submit" class="w-full rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 transition shadow-sm shadow-emerald-200 dark:shadow-emerald-900/30">

@@ -18,9 +18,9 @@ class SettingApp extends Settings
 
     public array $addresses = [];
 
-    public string $phone = '+243 997 780 281';
+    public string $phone = '';
 
-    public string $email = 'cadersa.asbl@gmail.com';
+    public string $email = 'c';
 
     // Réseaux sociaux
     public ?string $facebook_url = null;

@@ -3,10 +3,11 @@
         {{-- Décoration d'arrière-plan --}}
         <div class="pointer-events-none absolute inset-0 z-0 flex justify-center">
             <div
-                class="absolute top-[-20%] left-1/2 aspect-square w-200 -translate-x-1/2 rounded-full bg-linear-to-br from-blue-100/40 to-emerald-50/10 blur-[100px] dark:from-blue-500/10 dark:to-transparent">
+                class="absolute top-[-20%] left-1/2 aspect-square w-200 -translate-x-1/2 rounded-full bg-linear-to-br from-zinc-200/50 to-zinc-100/10 blur-[100px] dark:from-zinc-700/20 dark:to-transparent">
             </div>
+            {{-- Bruit SVG inline --}}
             <div
-                class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay dark:opacity-10">
+                class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cfilter%20id%3D%22noise%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.75%22%20numOctaves%3D%224%22%20stitchTiles%3D%22stitch%22%2F%3E%3C%2Ffilter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url(%23noise)%22%2F%3E%3C%2Fsvg%3E')] opacity-20 mix-blend-overlay dark:opacity-10">
             </div>
         </div>
 
