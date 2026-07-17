@@ -93,9 +93,8 @@ new #[Layout('layouts::main')] class extends Component {
 
 <div class="bg-white text-zinc-700 antialiased dark:bg-zinc-950 dark:text-zinc-300">
 
-
-    <section x-cloak class="relative isolate overflow-hidden" x-data="homeHeroReveal()">
-        {{-- Image de fond --}}
+    {{-- ========== HERO ========== --}}
+    <section x-cloak class="relative isolate overflow-hidden" x-data="homeHeroReveal">
         @php
             $heroImage = $this->about->hero_image_url
                 ? Storage::url($this->about->hero_image_url)
@@ -106,56 +105,39 @@ new #[Layout('layouts::main')] class extends Component {
             <img x-ref="bgImage" src="{{ $heroImage }}" alt="Paysage rural de la RDC"
                 class="h-full w-full object-cover origin-center" />
             <div class="absolute inset-0 bg-linear-to-br from-zinc-950/80 via-zinc-900/60 to-emerald-950/60"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_40%_20%,rgba(16,185,129,.12),transparent_50%)]">
-            </div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,255,255,.06),transparent_40%)]">
-            </div>
-            <div x-ref="decoLine"
-                class="absolute bottom-0 left-0 h-0.5 w-0 bg-linear-to-r from-emerald-500 via-teal-400 to-transparent origin-left">
-            </div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_40%_20%,rgba(16,185,129,.12),transparent_50%)]"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(255,255,255,.06),transparent_40%)]"></div>
+            <div x-ref="decoLine" class="absolute bottom-0 left-0 h-0.5 w-0 bg-linear-to-r from-emerald-500 via-teal-400 to-transparent origin-left"></div>
         </div>
 
         <div class="relative mx-auto flex min-h-[90svh] max-w-7xl items-center px-6 pt-26 pb-24 lg:px-8">
             <div class="max-w-4xl">
-                {{-- Badge --}}
-                <div x-ref="badge"
-                    class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-xl">
+                <div x-ref="badge" class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-xl">
                     <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
-                    <span class="text-sm font-medium tracking-wide text-zinc-200">
-                        {{ $this->about->hero_badge }}
-                    </span>
+                    <span class="text-sm font-medium tracking-wide text-zinc-200">{{ $this->about->hero_badge }}</span>
                 </div>
 
-                {{-- Title --}}
-                <h1 x-ref="title"
-                    class="mt-8 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
+                <h1 x-ref="title" class="mt-8 max-w-4xl text-4xl font-semibold tracking-tight text-white md:text-5xl lg:text-6xl">
                     {{ $this->about->hero_title }}
                 </h1>
 
-                {{-- Auteur avec icône --}}
                 <div x-ref="author" class="mt-4 flex items-center gap-2">
                     <div class="h-px w-14 bg-emerald-400/70"></div>
-                    <p class="text-lg font-semibold text-emerald-300 lg:text-xl">
-                        Prof. Dr Bernard HANGI
-                    </p>
+                    <p class="text-lg font-semibold text-emerald-300 lg:text-xl">Prof. Dr Bernard HANGI</p>
                     <div class="h-px w-14 bg-emerald-400/70 hidden sm:block"></div>
                 </div>
 
-                {{-- Subtitle --}}
                 <p x-ref="subtitle" class="mt-8 max-w-2xl text-lg leading-8 text-zinc-300 md:text-xl">
                     {{ $this->about->hero_subtitle }}
                 </p>
 
-                {{-- Boutons CTA --}}
                 <div x-ref="buttons" class="mt-10 flex flex-col sm:flex-row items-center gap-5">
                     <a href="{{ route('projects.index') }}" wire:navigate
                         class="group relative inline-flex h-14 items-center justify-center border-2 border-emerald-500 bg-emerald-500 px-8 font-semibold text-white transition-all duration-300 hover:bg-emerald-600 hover:border-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30 active:scale-[0.97]">
                         <span class="relative z-10 flex items-center gap-2 whitespace-nowrap">
                             Découvrir nos projets
-                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </span>
                     </a>
@@ -164,10 +146,8 @@ new #[Layout('layouts::main')] class extends Component {
                         class="group relative inline-flex h-14 items-center justify-center border border-white/20 px-8 font-semibold text-white transition-all duration-300 hover:bg-white/10 hover:border-white/40 active:scale-[0.97]">
                         <span class="relative z-10 flex items-center gap-2 whitespace-nowrap">
                             En savoir plus
-                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </span>
                     </a>
@@ -176,16 +156,16 @@ new #[Layout('layouts::main')] class extends Component {
         </div>
     </section>
 
-    {{-- Section service --}}
+    {{-- ========== SERVICES ========== --}}
     <livewire:service.service />
 
-    {{-- Section formations --}}
+    {{-- ========== FORMATIONS ========== --}}
     <livewire:formation />
 
-    {{-- Section equipe --}}
+    {{-- ========== ÉQUIPE ========== --}}
     <livewire:equipe.equipe />
 
-    {{-- Section partener --}}
+    {{-- ========== PARTENAIRES ========== --}}
     <livewire:partener.partener />
 
 </div>

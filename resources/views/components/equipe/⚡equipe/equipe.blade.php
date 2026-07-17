@@ -15,7 +15,7 @@
 
     <div class="relative z-10 mx-auto max-w-350 px-6 lg:px-8">
         {{-- En-tête --}}
-        <div x-cloak x-data="cspState()" x-intersect="shown = true"
+        <div x-cloak x-data="cspState" x-intersect="shown = true"
             :class="{ 'opacity-100 translate-y-0': shown, 'opacity-0 translate-y-6': !shown }"
             class="mx-auto max-w-3xl text-center transition-all duration-700">
             <span
@@ -36,7 +36,7 @@
         </div>
 
         {{-- Grille des membres avec animation GSAP ScrollTrigger --}}
-        <div class="relative mt-12" x-data="teamMemberGrid()">
+        <div class="relative mt-12" x-data="teamMemberGrid">
             <div class="columns-1 sm:columns-2 lg:columns-3 gap-6">
                 @forelse($this->members as $member)
                     <article

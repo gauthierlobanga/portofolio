@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\File;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -24,6 +25,14 @@ it('keeps the authenticated mobile sidebar fixed to the viewport', function () {
         ->assertOk()
         ->assertSee('h-dvh max-h-dvh overflow-y-auto', false)
         ->assertSee('sticky top-0 z-40', false);
+});
+
+it('scopes the mobile sidebar overlay hotfix to the sidebar element', function () {
+    $css = File::get(resource_path('css/app.css'));
+
+    expect($css)
+        ->toMatch('/(?m)^\[data-flux-sidebar\]\[data-flux-sidebar-on-mobile\]:not\(\[data-flux-sidebar-collapsed-mobile\]\) \{/')
+        ->not->toMatch('/(?m)^\[data-flux-sidebar-on-mobile\]:not\(\[data-flux-sidebar-collapsed-mobile\]\) \{/');
 });
 
 it('does not leave the old large copyright spacer in the footer', function () {

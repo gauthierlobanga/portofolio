@@ -5,6 +5,7 @@
     'url' => null,
     'type' => 'website',
     'keywords' => null,
+    'robots' => null,
 ])
 
 @php
@@ -40,7 +41,7 @@
 <link rel="canonical" href="{{ $pageUrl }}">
 
 {{-- Advanced SEO & Crawling --}}
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="robots" content="{{ $robots ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' }}">
 <meta name="author" content="{{ $appName }}">
 <meta name="publisher" content="{{ $appName }}">
 <meta name="theme-color" content="#10b981"> {{-- Emerald 500 pour le thème --}}
@@ -51,6 +52,8 @@
 <meta property="og:title" content="{{ $pageTitle }}">
 <meta property="og:description" content="{{ $pageDescription }}">
 <meta property="og:image" content="{{ $pageImage }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:site_name" content="{{ $appName }}">
 <meta property="og:locale" content="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -64,7 +67,6 @@
     try {
         $twitterHandle = app(\App\Settings\SettingApp::class)->x_url;
         if ($twitterHandle) {
-            // Extract handle from URL if possible
             $handle = '@' . basename(parse_url($twitterHandle, PHP_URL_PATH));
             echo '<meta name="twitter:site" content="' . $handle . '">' . PHP_EOL;
             echo '<meta name="twitter:creator" content="' . $handle . '">' . PHP_EOL;

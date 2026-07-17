@@ -337,7 +337,7 @@ select:focus[data-flux-control] {
 /* Mobile sidebar overlay: only apply fixed overlay styles when the sidebar is
    actually open (i.e., not in the collapsed state). This avoids forcing overlays
    or global overflow while the sidebar should be hidden. */
-[data-flux-sidebar-on-mobile]:not([data-flux-sidebar-collapsed-mobile]) {
+[data-flux-sidebar][data-flux-sidebar-on-mobile]:not([data-flux-sidebar-collapsed-mobile]) {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;

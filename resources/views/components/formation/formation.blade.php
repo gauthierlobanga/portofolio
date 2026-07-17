@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     {{-- ========== HEADER  ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="formationSearchFilters()"
+    <section x-cloak id="scroll-to-reference" x-data="formationSearchFilters"
         aria-label="Plugin search and listing"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
-         <div class="mb-16 max-w-3xl" x-data="cspState()" x-intersect="shown = true">
+         <div class="mb-16 max-w-3xl" x-data="cspState" x-intersect="shown = true">
              <h2 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl transition-all duration-700 delay-100 ease-out"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                 Plongez au cœur de nos <span class="text-emerald-600 dark:text-emerald-400">formations</span>
@@ -18,7 +18,7 @@
         {{-- Grille des articles --}}
         <div wire:loading.class="opacity-50 pointer-events-none"
             class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-7 transition-opacity duration-300"
-            x-data="autoAnimateGrid()" aria-label="Liste des articles">
+            x-data="autoAnimateGrid" aria-label="Liste des articles">
             @forelse ($posts as $post)
                 <a href="{{ route('posts.show', $post) }}" wire:navigate
                     class="gsap-reveal group relative flex flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
@@ -49,7 +49,7 @@
                         {{-- Titre avec losange animé --}}
                         <div
                             class="relative transition duration-300 ease-out will-change-transform group-hover:translate-x-4.5">
-                            <div x-data="rotatingBadge()" class="absolute top-1/2 -left-4 -translate-y-1/2">
+                            <div x-data="rotatingBadge" class="absolute top-1/2 -left-4 -translate-y-1/2">
                                 <div
                                     class="translate-x-0.5 opacity-0 transition duration-300 ease-out will-change-transform group-hover:translate-x-0 group-hover:opacity-100">
                                     <div data-rotating class="flex items-center gap-0.75">
@@ -109,7 +109,7 @@
                 </a>
             @empty
                 <div class="col-span-full py-16 lg:py-24">
-                    <div x-data="cspState()" x-intersect="shown = true"
+                    <div x-data="cspState" x-intersect="shown = true"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
                         class="transition-all duration-700 ease-out">
                         <div
@@ -147,7 +147,7 @@
 
         {{-- Bouton "Voir tous les domaines" --}}
         <nav class="mt-14 flex justify-center">
-            <div x-data="buttonTextReveal()"
+            <div x-data="buttonTextReveal"
                 class="border border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 transition-colors duration-200">
 
                 <a href="{{ route('posts.index', ['cat' => 'formation']) }}" wire:navigate
@@ -168,4 +168,3 @@
 
     </section>
 </div>
-

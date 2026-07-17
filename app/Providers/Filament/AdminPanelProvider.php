@@ -40,6 +40,9 @@ class AdminPanelProvider extends PanelProvider
 
                 return view('filament.admin.logo', compact('logoUrl', 'name'));
             })
+            ->domain('cadersaasbl.com')
+            ->unsavedChangesAlerts()
+            ->strictAuthorization()
             ->favicon(fn (): string => Favicon::centralUrl())
             ->brandLogoHeight('4rem')
             ->viteTheme('resources/css/filament/admin/theme.css')

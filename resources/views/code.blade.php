@@ -1,76 +1,5 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-
-<head>
-    @include('partials.head')
-</head>
-
-<body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
-    <flux:header class="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-        <flux:sidebar.toggle
-            class="lg:hidden mr-2 border! border-emerald-200! hover:bg-emerald-50! dark:border-emerald-800! dark:hover:bg-emerald-900/20! text-zinc-600! hover:text-emerald-600! dark:text-zinc-400! dark:hover:text-emerald-400! rounded! transition! duration-200!"
-            icon="bars-3" inset="left" />
-        <a href="{{ route('home') }}" wire:navigate
-            class="group inline-flex items-center gap-3 rounded-lg py-1.5 transition duration-300 ease-out
-                  hover:-translate-x-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50
-                  focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900">
-            <x-app-logo />
-        </a>
-
-        <flux:navbar class="-mb-px max-lg:hidden">
-            <flux:navbar.item :href="route('home')" :current="request()->routeIs('home')" wire:navigate
-                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
-                {{ __('Accueil') }}
-            </flux:navbar.item>
-            <flux:navbar.item :href="route('projects.index')" :current="request()->routeIs('projects.*')" wire:navigate
-                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
-                {{ __('Projets') }}
-            </flux:navbar.item>
-            <flux:navbar.item :href="route('posts.index')" :current="request()->routeIs('posts.index')" wire:navigate
-                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
-                {{ __('Blog') }}
-            </flux:navbar.item>
-
-            <flux:separator vertical variant="subtle" class="my-2" />
-
-            <flux:navbar.item :href="route('about')" :current="request()->routeIs('about')" wire:navigate
-                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
-                {{ __('À propos') }}
-            </flux:navbar.item>
-            <flux:navbar.item :href="route('contact')" :current="request()->routeIs('contact')" wire:navigate
-                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
-                {{ __('Contact') }}
-            </flux:navbar.item>
-        </flux:navbar>
-
-        <flux:spacer />
-
-        <flux:navbar class="me-4">
-            <button x-cloak x-data aria-label="Changer le thème" x-on:click="$flux.dark = !$flux.dark"
-                class="relative flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 transition-none hover:bg-emerald-50 hover:text-emerald-600 dark:text-zinc-500 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400">
-                <flux:icon.sun x-show="!$flux.dark" variant="mini" class="h-5 w-5" />
-                <flux:icon.moon x-show="$flux.dark" variant="mini" class="h-5 w-5" />
-            </button>
-            @auth
-                <x-desktop-user-menu />
-            @else
-                <a href="{{ route('login') }}" wire:navigate
-                    class="group hidden lg:inline-flex items-center gap-2 rounded-xl border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-600 transition-all duration-300
-          hover:bg-emerald-50 hover:shadow-sm
-          dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-900/20">
-                    <svg class="h-4 w-4 transition-transform group-hover:-translate-x-0.5" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                    </svg>
-                    {{ __('Connexion') }}
-                </a>
-
-            @endauth
-        </flux:navbar>
-    </flux:header>
-
-    <flux:sidebar sticky collapsible="mobile"
+<x-layouts::app :title="__('Dashboard')">
+  <flux:sidebar sticky collapsible="mobile"
         class="lg:hidden h-dvh max-h-dvh overflow-y-auto border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.header>
             <a href="{{ route('home') }}" wire:navigate
@@ -146,24 +75,4 @@
             </flux:sidebar.group>
         </flux:sidebar.nav>
     </flux:sidebar>
-
-    {{ $slot }}
-
-    <livewire:footer.footer />
-
-    <livewire:cookie-consent />
-    <livewire:scroll-to-top />
-
-    @persist('toast')
-        <flux:toast.group>
-            <flux:toast />
-        </flux:toast.group>
-    @endpersist
-
-    @vite('resources/js/app.js')
-    @fluxScripts
-    @livewireScripts
-    @filamentScripts
-</body>
-
-</html>
+</x-layouts::app>
