@@ -170,7 +170,6 @@
         </flux:toast.group>
     @endpersist
 
-    @vite('resources/js/app.js')
     @fluxScripts
     @livewireScripts
     @filamentScripts

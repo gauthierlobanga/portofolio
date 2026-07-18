@@ -25,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        if (! app()->isLocal()) {
+            Vite::usePreloadTag(false);
+        }
     }
 
     /**

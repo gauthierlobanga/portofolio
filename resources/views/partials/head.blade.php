@@ -94,6 +94,7 @@ $schema = [
 {{-- Favicon --}}
 <link id="favicon" rel="icon" href="{{ $faviconUrl }}" data-favicon-href="{{ $faviconUrl }}">
 <link id="apple-touch-icon" rel="apple-touch-icon" href="{{ $faviconUrl }}">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap">
 <style>
     body {
         font-family: 'Inter', sans-serif;
@@ -117,7 +118,7 @@ $schema = [
 </style>
 
 @fonts
-@vite('resources/css/app.css')
+@vite(['resources/css/app.css', 'resources/js/app.js'], null, false)
 @fluxAppearance
 @livewireStyles
 @filamentStyles

@@ -42,7 +42,6 @@ class AdminPanelProvider extends PanelProvider
             })
             ->domain('cadersaasbl.com')
             ->unsavedChangesAlerts()
-            ->strictAuthorization()
             ->favicon(fn (): string => Favicon::centralUrl())
             ->brandLogoHeight('4rem')
             ->viteTheme('resources/css/filament/admin/theme.css')
