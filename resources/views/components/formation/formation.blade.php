@@ -1,18 +1,18 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     {{-- ========== HEADER  ========== --}}
-    <section x-cloak id="scroll-to-reference" x-data="formationSearchFilters"
-        aria-label="Plugin search and listing"
+    <section x-cloak id="scroll-to-reference" x-data="formationSearchFilters" aria-label="Plugin search and listing"
         class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
-         <div class="mb-16 max-w-3xl" x-data="cspState" x-intersect="shown = true">
-             <h2 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl transition-all duration-700 delay-100 ease-out"
+        <div class="mb-8 max-w-3xl" x-data="cspState" x-intersect="shown = true">
+            <h2 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl transition-all duration-700 delay-100 ease-out"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                Plongez au cœur de nos <span class="text-emerald-600 dark:text-emerald-400">formations</span>
+                Plongez au cœur de mes <span class="text-emerald-600 dark:text-emerald-400">formations</span>
             </h2>
             <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400 transition-all duration-700 delay-200 ease-out"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                À travers notre approche <strong class="text-emerald-600 dark:text-emerald-400">4B</strong> (Bonne
-                cuisson, Bonne alimentation, Bonne planification familiale pour la Bonne santé), nous développons des
-                solutions durables.
+                En présentiel ou à distance, je vous accompagne dans la maîtrise du <strong
+                    class="text-emerald-600 dark:text-emerald-400">développement web moderne</strong> : Laravel,
+                Livewire, Alpine.js, Tailwind CSS, Filament… Des bases solides jusqu’aux architectures avancées, chaque
+                formation est pensée pour vous rendre opérationnel rapidement.
             </p>
         </div>
         {{-- Grille des articles --}}

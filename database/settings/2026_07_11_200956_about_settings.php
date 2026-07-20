@@ -7,9 +7,9 @@ return new class extends SettingsMigration
     public function up(): void
     {
         // Section Hero
-        $this->migrator->add('about.hero_title', 'Bâtir des villages durables en RDC.');
-        $this->migrator->add('about.hero_subtitle', 'Paix, Sympathie et Mieux-être.');
-        $this->migrator->add('about.hero_badge', 'Depuis 2010');
+        $this->migrator->add('about.hero_title', '');
+        $this->migrator->add('about.hero_subtitle', '');
+        $this->migrator->add('about.hero_badge', '');
 
         // Images (URL stockée après upload)
         $this->migrator->add('about.hero_image_url', null);

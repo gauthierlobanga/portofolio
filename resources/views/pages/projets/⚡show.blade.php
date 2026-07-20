@@ -17,7 +17,7 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $view->title($this->project->title);
 
-        $imageUrl = $this->project->getFirstMediaUrl('featured') ?: asset('images/cadersa-logo.png');
+        $imageUrl = $this->project->getFirstMediaUrl('featured') ?: asset('images/logo-app.svg');
         $description = $this->project->getPlainTextContent(160);
 
         $schema = [

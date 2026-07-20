@@ -61,6 +61,82 @@ const safeGsapTo = (target, vars) => {
 
 // ---------- Scroll to top (Alpine data global) ----------
 document.addEventListener("alpine:init", () => {
+    // scripts pour filament / site
+    // ===== Définitions pour les composants Filament =====
+
+    // filamentSchemaComponent (utilisé par les formulaires)
+    Alpine.data("filamentSchemaComponent", () => ({
+        init() {
+            // L'initialisation minimale requise pour éviter les erreurs
+        },
+    }));
+
+    // selectFormComponent (utilisé par les champs de type Select)
+    Alpine.data("selectFormComponent", (config) => ({
+        state: config.state,
+        init() {},
+    }));
+
+    // fileUploadFormComponent (utilisé par les champs d'upload de fichiers)
+    Alpine.data("fileUploadFormComponent", (config) => ({
+        state: config.state,
+        error: null,
+        isEditorOpen: false,
+        init() {},
+        closeEditor() {
+            this.isEditorOpen = false;
+        },
+    }));
+
+    // keyValueFormComponent (utilisé par les champs clé-valeur)
+    Alpine.data("keyValueFormComponent", (config) => ({
+        rows: [],
+        state: config.state,
+        init() {},
+        addRow() {
+            this.rows.push({ key: "", value: "" });
+            this.updateState();
+        },
+        updateState() {
+            const obj = {};
+            this.rows.forEach((row) => {
+                if (row.key) obj[row.key] = row.value;
+            });
+            this.state = obj;
+        },
+        reorderRows(event) {
+            // Réorganisation basique (peut être améliorée si nécessaire)
+        },
+    }));
+
+    // filamentSection (déjà présente, mais assurez-vous qu'elle est bien là)
+    // Si elle n'existe pas, ajoutez-la :
+    if (!Alpine.data("filamentSection")) {
+        Alpine.data(
+            "filamentSection",
+            (collapsed = false, persist = false, collapseId = null) => ({
+                isCollapsed: collapsed,
+                init() {
+                    if (persist) {
+                        try {
+                            const key = `section-${collapseId ?? this.$el.id}-isCollapsed`;
+                            const stored = localStorage.getItem(key);
+                            if (stored !== null) {
+                                this.isCollapsed = stored === "true";
+                            }
+                            this.$watch("isCollapsed", (value) => {
+                                localStorage.setItem(
+                                    key,
+                                    value ? "true" : "false",
+                                );
+                            });
+                        } catch (e) {}
+                    }
+                },
+            }),
+        );
+    }
+    // Fin scripts pour filament / site
     Alpine.data("scrollToTop", () => ({
         show: false,
         hovering: false,

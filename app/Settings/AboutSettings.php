@@ -7,11 +7,11 @@ use Spatie\LaravelSettings\Settings;
 
 class AboutSettings extends Settings
 {
-    public string $hero_title = 'Bâtir des villages durables en RDC.';
+    public string $hero_title = '';
 
-    public string $hero_subtitle = 'Paix, Sympathie et Mieux-être.';
+    public string $hero_subtitle = '';
 
-    public string $hero_badge = 'Depuis 2010';
+    public string $hero_badge = '';
 
     // Content can be a Tiptap document array or a plain string.
     public mixed $about_text = null;
@@ -22,7 +22,7 @@ class AboutSettings extends Settings
     // Content can be a Tiptap document array or a plain string.
     public mixed $mission_text = null;
 
-    public string $impact_heading = 'Des résultats concrets sur le terrain';
+    public string $impact_heading = '';
 
     // Contact information for the organisation (optional)
     public ?string $contact_email = null;
@@ -31,17 +31,17 @@ class AboutSettings extends Settings
 
     public ?string $address = null;
 
-    public string $impact_subtitle = 'Programme de Résilience au Kasaï Central, avec le soutien du PAM.';
+    public string $impact_subtitle = '';
 
     public mixed $impact_description = null;
 
-    public string $impact_highlight_heading = 'Renforcement de la chaîne de valeur agricole';
+    public string $impact_highlight_heading = '';
 
     public mixed $impact_highlight_text = null;
 
-    public string $impact_highlight_cta_label = 'Lire le rapport complet';
+    public string $impact_highlight_cta_label = '';
 
-    public string $impact_highlight_cta_url = '#';
+    public string $impact_highlight_cta_url = '';
 
     /**
      * Repeater items for impact content.

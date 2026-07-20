@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8fb79fdcd902037d42c410c106a3a262",
+    "content-hash": "7ccf19e27f488754731c078bb3e9ba9e",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -70,6 +70,67 @@
                 "source": "https://github.com/AnourValar/eloquent-serialize/tree/1.3.10"
             },
             "time": "2026-06-20T14:30:25+00:00"
+        },
+        {
+            "name": "aureuserp/progress-stepper",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aureuserp/progress-stepper.git",
+                "reference": "66ed7dfb35427538c9f001963375eeeef4dbb333"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aureuserp/progress-stepper/zipball/66ed7dfb35427538c9f001963375eeeef4dbb333",
+                "reference": "66ed7dfb35427538c9f001963375eeeef4dbb333",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "filament/forms": "^5.0",
+                "filament/infolists": "^5.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Webkul\\ProgressStepper\\ProgressStepperServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webkul\\ProgressStepper\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Webkul",
+                    "email": "support@webkul.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A Filament v5 progress-stepper form & infolist component for visualising workflow state as a horizontal arrow-stepper.",
+            "homepage": "https://github.com/aureuserp/progress-stepper",
+            "keywords": [
+                "filament",
+                "filament-plugin",
+                "filamentphp",
+                "laravel",
+                "progress-stepper",
+                "webkul"
+            ],
+            "support": {
+                "issues": "https://github.com/aureuserp/progress-stepper/issues",
+                "source": "https://github.com/aureuserp/progress-stepper/tree/v1.0.0"
+            },
+            "time": "2026-06-23T09:59:06+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -3215,6 +3276,85 @@
                 "source": "https://github.com/kirschbaum-development/eloquent-power-joins/tree/4.3.2"
             },
             "time": "2026-05-28T20:35:55+00:00"
+        },
+        {
+            "name": "lara-zeus/progress",
+            "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lara-zeus/progress.git",
+                "reference": "14d3bc0a11b30a45f81b5ae6093acca7e241d197"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lara-zeus/progress/zipball/14d3bc0a11b30a45f81b5ae6093acca7e241d197",
+                "reference": "14d3bc0a11b30a45f81b5ae6093acca7e241d197",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.24",
+                "nunomaduro/collision": "^8.6",
+                "nunomaduro/phpinsights": "^2.8",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^4.0",
+                "pestphp/pest-plugin-arch": "^4.0",
+                "pestphp/pest-plugin-laravel": "^4.0",
+                "pestphp/pest-plugin-livewire": "^4.1",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-phpunit": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Progress": "LaraZeus\\Progress\\Facades\\Progress"
+                    },
+                    "providers": [
+                        "LaraZeus\\Progress\\ProgressServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "LaraZeus\\Progress\\": "src/",
+                    "LaraZeus\\Progress\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "lara-zeus",
+                    "email": "info@larazeus.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This is my package progress",
+            "homepage": "https://github.com/lara-zeus/progress",
+            "keywords": [
+                "laravel",
+                "larazeus",
+                "progress"
+            ],
+            "support": {
+                "issues": "https://github.com/lara-zeus/progress/issues",
+                "source": "https://github.com/lara-zeus/progress/tree/3.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/LaraZeus",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-04-24T14:23:18+00:00"
         },
         {
             "name": "laravel/ai",

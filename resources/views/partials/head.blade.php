@@ -9,7 +9,7 @@ $appSettings = app(\App\Settings\SettingApp::class);
 $aboutSettings = app(\App\Settings\AboutSettings::class);
 
 // Logo de l'application (dynamique)
-    $appLogo = $appSettings->logoUrl() ?: asset('images/cadersa-logo.png');
+    $appLogo = $appSettings->logoUrl() ?: asset('images/logo-app.svg');
 
     // Image SEO (utilisée à la fois pour Open Graph et le schéma)
     $seoImage = $seoImage ?? $appLogo;
@@ -67,29 +67,6 @@ $schema = [
     <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}</script>
 </x-seo>
 
-{{-- Google Analytics (ne se chargera que si "Analytiques" est accepté) --}}
-<x-cookie-script type="analytics">
-    <!-- Remplacez G-XXXXXXX par votre vrai code Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-        gtag('config', 'G-XXXXXXX');
-    </script>
-</x-cookie-script>
-
-{{-- Pixel Facebook / Autres trackers publicitaires (ne se chargera que si "Marketing" est accepté) --}}
-<x-cookie-script type="marketing">
-    <!-- Insérez ici votre code de suivi publicitaire (Pixel FB, LinkedIn Insight, etc.) -->
-    <script>
-        // Code de suivi marketing...
-    </script>
-</x-cookie-script>
-
 @include('feed::links')
 {{-- Favicon --}}
 <link id="favicon" rel="icon" href="{{ $faviconUrl }}" data-favicon-href="{{ $faviconUrl }}">
@@ -118,7 +95,6 @@ $schema = [
 </style>
 
 @fonts
-@vite(['resources/css/app.css', 'resources/js/app.js'], null, false)
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
 @livewireStyles
-@filamentStyles

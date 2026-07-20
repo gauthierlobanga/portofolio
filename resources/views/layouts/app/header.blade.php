@@ -44,11 +44,24 @@
         <flux:spacer />
 
         <flux:navbar class="me-4 gap-4">
-            <button x-cloak x-data aria-label="Changer le thème" x-on:click="$flux.dark = !$flux.dark"
-                class="relative flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 transition-none hover:bg-emerald-50 hover:text-emerald-600 dark:text-zinc-500 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400">
-                <flux:icon.sun x-show="!$flux.dark" variant="mini" class="h-5 w-5" />
-                <flux:icon.moon x-show="$flux.dark" variant="mini" class="h-5 w-5" />
-            </button>
+            <div class="flex items-center gap-4">
+                <button x-cloak x-data aria-label="Changer le thème" x-on:click="$flux.dark = !$flux.dark"
+                    class="relative flex h-9 w-9 items-center justify-center rounded-xl text-zinc-400 transition-none hover:bg-emerald-50 hover:text-emerald-600 dark:text-zinc-500 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400">
+                    <flux:icon.sun x-show="!$flux.dark" variant="mini" class="h-5 w-5" />
+                    <flux:icon.moon x-show="$flux.dark" variant="mini" class="h-5 w-5" />
+                </button>
+                <div class="relative group/github" x-ref="header_introducing">
+                    <a wire:navigate href="https://github.com/yourusername" target="_blank"
+                        class="transition duration-300 delay-75 peer text-gray-600 dark:text-gray-400 opacity-80 group-hover/github:opacity-100 group-hover/github:text-gray-900 dark:group-hover/github:text-white motion-reduce:transition-none">
+                        <div class="gsap-fadein">
+                            <svg fill="currentColor" viewBox="0 0 24 24" class="h-7 w-7">
+                                <path
+                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
             <flux:separator vertical variant="subtle" class="my-4" />
             @auth
                 <x-desktop-user-menu />
@@ -143,12 +156,12 @@
                !gap-0 !p-0">
                             <flux:radio value="light" icon="sun" class="!border-0 !shadow-none" />
                             <flux:radio value="dark" icon="moon" class="!border-0 !shadow-none" />
-                            <flux:radio value="system" icon="computer-desktop" class="!border-0 !shadow-none" />
+                            <flux:radio value="system" icon="computer-desktop" class="border-0! !shadow-none" />
                         </flux:radio.group>
 
                         <flux:sidebar.item href="{{ route('login') }}" icon="arrow-right-start-on-rectangle"
                             :accent="false"
-                            class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
+                            class="text-zinc-600! hover:bg-emerald-50! hover:text-emerald-600! dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
                             {{ __('Connexion') }}
                         </flux:sidebar.item>
                     </div>
@@ -172,7 +185,95 @@
 
     @fluxScripts
     @livewireScripts
-    @filamentScripts
+
+    {{-- Définitions de secours pour les composants Filament manquants
+    <script>
+        document.addEventListener('alpine:init', () => {
+            // filamentSection
+            if (!Alpine.data('filamentSection')) {
+                Alpine.data('filamentSection', (collapsed = false, persist = false, collapseId = null) => ({
+                    isCollapsed: collapsed,
+                    init() {
+                        if (persist) {
+                            try {
+                                const key = `section-${collapseId ?? this.$el.id}-isCollapsed`;
+                                const stored = localStorage.getItem(key);
+                                if (stored !== null) {
+                                    this.isCollapsed = stored === 'true';
+                                }
+                                this.$watch('isCollapsed', value => {
+                                    localStorage.setItem(key, value ? 'true' : 'false');
+                                });
+                            } catch (e) {}
+                        }
+                    },
+                    toggle() {
+                        this.isCollapsed = !this.isCollapsed;
+                    }
+                }));
+            }
+
+            // filamentSchemaComponent (version simplifiée)
+            if (!Alpine.data('filamentSchemaComponent')) {
+                Alpine.data('filamentSchemaComponent', () => ({
+                    init() {
+                        // Initialisation minimale pour éviter les erreurs
+                    }
+                }));
+            }
+
+            // selectFormComponent (version simplifiée)
+            if (!Alpine.data('selectFormComponent')) {
+                Alpine.data('selectFormComponent', (config) => ({
+                    state: config.state,
+                    init() {
+                        // Initialisation minimale
+                    }
+                }));
+            }
+
+            // fileUploadFormComponent (version simplifiée)
+            if (!Alpine.data('fileUploadFormComponent')) {
+                Alpine.data('fileUploadFormComponent', (config) => ({
+                    state: config.state,
+                    error: null,
+                    isEditorOpen: false,
+                    init() {},
+                    closeEditor() {
+                        this.isEditorOpen = false;
+                    }
+                }));
+            }
+
+            // keyValueFormComponent (version simplifiée)
+            if (!Alpine.data('keyValueFormComponent')) {
+                Alpine.data('keyValueFormComponent', (config) => ({
+                    rows: [],
+                    state: config.state,
+                    init() {
+                        // Initialisation minimale
+                    },
+                    addRow() {
+                        this.rows.push({
+                            key: '',
+                            value: ''
+                        });
+                        this.updateState();
+                    },
+                    updateState() {
+                        const obj = {};
+                        this.rows.forEach(row => {
+                            if (row.key) obj[row.key] = row.value;
+                        });
+                        this.state = obj;
+                    },
+                    reorderRows(event) {
+                        // Réorganisation basique
+                    }
+                }));
+            }
+        });
+    </script> --}}
 </body>
 
 </html>

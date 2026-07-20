@@ -9,6 +9,6 @@
 @endphp
 
 <div {{ $attributes->merge(['class' => 'inline-flex items-center gap-2 sm:gap-3']) }}>
-    <img src="{{ $logoUrl ?? Storage::url('images/cadersa-logo.png') }}" alt="{{ $appName }}"
-        class="h-14 sm:h-12 w-auto object-contain transition-all duration-300 ease-out hover:scale-105" />
+    <img src="{{ $logoUrl ?? Storage::url('images/logo.svg') }}" alt="{{ $appName }}"
+        class="h-20 sm:h-20 w-auto object-contain" />
 </div>

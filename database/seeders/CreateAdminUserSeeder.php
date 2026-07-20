@@ -11,8 +11,8 @@ class CreateAdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $name = 'CADERSA ASBL';
-        $email = 'bernardhangi@gmail.com';
+        $name = 'Gauthier Lobanga';
+        $email = 'gauthierlobanga914@gmail.com';
 
         if (User::where('email', $email)->exists()) {
             $this->command->warn("Un utilisateur avec l'email {$email} existe déjà. Aucune création?");
@@ -23,7 +23,7 @@ class CreateAdminUserSeeder extends Seeder
         $user = User::create([
             'name' => $name,
             'email' => $email,
-            'password' => Hash::make('@CADERSA-ASBL-2026'),
+            'password' => Hash::make('@GAUDEV-2026-0823336411'),
             'email_verified_at' => now(),
             'is_active' => true,
             'created_at' => now(),

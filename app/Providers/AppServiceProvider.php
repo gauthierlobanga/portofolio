@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
+
+use App\Services\SettingService;
+use App\Services\SiteService;
+use Illuminate\Support\Facades\View;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\VerticalAlignment;
+use Filament\Notifications\Livewire\Notifications;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -29,6 +37,19 @@ class AppServiceProvider extends ServiceProvider
         if (! app()->isLocal()) {
             Vite::usePreloadTag(false);
         }
+
+                Notifications::alignment(Alignment::Center);
+        Notifications::verticalAlignment(VerticalAlignment::Start);
+
+        /**
+         * Partage des données globales avec toutes les vues
+         */
+        View::composer('*', function ($view) {
+            $users = app(SiteService::class);
+            $settings = app(SettingService::class);
+            $view->with('users', $users);
+            $view->with('settings', $settings);
+        });
     }
 
     /**

@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 // ==================== Routes principales ====================
-
+// Rediriger l'ancienne URL de connexion Filament vers la page de connexion publique
+Route::redirect('/admin/login', '/login');
 Route::livewire('/', 'pages::site.home')->name('home');
 Route::livewire('/about', 'pages::site.about')->name('about');
 Route::livewire('/contact', 'pages::site.contact')->name('contact');

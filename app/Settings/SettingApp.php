@@ -8,7 +8,7 @@ use Spatie\LaravelSettings\Settings;
 
 class SettingApp extends Settings
 {
-    public string $name = 'CADERSAASBL';
+    public string $name = '';
 
     public string $address = '';
 
@@ -20,7 +20,7 @@ class SettingApp extends Settings
 
     public string $phone = '';
 
-    public string $email = 'c';
+    public string $email = '';
 
     // Réseaux sociaux
     public ?string $facebook_url = null;

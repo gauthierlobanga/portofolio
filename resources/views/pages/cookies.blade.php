@@ -11,7 +11,7 @@
             </div>
         </div>
 
-        <div class="relative z-10 mx-auto max-w-4xl px-6 lg:px-8">
+        <div class="relative z-10 mx-auto max-w-5xl px-6 lg:px-8">
             <div class="text-center">
                 <flux:badge color="amber" class="mb-4">Confidentialité</flux:badge>
                 <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl dark:text-white">

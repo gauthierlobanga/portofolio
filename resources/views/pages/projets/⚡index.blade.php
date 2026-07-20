@@ -66,7 +66,7 @@ new #[Layout('layouts::main')] class extends Component {
     public function getHeroImageProperty(): string
     {
         $settings = app(SettingApp::class);
-        return $settings->logoUrl() ?? Storage::url('images/cadersa-logo.png');
+        return $settings->logoUrl() ?? Storage::url('images/logo-app.svg');
     }
 };
 ?>
@@ -235,7 +235,7 @@ new #[Layout('layouts::main')] class extends Component {
                     :aria-expanded="showFilters" aria-controls="filters-panel"
                     class="group inline-flex h-10 items-center cursor-pointer gap-2 border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-600 transition-all duration-300 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 active:scale-[0.97]"
                     :class="showFilters ?
-                        '!border-emerald-500 !bg-emerald-50 !text-emerald-700 !shadow-emerald-100 hover:!bg-emerald-100 dark:!border-emerald-400 dark:!bg-emerald-900/20 dark:!text-emerald-300 dark:hover:!bg-emerald-900/30' :
+                        'border-emerald-500! bg-emerald-50! text-emerald-700! shadow-emerald-100! hover:bg-emerald-100! dark:border-emerald-400! dark:bg-emerald-900/20! dark:text-emerald-300! dark:hover:bg-emerald-900/30!' :
                         ''">
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -338,7 +338,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <div class="flex flex-wrap gap-2">
                         <label for="status-all"
                             class="cursor-pointer select-none px-4 py-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-101 active:scale-95 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-                            :class="{ '!bg-emerald-500 !text-white hover:!bg-emerald-500 dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20': filter === 'all' }">
+                            :class="{ 'bg-emerald-500! text-white! hover:bg-emerald-500! dark:bg-emerald-500! dark:hover:bg-emerald-400! shadow-emerald-500/20!': filter === 'all' }">
                             Tous
                         </label>
                         <input type="radio" id="status-all" name="status-filter" value="all"
@@ -348,7 +348,7 @@ new #[Layout('layouts::main')] class extends Component {
                             @if ($key !== 'all')
                                 <label for="status-{{ $key }}"
                                     class="cursor-pointer select-none px-4 py-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 shadow-sm hover:shadow-md"
-                                    :class="{ '!bg-emerald-500 !text-white hover:!bg-emerald-600 dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20': filter === '{{ $key }}' }">
+                                    :class="{ 'bg-emerald-500! text-white! hover:bg-emerald-600! dark:bg-emerald-500! dark:hover:bg-emerald-400! shadow-emerald-500/20!': filter === '{{ $key }}' }">
                                     {{ $label }}
                                 </label>
                                 <input type="radio" id="status-{{ $key }}" name="status-filter"

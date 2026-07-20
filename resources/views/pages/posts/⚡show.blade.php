@@ -57,7 +57,7 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $view->title($this->post->title);
 
-        $imageUrl = $this->post->getFirstMediaUrl('featured') ?: asset('images/cadersa-logo.png');
+        $imageUrl = $this->post->getFirstMediaUrl('featured') ?: asset('images/logo-app.svg');
         $description = $this->post->getPlainTextContent(160);
 
         $schema = [
@@ -78,7 +78,7 @@ new #[Layout('layouts::main')] class extends Component {
                 'name' => 'CADERSA ASBL',
                 'logo' => [
                     '@type' => 'ImageObject',
-                    'url' => asset('images/cadersa-logo.png'),
+                    'url' => asset('images/logo-app.svg'),
                 ],
             ],
         ];

@@ -1,28 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 300" width="1100" height="300">
     <defs>
-        <style>
-            .prefix__green-fill {
-                fill: #00a651
-            }
+        <linearGradient id="emeraldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#34D399" />
+            <stop offset="100%" stop-color="#059669" />
+        </linearGradient>
+        <linearGradient id="emeraldGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#10B981" />
+            <stop offset="100%" stop-color="#0F766E" />
+        </linearGradient>
 
-            .prefix__white-stroke {
-                stroke: #fff;
-                stroke-width: 3;
-                fill: none;
-                stroke-linecap: round
-            }
-        </style>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#047857" flood-opacity="0.2" />
+        </filter>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="10" flood-color="#34D399" flood-opacity="0.6" />
+        </filter>
     </defs>
-    <path class="prefix__green-fill"
-        d="M110 190C110 70 230 0 350 0s240 70 240 190c-20 0-30-15-40-5-15 15-25 15-35-5s-25-15-35 5c-20 20-40 5-55-15-10-10-20-5-25 10-10 20-25 25-40 10-20-20-40-20-50-5s-30 20-40-5c-10-20-25-20-35-5-15 25-35 25-45 10-15-15-25-10-35 5-15 15-30 10-45 0z" />
-    <path class="prefix__white-stroke"
-        d="M135 140q215 30 430 0M190 90q160 25 320 0M260 40q90 15 180 0M350 0v180M350 0q-70 70-110 170M350 0q70 70 110 170M350 0Q200 70 155 150M350 0q150 70 195 150" />
-    <g><text font-family="'Times New Roman',Times,Georgia,serif" font-size="92" font-weight="700" letter-spacing="2"
-            fill="#111" transform="translate(50 335)">CADERSA</text><text x="490" class="prefix__green-fill"
-            font-family="'Georgia','Times New Roman',serif" font-size="92" font-weight="500"
-            transform="translate(50 335)">a.s.b.l</text></g>
-    <g>
-        <path class="prefix__green-fill"
-            d="M95 395h40l30 35h110l8-15 7 15 7-35h11l-7 35h7l8-35h7l7 35 8-15 8 15h110l30-35h40l-25 45H120z" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;display=swap');
+
+        .text-gau { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 130px; font-weight: 800; fill: #0F172A; letter-spacing: -3px; }
+        .text-dev { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 130px; font-weight: 800; fill: url(#emeraldGrad1); letter-spacing: -3px; }
+        .subtitle { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 700; fill: #64748B; letter-spacing: 6px; }
+        .hex-bg { fill: rgba(52, 211, 153, 0.1); }
+
+        .dark .text-gau { fill: #F1F5F9; }
+        .dark .subtitle { fill: #94A3B8; }
+        .dark .hex-bg { fill: rgba(52, 211, 153, 0.2); }
+    </style>
+
+    <g transform="translate(40, 50)" filter="url(#shadow)">
+        <path class="hex-bg" d="M 100 15 L 175 55 L 175 145 L 100 185 L 25 145 L 25 55 Z" />
+        <path d="M 85 50 L 35 100 L 85 150" fill="none" stroke="url(#emeraldGrad2)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M 115 50 L 165 100 L 115 150" fill="none" stroke="url(#emeraldGrad1)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="100" cy="100" r="14" fill="#34D399" filter="url(#glow)" />
     </g>
+
+    <text x="250" y="180">
+        <tspan class="text-gau">Gau</tspan><tspan class="text-dev">thier</tspan>
+    </text>
+
+    <text x="260" y="240" class="subtitle">Creator Digital Solutions</text>
 </svg>

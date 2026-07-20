@@ -87,10 +87,10 @@
         </flux:toast.group>
     @endpersist
 
-    @vite('resources/js/app.js')
     @fluxScripts
     {{-- Filament scripts (assure le chargement des JS Filament pour le panneau/admin) --}}
     @filamentScripts
+    @vite('resources/js/app.js')
 </body>
 
 </html>
