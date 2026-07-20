@@ -13,6 +13,60 @@ class AboutSettings extends Settings
 
     public string $hero_badge = '';
 
+    public string $service_title = '';
+
+    public string $service_subtitle = '';
+
+    public string $formation_title = '';
+
+    public string $formation_subtitle = '';
+
+    public string $skill_title = '';
+
+    public string $skill_subtitle = '';
+
+    public string $partner_title = '';
+
+    public string $partner_subtitle = '';
+
+    public string $team_title = '';
+
+    public string $team_subtitle = '';
+
+    public string $project_hero_badge = '';
+
+    public string $project_hero_title = '';
+
+    public string $project_hero_subtitle = '';
+
+    public string $project_content_title = '';
+
+    public string $project_content_subtitle = '';
+
+    public string $project_banner_title = '';
+
+    public string $project_banner_subtitle = '';
+
+    public string $blog_hero_badge = '';
+
+    public string $blog_hero_title = '';
+
+    public string $blog_hero_subtitle = '';
+
+    public string $blog_content_title = '';
+
+    public string $blog_content_subtitle = '';
+
+    public string $blog_banner_title = '';
+
+    public string $blog_banner_subtitle = '';
+
+    public string $author_home = '';
+
+    public string $auteur_about = '';
+
+    public string $citation_footer = '';
+
     // Content can be a Tiptap document array or a plain string.
     public mixed $about_text = null;
 

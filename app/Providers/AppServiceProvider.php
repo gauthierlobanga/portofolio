@@ -2,20 +2,19 @@
 
 namespace App\Providers;
 
+use App\Services\SettingService;
+use App\Services\SiteService;
 use Carbon\CarbonImmutable;
+use Filament\Notifications\Livewire\Notifications;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\VerticalAlignment;
+use Illuminate\Foundation\Vite as ViteRoot;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-
-
-use App\Services\SettingService;
-use App\Services\SiteService;
-use Illuminate\Support\Facades\View;
-use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\VerticalAlignment;
-use Filament\Notifications\Livewire\Notifications;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,11 +33,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        if (! app()->isLocal()) {
+        if (! app()->isLocal() && method_exists(app(ViteRoot::class), 'usePreloadTag')) {
             Vite::usePreloadTag(false);
         }
 
-                Notifications::alignment(Alignment::Center);
+        Notifications::alignment(Alignment::Center);
         Notifications::verticalAlignment(VerticalAlignment::Start);
 
         /**

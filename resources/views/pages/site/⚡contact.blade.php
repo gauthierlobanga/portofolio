@@ -177,21 +177,27 @@ new #[Layout('layouts::main')] class extends Component {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498A1 1 0 0121 16.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                         </svg>
-                        Nous contacter
+                        {{ $settings->contact_hero_badge ?: 'Nous contacter' }}
                     </span>
 
                     {{-- Titre --}}
-                    <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl transition-all duration-1000 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                        Parlons de votre <span
-                            class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">projet</span>
-                    </h1>
+                    @if ($settings->contact_hero_title)
+                        <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl transition-all duration-1000 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                            :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
+                            {{ $settings->contact_hero_title }}
+                        </h1>
+                    @else
+                        <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-6xl transition-all duration-1000 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                            :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
+                            Parlons de votre <span
+                                class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">projet</span>
+                        </h1>
+                    @endif
 
                     {{-- Description --}}
                     <p class="mx-auto mt-4 transition-all duration-1000 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-2xl text-lg text-zinc-600 dark:text-zinc-400"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                        Notre équipe est disponible pour répondre à toutes vos questions et vous accompagner dans vos
-                        projets de développement rural.
+                        {{ $settings->contact_hero_subtitle ?: 'Notre équipe est disponible pour répondre à toutes vos questions et vous accompagner dans vos projets de développement rural.' }}
                     </p>
                     {{-- Coordonnées rapides --}}
                     @if ($phone || $contactEmail  || $secondaryEmail)
@@ -246,7 +252,7 @@ new #[Layout('layouts::main')] class extends Component {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            Nos bureaux
+                            {{ $settings->contact_offices_title ?: 'Nos bureaux' }}
                         </h3>
 
                         {{-- Grille 4 colonnes --}}
@@ -361,9 +367,8 @@ new #[Layout('layouts::main')] class extends Component {
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <div>
-                                    <p class="font-medium text-zinc-900 dark:text-white">Disponibilité</p>
-                                    <p class="text-sm text-zinc-600 dark:text-zinc-400">Support technique 7j/7 · Du
-                                        lundi au samedi, 8h - 18h</p>
+                                    <p class="font-medium text-zinc-900 dark:text-white">{{ $settings->contact_support_title ?: 'Disponibilité' }}</p>
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $settings->contact_support_description ?: 'Support technique 7j/7 · Du lundi au samedi, 8h - 18h' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -383,10 +388,9 @@ new #[Layout('layouts::main')] class extends Component {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                Envoyez-nous un message
+                                {{ $settings->contact_form_heading ?: 'Envoyez-nous un message' }}
                             </h2>
-                            <p class="text-sm text-zinc-500 dark:text-zinc-400">Remplissez le formulaire ci-dessous,
-                                nous vous répondrons dans les plus brefs délais.</p>
+                            <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $settings->contact_form_description ?: 'Remplissez le formulaire ci-dessous, nous vous répondrons dans les plus brefs délais.' }}</p>
                         </div>
 
                         <div class="p-6">

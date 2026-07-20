@@ -148,6 +148,49 @@ class ManageAppSettings extends SettingsPage
                             ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
                             ->defaultItems(0),
                     ]),
+
+                Section::make('Contenu du formulaire de contact')
+                    ->icon('heroicon-o-chat-bubble-bottom-center-text')
+                    ->description('Texte dynamique utilisé sur la page de contact.')
+                    ->columnSpanFull()
+                    ->schema([
+                        Group::make()
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('contact_hero_badge')
+                                    ->label('Badge du hero contact')
+                                    ->maxLength(100),
+                                TextInput::make('contact_hero_title')
+                                    ->label('Titre du hero contact')
+                                    ->maxLength(255),
+                            ]),
+                        TextInput::make('contact_hero_subtitle')
+                            ->label('Sous-titre du hero contact')
+                            ->maxLength(255),
+                        Group::make()
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('contact_form_heading')
+                                    ->label('Titre du formulaire')
+                                    ->maxLength(255),
+                                TextInput::make('contact_form_description')
+                                    ->label('Description du formulaire')
+                                    ->maxLength(255),
+                            ]),
+                        Group::make()
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('contact_support_title')
+                                    ->label('Titre du bloc support')
+                                    ->maxLength(255),
+                                TextInput::make('contact_support_description')
+                                    ->label('Description du bloc support')
+                                    ->maxLength(255),
+                            ]),
+                        TextInput::make('contact_offices_title')
+                            ->label('Titre de la section bureaux')
+                            ->maxLength(255),
+                    ]),
             ]);
     }
 }
