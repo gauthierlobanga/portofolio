@@ -1,4 +1,10 @@
 import { gsap } from "gsap";
+import Alpine from 'alpinejs';
+
+// Expose Alpine globally so other modules (passkeys, components) can register
+if (typeof window !== 'undefined') {
+    window.Alpine = Alpine;
+}
 // Import flowbite locally (avoid CDN / tracking prevention issues)
 import "flowbite";
 import autoAnimate from "@formkit/auto-animate";
@@ -35,6 +41,15 @@ if (typeof window !== "undefined") {
 document.addEventListener("alpine:init", registerAlpineExtensions, {
     once: true,
 });
+
+// Start Alpine if available
+if (typeof Alpine !== 'undefined' && typeof Alpine.start === 'function') {
+    try {
+        Alpine.start();
+    } catch (e) {
+        // If Alpine already started elsewhere, ignore
+    }
+}
 
 // ---------- Utilitaires sécurisés ----------
 const safeGsapFromTo = (target, fromVars, toVars) => {
