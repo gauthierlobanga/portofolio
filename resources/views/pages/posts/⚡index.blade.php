@@ -196,7 +196,7 @@ new #[Layout('layouts::main')] class extends Component {
                     :aria-expanded="showFilters" aria-controls="filters-panel"
                     class="group inline-flex h-10 items-center cursor-pointer gap-2 border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-600 transition-all duration-300 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-600 dark:hover:bg-zinc-700 dark:hover:text-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-2 active:scale-[0.97]"
                     :class="showFilters ?
-                        '!border-emerald-500 !bg-emerald-50 !text-emerald-700 !shadow-emerald-100 hover:!bg-emerald-100 dark:!border-emerald-400 dark:!bg-emerald-900/20 dark:!text-emerald-300 dark:hover:!bg-emerald-900/30' :
+                        'border-emerald-500! bg-emerald-50! text-emerald-700! shadow-emerald-100! hover:bg-emerald-100! dark:border-emerald-400! dark:bg-emerald-900/20! dark:!text-emerald-300 dark:hover:!bg-emerald-900/30' :
                         ''">
                     <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -274,7 +274,7 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
                     <input autocomplete="off"
                         class="h-full w-full border-0 bg-transparent pl-10 pr-12 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                        wire:model.live.debounce.250ms="search" x-ref="searchInput"
+                        wire:model.live.debounce.250ms.preserve-scroll="search" x-ref="searchInput"
                         placeholder="Rechercher un article...">
                     <button x-cloak x-show="$wire.search.length > 0" @click="clearSearch()"
                         x-transition:enter="transition ease-out duration-200"
@@ -301,26 +301,57 @@ new #[Layout('layouts::main')] class extends Component {
                         <label for="cat-all"
                             class="cursor-pointer select-none px-4 py-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-101 active:scale-95 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
                             :class="{
-                                '!bg-emerald-500 !text-white hover:!bg-emerald-500 dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20':
+                                'bg-emerald-500! text-white! hover:bg-emerald-500! dark:bg-emerald-500! dark:hover:!bg-emerald-400 !shadow-emerald-500/20':
                                     !$wire.category
                             }">
                             Toutes
                         </label>
                         <input type="radio" id="cat-all" name="category-filter" value=""
-                            class="sr-only peer" wire:model.live="category" />
+                            class="sr-only peer" wire:model.live.preserve-scroll="category" />
 
                         @foreach ($categories as $cat)
                             <label for="cat-{{ $cat->slug }}"
                                 class="cursor-pointer select-none px-4 py-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 shadow-sm hover:shadow-md"
                                 :class="{
-                                    '!bg-emerald-500 !text-white hover:!bg-emerald-600 dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20': $wire
+                                    'bg-emerald-500! text-white! hover:bg-emerald-600! dark:!bg-emerald-500 dark:hover:!bg-emerald-400 !shadow-emerald-500/20': $wire
                                         .category === '{{ $cat->slug }}'
                                 }">
                                 {{ $cat->nom }}
                             </label>
                             <input type="radio" id="cat-{{ $cat->slug }}" name="category-filter"
-                                value="{{ $cat->slug }}" class="sr-only peer" wire:model.live="category" />
+                                value="{{ $cat->slug }}" class="sr-only peer" wire:model.live.preserve-scroll="category" />
                         @endforeach
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend class="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">Trier par :</legend>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'newest')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-200">
+                            Plus récents
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'oldest')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-200">
+                            Plus anciens
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'popular')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-200">
+                            Populaires
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'name-asc')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-200">
+                            Titre A→Z
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'name-desc')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-200">
+                            Titre Z→A
+                        </button>
                     </div>
                 </fieldset>
             </div>
@@ -328,7 +359,9 @@ new #[Layout('layouts::main')] class extends Component {
 
         {{-- Grille des articles (animation stable) --}}
         <div wire:loading.class="opacity-50 pointer-events-none"
-            class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-7 transition-opacity duration-300"
+            wire:loading.delay
+            wire:target="search,category,sort,clearFilters,gotoPage,nextPage,previousPage"
+            class="mt-5 grid min-h-[34rem] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start gap-7 transition-opacity duration-300"
             x-data="autoAnimateGrid" aria-label="Liste des articles">
             @forelse ($posts as $post)
                 <a href="{{ route('posts.show', $post) }}" wire:navigate

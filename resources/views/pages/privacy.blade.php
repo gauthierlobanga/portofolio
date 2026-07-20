@@ -11,14 +11,15 @@
             </div>
         </div>
 
-        <div class="relative z-10 mx-auto max-w-4xl px-6 lg:px-8">
+        @php $settings = app(\App\Settings\PrivacySettings::class); @endphp
+    <div class="relative z-10 mx-auto max-w-4xl px-6 lg:px-8">
             <div class="text-center">
-                <flux:badge color="blue" class="mb-4">Données Personnelles</flux:badge>
+                <flux:badge color="blue" class="mb-4">{{ $settings->hero_badge ?: 'Données Personnelles' }}</flux:badge>
                 <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl dark:text-white">
-                    Politique de Confidentialité
+                    {{ $settings->hero_title ?: 'Politique de Confidentialité' }}
                 </h1>
                 <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-                    Nous accordons une importance primordiale à la protection et au respect de vos données personnelles.
+                    {{ $settings->hero_subtitle ?: 'Nous accordons une importance primordiale à la protection et au respect de vos données personnelles.' }}
                 </p>
             </div>
         </div>

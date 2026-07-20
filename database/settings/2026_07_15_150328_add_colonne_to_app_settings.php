@@ -6,7 +6,7 @@ return new class extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->add('about.contact_email', null);
+        $this->migrator->add('about.description_footer', null);
         $this->migrator->add('about.contact_phone', null);
         $this->migrator->add('about.address', null);
     }

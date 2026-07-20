@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Services\SettingService;
 use App\Services\SiteService;
+use App\Settings\SettingApp;
 use Carbon\CarbonImmutable;
 use Filament\Notifications\Livewire\Notifications;
 use Filament\Support\Enums\Alignment;
@@ -45,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
          */
         View::composer('*', function ($view) {
             $users = app(SiteService::class);
-            $settings = app(SettingService::class);
+            $settings = app(SettingApp::class);
             $view->with('users', $users);
             $view->with('settings', $settings);
         });

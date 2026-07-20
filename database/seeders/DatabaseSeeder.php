@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             CreateAdminUserSeeder::class,
             BlogCategorySeeder::class,
             SkillCategorySeeder::class,
+            SkillSeeder::class,
             PostSeeder::class,
             FaqSeeder::class,
             TeamSeeder::class,

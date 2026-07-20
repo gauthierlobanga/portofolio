@@ -23,6 +23,12 @@ new #[Layout('layouts::main')] class extends Component {
 
     public function with(): array
     {
+        $statuses = ['all' => 'Tous', 'planned' => 'Planifiés', 'ongoing' => 'En cours', 'completed' => 'Terminés'];
+
+        if (!array_key_exists($this->filter, $statuses)) {
+            $this->filter = 'all';
+        }
+
         $query = Project::query()
             ->with(['media', 'tags'])
             ->active();
@@ -313,7 +319,7 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
                     <input autocomplete="off"
                         class="h-full w-full border-0 bg-transparent pl-10 pr-12 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                        x-model.debounce.250ms="search" x-ref="searchInput" placeholder="Rechercher un projet...">
+                        wire:model.live.debounce.250ms.preserve-scroll="search" x-model.debounce.250ms="search" x-ref="searchInput" placeholder="Rechercher un projet...">
                     <button x-cloak x-show="search.length > 0" @click="clearSearch()"
                         x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 scale-75" x-transition:enter-end="opacity-100 scale-100"
@@ -342,7 +348,7 @@ new #[Layout('layouts::main')] class extends Component {
                             Tous
                         </label>
                         <input type="radio" id="status-all" name="status-filter" value="all"
-                            class="sr-only peer" x-model="filter" />
+                            class="sr-only peer" wire:model.live.preserve-scroll="filter" x-model="filter" />
 
                         @foreach ($statuses as $key => $label)
                             @if ($key !== 'all')
@@ -352,17 +358,45 @@ new #[Layout('layouts::main')] class extends Component {
                                     {{ $label }}
                                 </label>
                                 <input type="radio" id="status-{{ $key }}" name="status-filter"
-                                    value="{{ $key }}" class="sr-only peer" x-model="filter" />
+                                    value="{{ $key }}" class="sr-only peer" wire:model.live.preserve-scroll="filter" x-model="filter" />
                             @endif
                         @endforeach
                     </div>
                 </fieldset>
+ 
+                <fieldset>
+                    <legend class="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">Trier par :</legend>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'newest')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-zinc-200">
+                            Plus récents
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'oldest')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-zinc-200">
+                            Plus anciens
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'name-asc')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-zinc-200">
+                            Titre A→Z
+                        </button>
+                        <button type="button"
+                            wire:click.preserve-scroll="$set('sort', 'name-desc')"
+                            class="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 transition-colors duration-200 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-zinc-200">
+                            Titre Z→A
+                        </button>
+                    </div>
+                </fieldset>
             </div>
         </div>
-
+ 
         {{-- Grille des projets --}}
         <div wire:loading.class="opacity-50 pointer-events-none"
-            class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7 transition-opacity duration-300"
+            wire:loading.delay
+            wire:target="search,filter,sort,clearFilters,gotoPage,nextPage,previousPage"
+            class="mt-5 grid min-h-[34rem] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7 transition-opacity duration-300"
             x-data="autoAnimateGrid" aria-label="Liste des projets">
             @forelse($projects as $project)
                 <a wire:navigate href="{{ route('projects.show', $project) }}"

@@ -10,7 +10,7 @@ class SiteService
 
     public function __construct()
     {
-        $this->users = User::firstOrCreate([]);
+        $this->users = User::query()->first() ?? new User;
     }
 
     public function getName()

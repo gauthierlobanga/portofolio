@@ -218,6 +218,140 @@ class ManageAboutPage extends SettingsPage
                                     ->preserveFilenames(),
                             ]),
 
+                        Section::make('Titres de sections de la page d’accueil')
+                            ->icon('heroicon-o-rectangle-stack')
+                            ->schema([
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('service_title')
+                                            ->label('Titre section Services')
+                                            ->maxLength(255),
+                                        TextInput::make('service_subtitle')
+                                            ->label('Sous-titre section Services')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('formation_title')
+                                            ->label('Titre section Formation')
+                                            ->maxLength(255),
+                                        TextInput::make('formation_subtitle')
+                                            ->label('Sous-titre section Formation')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('skill_title')
+                                            ->label('Titre section Compétences')
+                                            ->maxLength(255),
+                                        TextInput::make('skill_subtitle')
+                                            ->label('Sous-titre section Compétences')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('partner_title')
+                                            ->label('Titre section Partenaires')
+                                            ->maxLength(255),
+                                        TextInput::make('partner_subtitle')
+                                            ->label('Sous-titre section Partenaires')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('team_title')
+                                            ->label('Titre section Notre équipe')
+                                            ->maxLength(255),
+                                        TextInput::make('team_subtitle')
+                                            ->label('Sous-titre section Notre équipe')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('project_hero_badge')
+                                            ->label('Badge section Projets')
+                                            ->maxLength(100),
+                                        TextInput::make('project_hero_title')
+                                            ->label('Titre section Projets')
+                                            ->maxLength(255),
+                                    ]),
+                                TextInput::make('project_hero_subtitle')
+                                    ->label('Sous-titre section Projets')
+                                    ->maxLength(255),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('project_content_title')
+                                            ->label('Titre du contenu projet')
+                                            ->maxLength(255),
+                                        TextInput::make('project_content_subtitle')
+                                            ->label('Sous-titre du contenu projet')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('project_banner_title')
+                                            ->label('Titre bannière projet')
+                                            ->maxLength(255),
+                                        TextInput::make('project_banner_subtitle')
+                                            ->label('Sous-titre bannière projet')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('blog_hero_badge')
+                                            ->label('Badge section Blog')
+                                            ->maxLength(100),
+                                        TextInput::make('blog_hero_title')
+                                            ->label('Titre section Blog')
+                                            ->maxLength(255),
+                                    ]),
+                                TextInput::make('blog_hero_subtitle')
+                                    ->label('Sous-titre section Blog')
+                                    ->maxLength(255),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('blog_content_title')
+                                            ->label('Titre du contenu blog')
+                                            ->maxLength(255),
+                                        TextInput::make('blog_content_subtitle')
+                                            ->label('Sous-titre du contenu blog')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('blog_banner_title')
+                                            ->label('Titre bannière blog')
+                                            ->maxLength(255),
+                                        TextInput::make('blog_banner_subtitle')
+                                            ->label('Sous-titre bannière blog')
+                                            ->maxLength(255),
+                                    ]),
+                                Group::make()
+                                    ->columns(2)
+                                    ->schema([
+                                        TextInput::make('author_home')
+                                            ->label('Auteur sur la page d’accueil')
+                                            ->maxLength(255),
+                                        TextInput::make('auteur_about')
+                                            ->label('Auteur sur la page à propos')
+                                            ->maxLength(255),
+                                    ]),
+                                TextInput::make('citation_footer')
+                                    ->label('Citation du footer')
+                                    ->maxLength(255),
+                            ]),
+
                         Section::make('Contenu principal')
                             ->icon('heroicon-o-document-text')
                             ->schema([

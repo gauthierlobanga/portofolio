@@ -2,6 +2,8 @@
 
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Settings\AboutSettings;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -65,5 +67,11 @@ new #[Layout('layouts::main')] class extends Component
             'categories' => PostCategory::whereHas('posts', fn ($q) => $q->published()->whereHas('categories', fn ($q) => $q->where('slug', self::FORMATION_CATEGORY_SLUG)))->count(),
             'views' => $publicationQuery->sum('views_count'),
         ];
+    }
+
+    #[Computed]
+    public function about(): AboutSettings
+    {
+        return app(AboutSettings::class);
     }
 };

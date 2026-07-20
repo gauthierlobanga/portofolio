@@ -8,13 +8,13 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use LaraZeus\Progress\Tables\Columns\CircleProgress;
-use LaraZeus\Progress\Tables\Columns\ProgressBar;
 
 class SkillsTable
 {
@@ -22,6 +22,12 @@ class SkillsTable
     {
         return $table
             ->columns([
+                ImageColumn::make('icon')
+                    ->label('Icône')
+                    ->getStateUsing(fn ($record) => $record->getFirstMediaUrl('icon', 'icon_thumb'))
+                    ->imageSize(40)
+                    ->toggleable(),
+
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()

@@ -2,15 +2,12 @@
         <div class="relative mx-auto max-w-7xl px-6 lg:px-8">
             <div class="mb-16 max-w-3xl" x-data="cspState" x-intersect="shown = true">
                 <h2 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl transition-all duration-700 delay-100 ease-out"
-                    :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                    Des solutions <span class="text-emerald-600 dark:text-emerald-400">durables</span> pour chaque besoin
+                   :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
+                   {{ $this->about->service_title ?: 'Des solutions durables pour chaque besoin' }}
                 </h2>
                 <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400 transition-all duration-700 delay-200 ease-out"
                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                    À travers notre approche <strong class="text-emerald-600 dark:text-emerald-400">4B</strong> (Bonne
-                    cuisson, Bonne alimentation, Bonne planification familiale pour la Bonne santé), nous développons
-                    des
-                    solutions durables.
+                    {{ $this->about->service_subtitle ?: 'À travers notre approche 4B (Bonne cuisson, Bonne alimentation, Bonne planification familiale pour la Bonne santé), nous développons des solutions durables.' }}
                 </p>
             </div>
 

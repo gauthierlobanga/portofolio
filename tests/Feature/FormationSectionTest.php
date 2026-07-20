@@ -61,7 +61,7 @@ test('home formation section only shows formation category posts', function () {
     $response = $this->get('/');
 
     $response->assertStatus(200);
-    $response->assertSee('Plongez au cœur de nos');
+    $response->assertSee('Plongez au cœur de mes formations');
     $response->assertSee('Formation Post One');
     $response->assertSee('Formation Post Two');
     $response->assertSee('Formation Post Three');

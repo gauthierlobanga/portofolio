@@ -129,7 +129,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <div x-ref="author" class="mt-4 flex items-center gap-3">
                         <div class="h-px w-16 bg-emerald-500/80"></div>
                         <p class="text-2xl font-extrabold tracking-tight text-emerald-300 lg:text-3xl">
-                            Full-Stack Web Developer
+                            {{ $this->about->author_home ?: 'Full-Stack Web Developer' }}
                         </p>
                         <div class="h-px w-16 bg-emerald-500/80 hidden sm:block"></div>
                     </div>

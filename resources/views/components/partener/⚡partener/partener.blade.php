@@ -18,16 +18,14 @@
             x-data="cspState" x-intersect="shown = true"
             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
             class="transition-all duration-700 delay-100 ease-out">
-            Partenaires
+            {{ $this->about->partner_title ?: 'Partenaires' }}
         </p>
 
         <h1 class="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl"
             x-data="cspState" x-intersect="shown = true"
             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
             class="transition-all duration-700 delay-200 ease-out">
-            Ensemble pour un <span
-                class="relative inline-block bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-emerald-300 dark:to-teal-400">impact
-                durable</span>
+            {{ $this->about->partner_subtitle ?: 'Ensemble pour un impact durable' }}
         </h1>
 
         <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-zinc-600 dark:text-zinc-300"
@@ -36,9 +34,7 @@
             class="transition-all duration-700 delay-300 ease-out">
             C’est grâce à leur confiance et à leur engagement à nos côtés que le CADERSA peut concrétiser sa mission
             de développement rural et de sécurité alimentaire au cœur des communautés.
-        </p>
-    </header>
-
+        </p>    </header>
     @foreach ($this->partners as $group)
         <div class="mx-auto mt-14 max-w-7xl">
             <h3 class="mb-8 text-center text-2xl font-bold text-zinc-800 dark:text-white">

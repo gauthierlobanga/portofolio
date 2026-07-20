@@ -51,7 +51,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <div x-ref="author" class="mt-4 flex items-center gap-3">
                         <div class="h-px w-16 bg-emerald-500/80"></div>
                         <p class="text-2xl font-extrabold tracking-tight text-emerald-300 lg:text-3xl">
-                            Gauthier Lobanga
+                            {{ $this->about->auteur_about ?: 'Gauthier Lobanga' }}
                         </p>
                         <div class="h-px w-16 bg-emerald-500/80 hidden sm:block"></div>
                     </div>
@@ -85,7 +85,7 @@ new #[Layout('layouts::main')] class extends Component {
                         </a>
                     </div>
 
-                    <div x-ref="decoLine" class="mt-12 h-0.5 w-0 bg-gradient-to-r from-emerald-500 to-transparent">
+                    <div x-ref="decoLine" class="mt-12 h-0.5 w-0 bg-linear-to-r from-emerald-500 to-transparent">
                     </div>
                 </div>
             </div>
@@ -291,5 +291,7 @@ new #[Layout('layouts::main')] class extends Component {
                 </div>
             </div>
         </div>
+
+        <livewire:stats.stats />
     </section>
 </div>

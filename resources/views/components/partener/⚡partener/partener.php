@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Partner;
+use App\Settings\AboutSettings;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -37,5 +38,11 @@ new class extends Component
     public function tiers(): array
     {
         return array_column($this->partnersByTier, 'tier');
+    }
+
+    #[Computed]
+    public function about(): AboutSettings
+    {
+        return app(AboutSettings::class);
     }
 };

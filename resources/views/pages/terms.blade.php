@@ -11,14 +11,15 @@
             </div>
         </div>
 
-        <div class="relative z-10 mx-auto max-w-4xl px-6 lg:px-8">
+        @php $settings = app(\App\Settings\TermsSettings::class); @endphp
+    <div class="relative z-10 mx-auto max-w-4xl px-6 lg:px-8">
             <div class="text-center">
-                <flux:badge color="zinc" class="mb-4">Règles d'Usage</flux:badge>
+                <flux:badge color="zinc" class="mb-4">{{ $settings->hero_badge ?: 'Règles d\'Usage' }}</flux:badge>
                 <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl dark:text-white">
-                    Conditions d'Utilisation
+                    {{ $settings->hero_title ?: 'Conditions d\'Utilisation' }}
                 </h1>
                 <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-                    Les règles régissant l'utilisation de la plateforme web de CADERSA ASBL.
+                    {{ $settings->hero_subtitle ?: 'Les règles régissant l\'utilisation de la plateforme web de CADERSA ASBL.' }}
                 </p>
             </div>
         </div>

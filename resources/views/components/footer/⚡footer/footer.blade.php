@@ -182,11 +182,19 @@
                     &copy; {{ date('Y') }} {{ $this->appName }}. Tous droits réservés.
                 </p>
                 <div x-ref="warningText" class="absolute inset-0 m-0 flex items-center" style="opacity: 0;">
+                    @php
+                        $aboutSettings = app(\App\Settings\AboutSettings::class);
+                        $footerCitation = trim($aboutSettings->citation_footer ?: 'Vivre c’est reconnaître ses semblables créés à l’image de Dieu. — Prof. Dr Bernard HANGI');
+                        $citationParts = preg_split('/\s+—\s+/', $footerCitation, 2);
+                        $footerQuote = trim($citationParts[0] ?? $footerCitation);
+                        $footerAuthor = trim($citationParts[1] ?? '');
+                    @endphp
                     <blockquote
                         class="border-l-4 border-emerald-500 pl-4 text-sm font-medium italic leading-snug text-emerald-700 dark:text-emerald-300">
-                        Vivre c’est reconnaître ses semblables créés à l’image de Dieu.
-                        <footer class="text-xs text-zinc-500 not-italic dark:text-zinc-400">— Prof. Dr Bernard HANGI
-                        </footer>
+                        {{ $footerQuote }}
+                        @if ($footerAuthor)
+                            <footer class="text-xs text-zinc-500 not-italic dark:text-zinc-400">— {{ $footerAuthor }}</footer>
+                        @endif
                     </blockquote>
                 </div>
             </div>

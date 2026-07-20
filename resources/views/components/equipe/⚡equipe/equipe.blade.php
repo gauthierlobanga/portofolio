@@ -20,19 +20,15 @@
             class="mx-auto max-w-3xl text-center transition-all duration-700">
             <span
                 class="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                Notre équipe
+                {{ $this->about->team_title ?: 'Notre équipe' }}
             </span>
             <h2
                 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl">
-                Ce sont nos collaborateurs<br />
+                {{ $this->about->team_subtitle ?: 'Ce sont nos collaborateurs' }}<br />
                 <span class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">qui font notre
                     grandeur</span>
             </h2>
             <div class="mt-6 h-1 w-20 rounded-full bg-linear-to-r from-emerald-500 to-teal-500 mx-auto"></div>
-            <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
-                Nous réunissons des talents passionnés, animés par l’envie de créer de la valeur et d’accompagner nos
-                clients vers le succès.
-            </p>
         </div>
 
         {{-- Grille des membres avec animation GSAP ScrollTrigger --}}

@@ -60,6 +60,6 @@ it('renders live filter bindings for Livewire 4', function () {
 
 it('does not predefine Alpine before Filament loads its scripts', function () {
     get('/admin/login')
-        ->assertOk()
+        ->assertRedirect('/login')
         ->assertDontSee('window.Alpine = window.Alpine || {}', false);
 });

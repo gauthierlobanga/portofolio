@@ -1,17 +1,23 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     <section class="px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
         <div class="mb-16 max-w-3xl" x-data="cspState" x-intersect="shown = true">
+            @if ($this->about->project_hero_badge)
+                <p class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 transition-all duration-700 delay-100 ease-out"
+                    :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
+                    {{ $this->about->project_hero_badge }}
+                </p>
+            @endif
+
             <h2 class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl transition-all duration-700 delay-100 ease-out"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                Des <span class="text-emerald-600 dark:text-emerald-400">projets</span> qui parlent d’eux-mêmes
+                {{ $this->about->project_hero_title ?: 'Des projets qui parlent d’eux-mêmes' }}
             </h2>
             <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400 transition-all duration-700 delay-200 ease-out"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                De la conception à la mise en ligne, chaque réalisation illustre mon expertise en <strong
-                    class="text-emerald-600 dark:text-emerald-400">développement web full‑stack</strong>. Applications
-                modernes, APIs robustes, interfaces soignées : voici un aperçu de mon savoir‑faire.
+                {{ $this->about->project_hero_subtitle ?: 'De la conception à la mise en ligne, chaque réalisation illustre mon expertise en développement web full‑stack. Applications modernes, APIs robustes, interfaces soignées : voici un aperçu de mon savoir‑faire.' }}
             </p>
         </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7"
             x-data="autoAnimateGrid" aria-label="Liste des projets terminés">
             @forelse($this->projects as $project)

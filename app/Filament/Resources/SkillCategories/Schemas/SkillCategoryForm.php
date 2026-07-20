@@ -56,7 +56,7 @@ class SkillCategoryForm
             ]);
     }
 
-    private static function heroiconOptions(): array
+    public static function heroiconOptions(): array
     {
         // Liste complète des icônes Outline disponibles dans Filament (Heroicon enum)
         // Les noms sont tirés de l'énumération Heroicon (sans préfixe 'o-')
