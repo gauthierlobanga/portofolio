@@ -27,6 +27,7 @@ class Formation extends Model implements HasMedia
         'published_at',
         'meta',
         'sort_order',
+        'formation_category_id',
     ];
 
     protected $casts = [
