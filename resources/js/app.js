@@ -1,9 +1,14 @@
 import { gsap } from "gsap";
 import Alpine from 'alpinejs';
+import intersect from '@alpinejs/intersect';
 
 // Expose Alpine globally so other modules (passkeys, components) can register
 if (typeof window !== 'undefined') {
     window.Alpine = Alpine;
+    // Register Alpine plugins
+    if (typeof intersect !== 'undefined' && typeof Alpine.plugin === 'function') {
+        Alpine.plugin(intersect);
+    }
 }
 // Import flowbite locally (avoid CDN / tracking prevention issues)
 import "flowbite";
@@ -41,15 +46,6 @@ if (typeof window !== "undefined") {
 document.addEventListener("alpine:init", registerAlpineExtensions, {
     once: true,
 });
-
-// Start Alpine if available
-if (typeof Alpine !== 'undefined' && typeof Alpine.start === 'function') {
-    try {
-        Alpine.start();
-    } catch (e) {
-        // If Alpine already started elsewhere, ignore
-    }
-}
 
 // ---------- Utilitaires sécurisés ----------
 const safeGsapFromTo = (target, fromVars, toVars) => {
@@ -1845,4 +1841,13 @@ if (
     document.readyState === "complete"
 ) {
     initAnchorSmoothScroll();
+}
+
+// Start Alpine after all Alpine.data() and plugins have been registered
+if (typeof Alpine !== 'undefined' && typeof Alpine.start === 'function') {
+    try {
+        Alpine.start();
+    } catch (e) {
+        // If Alpine already started elsewhere, ignore
+    }
 }
