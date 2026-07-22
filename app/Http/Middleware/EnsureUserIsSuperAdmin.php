@@ -29,10 +29,10 @@ class EnsureUserIsSuperAdmin
         if (! $user->hasRole('super_admin')) {
             Log::info('Accès refusé au panel admin, redirection vers dashboard.', [
                 'user_id' => $user->id,
-                'email'   => $user->email,
-                'roles'   => $user->getRoleNames(),
-                'ip'      => $request->ip(),
-                'url'     => $request->fullUrl(),
+                'email' => $user->email,
+                'roles' => $user->getRoleNames(),
+                'ip' => $request->ip(),
+                'url' => $request->fullUrl(),
             ]);
 
             // On redirige silencieusement vers le dashboard au lieu de la page 403

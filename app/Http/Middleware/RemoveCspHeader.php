@@ -12,6 +12,7 @@ class RemoveCspHeader
     {
         $response = $next($request);
         $response->headers->remove('Content-Security-Policy');
+
         return $response;
     }
 }

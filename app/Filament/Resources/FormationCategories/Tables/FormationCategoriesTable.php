@@ -8,10 +8,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Filters\TrashedFilter;
 
 class FormationCategoriesTable
 {
@@ -19,15 +18,40 @@ class FormationCategoriesTable
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Nom')->searchable()->sortable(),
-                TextColumn::make('slug')->label('Slug')->toggleable(isToggledHiddenByDefault: true),
-                BadgeColumn::make('sort_order')->label('Ordre'),
+                TextColumn::make('name')
+                    ->label('Nom')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn ($record) => $record->slug),
+
+                ColorColumn::make('color')
+                    ->label('Couleur')
+                    ->copyable()
+                    ->tooltip(fn ($record) => $record->color),
+
+                TextColumn::make('sort_order')
+                    ->label('Ordre')
+                    ->numeric()
+                    ->sortable()
+                    ->badge()
+                    ->color('gray'),
+
+                TextColumn::make('formations_count')
+                    ->label('Formations')
+                    ->counts('formations')
+                    ->sortable(),
+
+                TextColumn::make('created_at')
+                    ->label('Créé le')
+                    ->dateTime('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make()->iconButton(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -35,6 +59,8 @@ class FormationCategoriesTable
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('sort_order')
+            ->striped();
     }
 }

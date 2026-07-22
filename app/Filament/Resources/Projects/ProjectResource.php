@@ -22,7 +22,9 @@ class ProjectResource extends Resource
     protected static ?string $model = Project::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRocketLaunch;
+
     protected static string|UnitEnum|null $navigationGroup = 'Portofolio';
+
     public static function form(Schema $schema): Schema
     {
         return ProjectForm::configure($schema);

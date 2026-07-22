@@ -57,12 +57,12 @@ class ServiceSeeder extends Seeder
 
         foreach ($services as $data) {
             Service::create([
-                'title'      => $data['title'],
-                'slug'       => Str::slug($data['title']),
-                'excerpt'    => $data['excerpt'],
-                'content'    => $data['content'],
-                'icon'       => $data['icon'],
-                'is_active'  => true,
+                'title' => $data['title'],
+                'slug' => Str::slug($data['title']),
+                'excerpt' => $data['excerpt'],
+                'content' => $data['content'],
+                'icon' => $data['icon'],
+                'is_active' => true,
                 'sort_order' => $data['sort_order'],
             ]);
         }

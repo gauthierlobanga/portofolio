@@ -21,19 +21,14 @@
         <div class="flex items-center gap-x-6">
             <div class="flex flex-col gap-3">
                 @if ($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $name }}"
-                        style="height: 2.5rem; width: 2.5rem; object-fit: cover; border-radius: 50%;">
+                    <img loading="eager" decoding="async" src="{{ $logoUrl }}" alt="{{ $name }}"
+                        style="height: 2.5rem; width: 10rem; object-fit: contain; border-radius: 50%;">
                 @else
                     <div class="flex items-center justify-center rounded-full bg-primary-100 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400"
-                        style="height: 2.5rem; width: 2.5rem;">
+                        style="height: 2.5rem; width: 10rem;">
                         <x-filament::icon icon="heroicon-o-building-office-2" class="h-6 w-6" />
                     </div>
                 @endif
-            </div>
-            <div class="flex flex-col gap-3">
-                <h2 class="text-lg font-semibold text-gray-950 dark:text-white" style="line-height: 1.2;">
-                    {{ $name }}
-                </h2>
             </div>
         </div>
 

@@ -106,6 +106,6 @@ class FaqSeeder extends Seeder
             Faq::create($faq);
         }
 
-        $this->command->info('✅ ' . count($faqs) . ' FAQs créées avec succès.');
+        $this->command->info('✅ '.count($faqs).' FAQs créées avec succès.');
     }
 }

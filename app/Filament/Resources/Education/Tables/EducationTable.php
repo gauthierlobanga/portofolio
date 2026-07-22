@@ -3,10 +3,12 @@
 namespace App\Filament\Resources\Education\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class EducationTable
@@ -16,41 +18,73 @@ class EducationTable
         return $table
             ->columns([
                 TextColumn::make('institution')
-                    ->searchable(),
+                    ->label('Établissement')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn ($record) => $record->field_of_study),
+
                 TextColumn::make('degree')
-                    ->searchable(),
-                TextColumn::make('field_of_study')
-                    ->searchable(),
+                    ->label('Diplôme')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('primary'),
+
                 TextColumn::make('start_date')
-                    ->date()
+                    ->label('Début')
+                    ->date('d/m/Y')
                     ->sortable(),
+
                 TextColumn::make('end_date')
-                    ->date()
-                    ->sortable(),
+                    ->label('Fin')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->placeholder('En cours'),
+
                 IconColumn::make('is_current')
-                    ->boolean(),
+                    ->label('Actuel')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray'),
+
                 TextColumn::make('sort_order')
+                    ->label('Ordre')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
+                    ->label('Créé le')
+                    ->dateTime('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Mis à jour')
+                    ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('is_current')
+                    ->label('Statut')
+                    ->options([
+                        1 => 'En cours',
+                        0 => 'Terminé',
+                    ]),
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('start_date', 'desc')
+            ->striped();
     }
 }

@@ -1,7 +1,7 @@
 <section class="border-b border-zinc-200 px-6 pt-16 sm:px-8 sm:pt-20 lg:px-16 lg:pt-28 dark:border-zinc-800">
     <header class="flex flex-col items-center justify-center text-center">
         <div x-data="cspState" x-intersect="shown = true"
-            :class="shown ? 'opacity-100 scale-100' : 'opacity-0 scale-90'" class="transition-all duration-700 ease-out">
+            :class="shown ? 'opacity-100 scale-100' : 'opacity-0 scale-90'" class="transition-all duration-300 ease-out">
             <svg aria-hidden="true" class="h-5 text-stone-800 lg:h-6 dark:text-white" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 48 48">
                 <path class="stroke-current [stroke-width:var(--stroke-width,3)]" stroke-linecap="round"
@@ -17,21 +17,21 @@
         <p class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-5 py-1.5 text-sm font-medium uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
             x-data="cspState" x-intersect="shown = true"
             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
-            class="transition-all duration-700 delay-100 ease-out">
+            class="transition-all duration-300 delay-100 ease-out">
             {{ $this->about->partner_title ?: 'Partenaires' }}
         </p>
 
-        <h1 class="mt-5 max-w-3xl text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl"
+        <h1 class="mt-5 max-w-3xl text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-white"
             x-data="cspState" x-intersect="shown = true"
             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
-            class="transition-all duration-700 delay-200 ease-out">
+            class="transition-all duration-300 delay-200 ease-out">
             {{ $this->about->partner_subtitle ?: 'Ensemble pour un impact durable' }}
         </h1>
 
         <p class="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-zinc-600 dark:text-zinc-300"
             x-data="cspState" x-intersect="shown = true"
             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
-            class="transition-all duration-700 delay-300 ease-out">
+            class="transition-all duration-300 delay-300 ease-out">
             C’est grâce à leur confiance et à leur engagement à nos côtés que le CADERSA peut concrétiser sa mission
             de développement rural et de sécurité alimentaire au cœur des communautés.
         </p>    </header>
@@ -44,11 +44,11 @@
                 @foreach ($group['items'] as $item)
                     <div x-data="cspState" x-intersect="shown = true"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'"
-                        class="transition-all duration-700 ease-out"
+                        class="transition-all duration-300 ease-out"
                         style="transition-delay: {{ $loop->index * 60 }}ms">
                         <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer"
                             class="group flex h-24 w-full items-center justify-center border border-zinc-200 bg-white p-4 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-emerald-300 hover:bg-emerald-50/50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-800/50 dark:hover:bg-emerald-900/20">
-                            <img src="{{ $item['logo'] }}" alt="{{ $item['name'] }}" loading="lazy"
+                            <img loading="eager" decoding="async" src="{{ $item['logo'] }}" alt="{{ $item['name'] }}" loading="eager"
                                 class="h-12 w-auto max-w-[80%] object-contain transition duration-300 ease-out group-hover:scale-105 dark:brightness-90" />
                         </a>
                     </div>

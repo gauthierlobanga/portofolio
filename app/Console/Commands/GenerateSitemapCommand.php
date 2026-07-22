@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Formation;
 use App\Models\Post;
 use App\Models\Project;
 use App\Models\Service;
@@ -13,7 +14,7 @@ class GenerateSitemapCommand extends Command
 {
     protected $signature = 'sitemap:generate';
 
-    protected $description = 'Génère le sitemap XML du site CADERSA';
+    protected $description = 'Génère le sitemap XML du site';
 
     public function handle(): int
     {
@@ -29,6 +30,7 @@ class GenerateSitemapCommand extends Command
             ['url' => route('services.index'), 'priority' => 0.9, 'frequency' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => route('projects.index'), 'priority' => 0.9, 'frequency' => Url::CHANGE_FREQUENCY_WEEKLY],
             ['url' => route('posts.index'), 'priority' => 0.9, 'frequency' => Url::CHANGE_FREQUENCY_DAILY],
+            ['url' => route('formations.index'), 'priority' => 0.9, 'frequency' => Url::CHANGE_FREQUENCY_WEEKLY],
         ];
 
         foreach ($staticPages as $page) {
@@ -39,19 +41,30 @@ class GenerateSitemapCommand extends Command
             );
         }
 
-        // Articles publiés
+        // Articles
         Post::published()->latest('published_at')->each(function (Post $post) use ($sitemap) {
-            $sitemap->add($post);
+            $sitemap->add($post->toSitemapTag());
         });
 
-        // Projets actifs
+        // Projets
         Project::active()->each(function (Project $project) use ($sitemap) {
-            $sitemap->add($project);
+            $sitemap->add(Url::create(route('projects.show', $project))
+                ->setLastModificationDate($project->updated_at)
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.7));
         });
 
-        // Services actifs
+        // Services
         Service::active()->each(function (Service $service) use ($sitemap) {
-            $sitemap->add($service);
+            $sitemap->add(Url::create(route('services.show', $service))
+                ->setLastModificationDate($service->updated_at)
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.7));
+        });
+
+        // Formations
+        Formation::published()->latest('published_at')->each(function (Formation $formation) use ($sitemap) {
+            $sitemap->add($formation->toSitemapTag());
         });
 
         $sitemap->writeToFile(public_path('sitemap.xml'));

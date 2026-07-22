@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Filament\Forms\Components\RichEditor\Models\Concerns\InteractsWithRichContent;
 use Filament\Forms\Components\RichEditor\Models\Contracts\HasRichContent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +21,6 @@ use Spatie\Sitemap\Contracts\Sitemapable;
 use Spatie\Sitemap\Tags\Url;
 use Spatie\Tags\HasTags;
 use Tiptap\Nodes\Image;
-use Illuminate\Database\Eloquent\Builder;
 
 class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitemapable
 {
@@ -215,7 +215,7 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
     /**
      * scopeActive.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeActive(Builder $query): Builder
@@ -228,7 +228,7 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeOrdered(Builder $query): Builder
@@ -241,7 +241,7 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeByStatus(Builder $query, $status): Builder
@@ -254,7 +254,7 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeOngoing(Builder $query): Builder
@@ -267,7 +267,7 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeCompleted(Builder $query): Builder

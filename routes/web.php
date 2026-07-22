@@ -23,14 +23,19 @@ Route::livewire('/services', 'pages::services.index')->name('services.index');
 Route::livewire('/services/{service}', 'pages::services.show')->name('services.show');
 
 // ==================== Projets ====================
-
 Route::livewire('/projects', 'pages::projets.index')->name('projects.index');
 Route::livewire('/projects/{project}', 'pages::projets.show')->name('projects.show');
 
-// ==================== Articles / Actualités ====================
+// ==================== Projets ====================
+Route::livewire('/skills', 'pages::skills.index')->name('skill');
 
+// ==================== Articles / Actualités ====================
 Route::livewire('/posts', 'pages::posts.index')->name('posts.index');
 Route::livewire('/posts/{post:slug}', 'pages::posts.show')->name('posts.show');
+
+// ==================== Formations ====================
+Route::livewire('/formations', 'pages::formations.index')->name('formations.index');
+Route::livewire('/formations/{formation:slug}', 'pages::formations.show')->name('formations.show');
 
 // // ==================== Newsletter ====================
 

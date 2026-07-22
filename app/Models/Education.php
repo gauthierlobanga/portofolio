@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\EducationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Education extends Model
 {
-    /** @use HasFactory<\Database\Factories\EducationFactory> */
+    /** @use HasFactory<EducationFactory> */
     use HasFactory;
 
-    protected $table = "educations";
+    protected $table = 'educations';
 
     protected $fillable = [
         'institution',
@@ -20,7 +21,7 @@ class Education extends Model
         'end_date',
         'is_current',
         'description',
-        'sort_order'
+        'sort_order',
     ];
 
     /**

@@ -1,12 +1,12 @@
 <?php
 
-use Livewire\Component;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Computed;
 use App\Settings\AboutSettings;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
-new #[Layout('layouts::main')] class extends Component {
-
+new #[Layout('layouts::main')] class extends Component
+{
     #[Computed]
     public function about(): AboutSettings
     {

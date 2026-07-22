@@ -6,9 +6,11 @@ namespace App\Models;
 use App\Traits\HasComments;
 use Carbon\Carbon;
 use Database\Factories\PostFactory;
+use DateTimeInterface;
 use Filament\Forms\Components\RichEditor\Models\Concerns\InteractsWithRichContent;
 use Filament\Forms\Components\RichEditor\Models\Contracts\HasRichContent;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,12 +18,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use DateTimeInterface;
 use Spatie\Feed\Feedable;
 use Spatie\Feed\FeedItem;
 use Spatie\Image\Enums\Fit;
@@ -900,6 +900,7 @@ class Post extends Model implements Feedable, HasMedia, HasRichContent, Sitemapa
         }
 
         return self::published()
+            ->with(['user', 'media', 'categories'])
             ->where('id', '!=', $this->id)
             ->whereHas('categories', fn ($q) => $q->whereIn('posts_categories.id', $categoryIds))
             ->orderBy('published_at', 'desc')

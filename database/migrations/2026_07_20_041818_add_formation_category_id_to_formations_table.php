@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('formations', function (Blueprint $table) {
-            $table->foreignId('formation_category_id')->nullable()->constrained('formation_categories')->nullOnDelete()->after('id');
+            $table->foreignUuid('formation_category_id')->nullable()->constrained('formation_categories')->nullOnDelete()->after('id');
+            $table->foreignUuid('user_id')->nullable()->after('id')->constrained('users')->nullOnDelete();
         });
     }
 
@@ -23,6 +24,7 @@ return new class extends Migration
     {
         Schema::table('formations', function (Blueprint $table) {
             $table->dropConstrainedForeignId('formation_category_id');
+            $table->dropConstrainedForeignId('user_id');
         });
     }
 };

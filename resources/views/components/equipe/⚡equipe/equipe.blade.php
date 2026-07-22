@@ -1,5 +1,4 @@
-{{-- resources/views/livewire/team-section.blade.php --}}
-<section class="relative overflow-hidden bg-white px-8 py-10 sm:px-10 sm:py-15 lg:px-15 lg:py-20 dark:bg-zinc-950">
+<section class="relative overflow-hidden bg-white px-4 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-20 dark:bg-zinc-950">
     {{-- Ambiance lumineuse de fond --}}
     <div class="pointer-events-none absolute inset-0 z-0">
         <div
@@ -13,17 +12,17 @@
         </div>
     </div>
 
-    <div class="relative z-10 mx-auto max-w-350 px-6 lg:px-8">
+    <div class="relative z-10 mx-auto w-full max-w-7xl">
         {{-- En-tête --}}
         <div x-cloak x-data="cspState" x-intersect="shown = true"
-            :class="{ 'opacity-100 translate-y-0': shown, 'opacity-0 translate-y-6': !shown }"
-            class="mx-auto max-w-3xl text-center transition-all duration-700">
+            :class="{ 'opacity-100 translate-y-0': shown, 'opacity-0 translate-y-4': !shown }"
+            class="mx-auto max-w-3xl text-center transition-all duration-400 ease-out">
             <span
                 class="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                 {{ $this->about->team_title ?: 'Notre équipe' }}
             </span>
             <h2
-                class="mt-4 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white sm:text-5xl lg:text-5xl">
+                class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                 {{ $this->about->team_subtitle ?: 'Ce sont nos collaborateurs' }}<br />
                 <span class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">qui font notre
                     grandeur</span>
@@ -31,17 +30,17 @@
             <div class="mt-6 h-1 w-20 rounded-full bg-linear-to-r from-emerald-500 to-teal-500 mx-auto"></div>
         </div>
 
-        {{-- Grille des membres avec animation GSAP ScrollTrigger --}}
-        <div class="relative mt-12" x-data="teamMemberGrid">
-            <div class="columns-1 sm:columns-2 lg:columns-3 gap-6">
+        {{-- Grille des membres --}}
+        <div class="relative mt-10 sm:mt-12" x-data="teamMemberGrid">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
                 @forelse($this->members as $member)
                     <article
-                        class="group block break-inside-avoid border border-zinc-200 dark:border-zinc-800 transition duration-500 ease-out not-last:mb-6 odd:hover:bg-emerald-50/50 even:hover:bg-teal-50/50 dark:odd:hover:bg-emerald-900/20 dark:even:hover:bg-teal-900/20 p-6 sm:p-8">
-                        <header class="flex items-start justify-between gap-5">
-                            <div class="flex items-center gap-2.5 sm:gap-3.5">
+                        class="group flex flex-col border border-zinc-200 dark:border-zinc-800 transition duration-300 ease-out hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 p-5 sm:p-6 rounded-sm min-w-0">
+                        <header class="flex items-start justify-between gap-4">
+                            <div class="flex min-w-0 items-center gap-3">
                                 @if ($member->photo_url)
-                                    <img src="{{ $member->photo_url }}" alt="{{ $member->name }}" aria-hidden="true"
-                                        loading="lazy"
+                                    <img loading="eager" decoding="async" src="{{ $member->photo_url }}" alt="{{ $member->name }}" aria-hidden="true"
+                                        loading="eager"
                                         class="object-cover size-10 rounded-full sm:size-12 ring-2 ring-zinc-100 dark:ring-zinc-800" />
                                 @else
                                     <div

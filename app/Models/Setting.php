@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
@@ -51,14 +51,17 @@ class Setting extends Model
     {
         return $this->is_github_url;
     }
+
     public function isTwitterUrl(): bool
     {
         return $this->is_twitter_url;
     }
+
     public function isLinkedinUrl(): bool
     {
         return $this->is_linkedin_url;
     }
+
     public function isWebSiteUrl(): bool
     {
         return $this->is_website_url;

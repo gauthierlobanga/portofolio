@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
 
@@ -14,7 +15,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         // Disable CSRF middleware for test requests to avoid 419 Token Mismatch
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class);
+        $this->withoutMiddleware(VerifyCsrfToken::class);
     }
 
     protected function skipUnlessFortifyHas(string $feature, ?string $message = null): void

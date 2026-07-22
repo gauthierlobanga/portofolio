@@ -10,19 +10,27 @@
         <flux:sidebar.toggle variant="ghost" class="lg:hidden mr-4 hover:bg-emerald-50! dark:hover:bg-emerald-900/20!"
             icon="bars-3" inset="left" />
         <a href="{{ route('home') }}" wire:navigate
-            class="group inline-flex items-center gap-3  py-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50
+            class="hidden lg:inline-flex group items-center gap-3  py-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50
           focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900">
             <x-app-logo />
         </a>
 
         <flux:navbar class="-mb-px max-lg:hidden ml-8">
             <flux:navbar.item :href="route('home')" :current="request()->routeIs('home')" wire:navigate
-                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
+                class="text-zinc-600! hover:bg-emerald-50! hover:text-emerald-600! dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
                 {{ __('Accueil') }}
             </flux:navbar.item>
             <flux:navbar.item :href="route('projects.index')" :current="request()->routeIs('projects.*')" wire:navigate
                 class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
                 {{ __('Projets') }}
+            </flux:navbar.item>
+            <flux:navbar.item :href="route('skill')" :current="request()->routeIs('skill')" wire:navigate
+                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
+                {{ __('Skill') }}
+            </flux:navbar.item>
+            <flux:navbar.item :href="route('formations.index')" :current="request()->routeIs('formations.index')" wire:navigate
+                class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
+                {{ __('Formations') }}
             </flux:navbar.item>
             <flux:navbar.item :href="route('posts.index')" :current="request()->routeIs('posts.index')" wire:navigate
                 class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
@@ -100,7 +108,9 @@
                         ['route' => 'home', 'label' => __('Accueil')],
                         ['route' => 'services.index', 'label' => __('Services')],
                         ['route' => 'projects.index', 'label' => __('Projets')],
+                        ['route' => 'skill', 'label' => __('Skill')],
                         ['route' => 'posts.index', 'label' => __('Blog')],
+                        ['route' => 'formations.index', 'label' => __('Formation')],
                         ['route' => 'about', 'label' => __('À propos')],
                         ['route' => 'contact', 'label' => __('Contact')],
                     ];
@@ -185,95 +195,6 @@
 
     @fluxScripts
     @livewireScripts
-
-    {{-- Définitions de secours pour les composants Filament manquants
-    <script>
-        document.addEventListener('alpine:init', () => {
-            // filamentSection
-            if (!Alpine.data('filamentSection')) {
-                Alpine.data('filamentSection', (collapsed = false, persist = false, collapseId = null) => ({
-                    isCollapsed: collapsed,
-                    init() {
-                        if (persist) {
-                            try {
-                                const key = `section-${collapseId ?? this.$el.id}-isCollapsed`;
-                                const stored = localStorage.getItem(key);
-                                if (stored !== null) {
-                                    this.isCollapsed = stored === 'true';
-                                }
-                                this.$watch('isCollapsed', value => {
-                                    localStorage.setItem(key, value ? 'true' : 'false');
-                                });
-                            } catch (e) {}
-                        }
-                    },
-                    toggle() {
-                        this.isCollapsed = !this.isCollapsed;
-                    }
-                }));
-            }
-
-            // filamentSchemaComponent (version simplifiée)
-            if (!Alpine.data('filamentSchemaComponent')) {
-                Alpine.data('filamentSchemaComponent', () => ({
-                    init() {
-                        // Initialisation minimale pour éviter les erreurs
-                    }
-                }));
-            }
-
-            // selectFormComponent (version simplifiée)
-            if (!Alpine.data('selectFormComponent')) {
-                Alpine.data('selectFormComponent', (config) => ({
-                    state: config.state,
-                    init() {
-                        // Initialisation minimale
-                    }
-                }));
-            }
-
-            // fileUploadFormComponent (version simplifiée)
-            if (!Alpine.data('fileUploadFormComponent')) {
-                Alpine.data('fileUploadFormComponent', (config) => ({
-                    state: config.state,
-                    error: null,
-                    isEditorOpen: false,
-                    init() {},
-                    closeEditor() {
-                        this.isEditorOpen = false;
-                    }
-                }));
-            }
-
-            // keyValueFormComponent (version simplifiée)
-            if (!Alpine.data('keyValueFormComponent')) {
-                Alpine.data('keyValueFormComponent', (config) => ({
-                    rows: [],
-                    state: config.state,
-                    init() {
-                        // Initialisation minimale
-                    },
-                    addRow() {
-                        this.rows.push({
-                            key: '',
-                            value: ''
-                        });
-                        this.updateState();
-                    },
-                    updateState() {
-                        const obj = {};
-                        this.rows.forEach(row => {
-                            if (row.key) obj[row.key] = row.value;
-                        });
-                        this.state = obj;
-                    },
-                    reorderRows(event) {
-                        // Réorganisation basique
-                    }
-                }));
-            }
-        });
-    </script> --}}
 </body>
 
 </html>

@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\Formations\Schemas;
 
+use App\Models\FormationCategory;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Grid;
@@ -23,40 +25,56 @@ class FormationForm
             ->columns(1)
             ->components([
                 Section::make('Informations générales')
+                    ->description('Titre, slug et catégorie de la formation.')
                     ->icon('heroicon-o-document-text')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('title')
+                                    ->label('Titre')
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
+                                    ->label('Slug')
                                     ->required()
                                     ->maxLength(255)
-                                    ->unique(ignoreRecord: true),
+                                    ->unique(ignoreRecord: true)
+                                    ->helperText('Généré automatiquement si laissé vide.'),
                             ]),
 
-                        // Catégorie de la formation
-                        \Filament\Forms\Components\Select::make('formation_category_id')
+                        Select::make('formation_category_id')
                             ->label('Catégorie')
-                            ->relationship('formationCategory', 'name')
+                            ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
                             ->createOptionForm([
-                                \Filament\Forms\Components\TextInput::make('name')->required()->maxLength(255),
-                                \Filament\Forms\Components\TextInput::make('slug')->maxLength(255),
-                                \Filament\Forms\Components\ColorPicker::make('color')->label('Couleur')->default('#6b7280'),
-                                \Filament\Forms\Components\TextInput::make('icon')->label('Icône (optionnel)')->maxLength(255),
+                                TextInput::make('name')
+                                    ->label('Nom de la catégorie')
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('slug')
+                                    ->label('Slug')
+                                    ->maxLength(255),
+                                ColorPicker::make('color')
+                                    ->label('Couleur')
+                                    ->default('#6b7280'),
+                                TextInput::make('icon')
+                                    ->label('Icône (optionnel)')
+                                    ->maxLength(255),
                             ])
-                            ->placeholder('Choisissez une catégorie'),
+                            ->placeholder('Choisissez ou créez une catégorie'),
+                    ]),
 
-                        Textarea::make('subtitle')
-                            ->label('Sous-titre')
-                            ->maxLength(255)
-                            ->columnSpanFull(),
+                Section::make('Description')
+                    ->description('Résumé et contenu détaillé.')
+                    ->icon('heroicon-o-pencil-square')
+                    ->schema([
+                        TextInput::make('subtitle')
+                            ->label('Sous‑titre')
+                            ->maxLength(255),
 
                         RichEditor::make('excerpt')
                             ->label('Résumé')
@@ -64,14 +82,14 @@ class FormationForm
                             ->columnSpanFull()
                             ->json()
                             ->toolbarButtons([
-                                ['bold', 'italic', 'underline', 'strike', 'link'],
-                                [ToolbarButtonGroup::make('Heading', ['h2', 'h3'])->textualButtons()->icon('fi-o-heading')],
-                                ['blockquote', 'bulletList', 'orderedList'],
-                                ['undo', 'redo'],
+                                'bold', 'italic', 'underline', 'strike', 'link',
+                                'h2', 'h3',
+                                'blockquote', 'bulletList', 'orderedList',
+                                'undo', 'redo',
                             ]),
 
                         RichEditor::make('content')
-                            ->label('Description complète')
+                            ->label('Contenu complet')
                             ->columnSpanFull()
                             ->json()
                             ->fileAttachmentsDisk('media')
@@ -79,15 +97,16 @@ class FormationForm
                             ->fileAttachmentsAcceptedFileTypes(['image/png', 'image/jpeg'])
                             ->resizableImages()
                             ->toolbarButtons([
-                                ['bold', 'italic', 'underline', 'strike', 'link', 'attachFiles'],
-                                [ToolbarButtonGroup::make('Heading', ['h1', 'h2', 'h3'])->textualButtons()->icon('fi-o-heading')],
-                                ['blockquote', 'codeBlock', 'bulletList', 'orderedList'],
-                                ['table'],
-                                ['undo', 'redo'],
+                                'bold', 'italic', 'underline', 'strike', 'link', 'attachFiles',
+                                'h1', 'h2', 'h3',
+                                'blockquote', 'codeBlock', 'bulletList', 'orderedList',
+                                'table',
+                                'undo', 'redo',
                             ]),
                     ]),
 
-                Section::make('Média')
+                Section::make('Médias')
+                    ->description('Image de couverture et galerie.')
                     ->icon('heroicon-o-photo')
                     ->schema([
                         SpatieMediaLibraryFileUpload::make('cover')
@@ -99,8 +118,8 @@ class FormationForm
                             ->visibility('public')
                             ->maxSize(5120)
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->columnSpanFull()
-                            ->helperText('Format 16:9 recommandé, max 5 Mo.'),
+                            ->helperText('Format 16:9 recommandé, max 5 Mo.')
+                            ->columnSpanFull(),
 
                         SpatieMediaLibraryFileUpload::make('gallery')
                             ->label('Galerie d\'images')
@@ -119,11 +138,36 @@ class FormationForm
                             ->reorderable()
                             ->appendFiles()
                             ->panelLayout('grid')
-                            ->columnSpanFull()
-                            ->helperText('Images supplémentaires (max 10 fichiers, 5MB chacun).'),
+                            ->customProperties([
+                                'title' => '',
+                                'description' => '',
+                                'alt' => '',
+                            ])
+                            ->helperText('Images supplémentaires (max 10 fichiers, 5 Mo chacun). Cliquez sur une image pour ajouter un titre, une description et un texte alternatif.')
+                            ->columnSpanFull(),
                     ]),
 
-                Section::make('Détails')
+                Section::make('Vidéos')
+                    ->description('Ajoutez une vidéo pour chaque chapitre ou leçon. Une fois la vidéo téléversée, cliquez sur le bouton d\'édition (icône crayon) du média pour renseigner la propriété personnalisée "target_id" (ex: chapter-0, chapter-2-lesson-1).')
+                    ->icon('heroicon-o-video-camera')
+                    ->schema([
+                        SpatieMediaLibraryFileUpload::make('videos')
+                            ->collection('videos')
+                            ->multiple()
+                            ->disk('public')
+                            ->directory('formations/videos')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['video/*'])  // ✅ accepte tout type MIME vidéo
+                            ->maxSize(102400)
+                            ->helperText('Formats acceptés : tous types vidéo (MP4, WebM, OGG, MOV, AVI, MKV, etc.)')
+                            ->customProperties(fn () => ['target_id' => ''])
+                            ->panelLayout('list')
+                            ->reorderable()
+                            ->appendFiles(),
+                    ]),
+
+                Section::make('Détails de la formation')
+                    ->description('Dates, localisation et statut.')
                     ->icon('heroicon-o-map-pin')
                     ->schema([
                         Grid::make(2)
@@ -131,6 +175,11 @@ class FormationForm
                                 TextInput::make('location')
                                     ->label('Localisation')
                                     ->maxLength(255),
+
+                                TextInput::make('duration')
+                                    ->label('Durée')
+                                    ->maxLength(255)
+                                    ->placeholder('ex: 3h30, 2 jours, etc.'),
 
                                 ToggleButtons::make('status')
                                     ->label('Statut')
@@ -162,18 +211,55 @@ class FormationForm
                                     ->label('Date de fin')
                                     ->native(false)
                                     ->displayFormat('d/m/Y')
-                                    ->after('start_date'),
+                                    ->after('start_date')
+                                    ->helperText('Optionnelle.'),
                             ]),
+                    ]),
+
+                Section::make('Tags')
+                    ->description('Mots-clés associés à la formation.')
+                    ->icon('heroicon-o-tag')
+                    ->schema([
+                        SpatieTagsInput::make('tags')
+                            ->label('Tags')
+                            ->suggestions(function () {
+                                // Récupère les noms des catégories de formation comme suggestions de base
+                                $categoryNames = FormationCategory::pluck('name')->toArray();
+                                // Ajoute des tags complémentaires
+                                $extraTags = ['Débutant', 'Intermédiaire', 'Avancé', 'Certifiant', 'Présentiel', 'Distanciel'];
+
+                                return array_merge($categoryNames, $extraTags);
+                            })
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Paramètres')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->schema([
-                        Toggle::make('is_active')
-                            ->label('Actif')
-                            ->default(true)
-                            ->onColor('success')
-                            ->offColor('danger'),
+                        Grid::make(2)
+                            ->schema([
+                                Toggle::make('is_active')
+                                    ->label('Actif')
+                                    ->default(true)
+                                    ->onColor('success')
+                                    ->offColor('danger'),
+
+                                TextInput::make('sort_order')
+                                    ->label('Ordre d\'affichage')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->helperText('Plus petit = premier.'),
+
+                                // --- Nouveau champ utilisateur ---
+                                Select::make('user_id')
+                                    ->label('Auteur')
+                                    ->relationship('user', 'name') // suppose que la relation s'appelle 'user' dans le modèle
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Choisissez un auteur')
+                                    ->helperText('Personne qui dispense la formation.'),
+                            ]),
                     ]),
             ]);
     }

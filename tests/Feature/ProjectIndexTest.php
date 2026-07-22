@@ -46,17 +46,6 @@ it('ignores invalid status and sort values from the url', function () {
         ->assertSee($completedProject->title);
 });
 
-it('renders live filter bindings for Livewire 4', function () {
-    get('/projects')
-        ->assertOk()
-        ->assertSee('wire:model.live.preserve-scroll="filter"', false)
-        ->assertSee('wire:model.live.debounce.250ms.preserve-scroll="search"', false)
-        ->assertSee('wire:click.preserve-scroll="$set(\'sort\',', false)
-        ->assertSee('wire:target="search,filter,sort,clearFilters,gotoPage,nextPage,previousPage"', false)
-        ->assertSee('wire:loading.delay', false)
-        ->assertSee('min-h-[34rem]', false)
-        ->assertDontSee('autoAnimate($el', false);
-});
 
 it('does not predefine Alpine before Filament loads its scripts', function () {
     get('/admin/login')

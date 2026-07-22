@@ -79,6 +79,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentShieldPlugin::make()
                     ->navigationLabel('Bouclier')
+                    ->navigationGroup('Security')
                     ->navigationIcon(Heroicon::OutlinedShieldCheck)
                     ->activeNavigationIcon(Heroicon::ShieldCheck)
                     ->navigationSort(10)

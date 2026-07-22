@@ -31,7 +31,7 @@
             </flux:sidebar.item>
         </flux:sidebar.nav>
 
-        <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
+        <x-desktop-user-menu />
     </flux:sidebar>
 
     <!-- Mobile User Menu -->
@@ -90,7 +90,6 @@
     @fluxScripts
     {{-- Filament scripts (assure le chargement des JS Filament pour le panneau/admin) --}}
     @filamentScripts
-    @vite('resources/js/app.js')
 </body>
 
 </html>

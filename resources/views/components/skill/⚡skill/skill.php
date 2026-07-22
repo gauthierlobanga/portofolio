@@ -8,10 +8,10 @@ use Livewire\Component;
 
 new class extends Component
 {
-     #[Computed]
+    #[Computed]
     public function skills(): Collection
     {
-        return Skill::with(['categorySkill','media'])
+        return Skill::with(['categorySkill', 'media'])
             ->get()
             ->sortBy([
                 ['categorySkill.sort_order', 'asc'],
@@ -22,7 +22,9 @@ new class extends Component
     #[Computed]
     public function categories(): Collection
     {
-        return $this->skills->groupBy(fn($skill) => $skill->skill_category_id ?? 'none');
+        return $this->skills
+            ->groupBy(fn ($skill) => $skill->skill_category_id ?? 'none')
+            ->take(6);
     }
 
     #[Computed]

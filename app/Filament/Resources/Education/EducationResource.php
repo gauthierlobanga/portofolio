@@ -9,18 +9,20 @@ use App\Filament\Resources\Education\Schemas\EducationForm;
 use App\Filament\Resources\Education\Tables\EducationTable;
 use App\Models\Education;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class EducationResource extends Resource
 {
     protected static ?string $model = Education::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
-    protected static string | UnitEnum | null $navigationGroup = 'Portofolio';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Portofolio';
+
     protected static ?string $recordTitleAttribute = 'institution';
 
     public static function form(Schema $schema): Schema

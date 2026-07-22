@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 
 class TypeDocumentLegal extends Model
 {
@@ -60,7 +60,7 @@ class TypeDocumentLegal extends Model
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeObligatoires(Builder $query): Builder
@@ -73,7 +73,7 @@ class TypeDocumentLegal extends Model
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeOptionnels(Builder $query): Builder

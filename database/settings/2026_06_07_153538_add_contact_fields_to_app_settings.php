@@ -9,5 +9,6 @@ return new class extends SettingsMigration
         $this->migrator->add('app.address', '');
         $this->migrator->add('app.phone', '');
         $this->migrator->add('app.email', '');
+
     }
 };

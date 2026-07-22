@@ -32,7 +32,7 @@ class PostBookMark extends Model
     /**
      * scopeForUser.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeForUser(Builder $query, $userId): Builder

@@ -10,6 +10,7 @@ new #[Layout('layouts::main')] class extends Component
     {
         return [
             'projects' => Project::query()
+                ->with('media')
                 ->has('media')
                 ->active()
                 ->latest('start_date')
@@ -25,7 +26,7 @@ new #[Layout('layouts::main')] class extends Component
     <section class="bg-slate-900 py-24 relative overflow-hidden">
         <div class="absolute inset-0 bg-linear-to-r from-emerald-900/50 to-slate-900/50 mix-blend-multiply z-0"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center animate-fade-up">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6">Galerie</h1>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-6">Galerie</h1>
             <p class="text-xl text-emerald-100 max-w-2xl mx-auto">Un aperçu visuel de nos réalisations et de notre impact sur le terrain.</p>
         </div>
     </section>
@@ -39,7 +40,7 @@ new #[Layout('layouts::main')] class extends Component
                     <div class="group relative aspect-4/3 overflow-hidden rounded-2xl bg-slate-200 cursor-pointer animate-fade-up" style="animation-delay: {{ ($index % 3) * 0.1 }}s;" x-data="cspState()" @mouseenter="hovered = true" @mouseleave="hovered = false">
 
                         @if($project->hasMedia('cover'))
-                            <img src="{{ $project->getFirstMediaUrl('cover', 'thumb') }}" alt="{{ $project->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700" :class="{ 'scale-110': hovered }">
+                            <img loading="eager" decoding="async" src="{{ $project->getFirstMediaUrl('cover', 'thumb') }}" alt="{{ $project->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300" :class="{ 'scale-110': hovered }">
                         @else
                             <div class="absolute inset-0 flex items-center justify-center text-slate-400">
                                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>

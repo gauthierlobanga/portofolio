@@ -14,7 +14,7 @@ new class extends Component
         return Post::with(['user', 'categories'])
             ->published()
             ->latest('published_at')
-            ->limit(3)
+            ->limit(6)
             ->get();
     }
 

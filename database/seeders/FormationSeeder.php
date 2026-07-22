@@ -2,30 +2,32 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Formation;
+use App\Models\FormationCategory;
 use Illuminate\Database\Seeder;
 
 class FormationSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $formations = \App\Models\Formation::factory()->count(8)->create();
+        // Récupère les IDs des catégories existantes
+        $categoryIds = FormationCategory::pluck('id')->toArray();
 
-        $categories = \App\Models\FormationCategory::pluck('id')->toArray();
-        if (!empty($categories)) {
-            foreach ($formations as $formation) {
-                $formation->formation_category_id = $this->fakerCategory($categories);
-                $formation->save();
-            }
+        if (empty($categoryIds)) {
+            $this->command->warn('Aucune catégorie trouvée. Veuillez exécuter FormationCategorySeeder d\'abord.');
+
+            return;
         }
-    }
 
-    protected function fakerCategory(array $categories): int
-    {
-        // simple random pick
-        return $categories[array_rand($categories)];
+        // Crée 12 formations
+        $formations = Formation::factory()->count(12)->create();
+
+        // Associe une catégorie aléatoire à chaque formation
+        foreach ($formations as $formation) {
+            $formation->formation_category_id = $categoryIds[array_rand($categoryIds)];
+            $formation->save();
+        }
+
+        $this->command->info('✅ Formations créées avec succès.');
     }
 }

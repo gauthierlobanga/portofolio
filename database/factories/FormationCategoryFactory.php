@@ -4,26 +4,22 @@ namespace Database\Factories;
 
 use App\Models\FormationCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
-/**
- * @extends Factory<FormationCategory>
- */
 class FormationCategoryFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = FormationCategory::class;
+
     public function definition(): array
     {
-        $name = $this->faker->unique()->words(2, true);
+        $name = fake()->unique()->words(2, true);
+
         return [
             'name' => ucfirst($name),
-            'slug' => \Illuminate\Support\Str::slug($name),
+            'slug' => Str::slug($name),
             'icon' => null,
-            'color' => $this->faker->optional()->safeHexColor(),
-            'sort_order' => $this->faker->numberBetween(0, 100),
+            'color' => fake()->optional()->safeHexColor(),
+            'sort_order' => fake()->numberBetween(0, 100),
         ];
     }
 }

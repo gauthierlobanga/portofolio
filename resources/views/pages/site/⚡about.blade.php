@@ -28,7 +28,6 @@ new #[Layout('layouts::main')] class extends Component {
         {{-- Image de fond visible uniquement sur mobile/tablette (overlay pour lisibilité) --}}
         <img x-ref="bgImage" src="{{ $heroImage }}" alt="Portrait de Gauthier Lobanga"
             class="absolute inset-0 h-full w-full object-cover lg:hidden" />
-        <div class="absolute inset-0 bg-slate-900/70 dark:bg-zinc-950/70 backdrop-blur lg:hidden"></div>
 
         <div class="relative flex flex-col lg:flex-row lg:min-h-[50svh] max-w-7xl mx-auto">
             {{-- Colonne texte (toujours à gauche sur desktop) --}}
@@ -44,7 +43,7 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
 
                     <h1 x-ref="title"
-                        class="mt-8 text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-tight">
+                        class="mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight">
                         {{ $this->about->hero_title ?: 'À propos de moi' }}
                     </h1>
 
@@ -92,7 +91,7 @@ new #[Layout('layouts::main')] class extends Component {
 
             {{-- Colonne image (uniquement visible sur desktop) --}}
             <div class="hidden lg:flex w-full lg:w-1/2 order-2 lg:order-2 items-end justify-center lg:justify-end">
-                <img src="{{ $heroImage }}" alt="Portrait de Gauthier Lobanga"
+                <img loading="eager" decoding="async" src="{{ $heroImage }}" alt="Portrait de Gauthier Lobanga"
                     class="max-h-[50vh] lg:max-h-full w-auto object-contain mx-auto lg:mx-0" />
             </div>
         </div>
@@ -113,7 +112,7 @@ new #[Layout('layouts::main')] class extends Component {
                 {{-- Texte --}}
                 <div x-cloak class="max-w-3xl" x-data="cspState" x-intersect="shown = true">
                     <span
-                        class="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400 backdrop-blur-sm transition-all duration-700 ease-out"
+                        class="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400 backdrop-blur-sm transition-all duration-300 ease-out"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -122,12 +121,12 @@ new #[Layout('layouts::main')] class extends Component {
                         {{ $this->about->hero_badge ?: 'Développeur Full‑Stack' }}
                     </span>
 
-                    <h2 class="mt-6 text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white lg:text-5xl transition-all duration-700 delay-100 ease-out"
+                    <h2 class="mt-6 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-white transition-all duration-300 delay-100 ease-out"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         {{ $this->about->hero_title ?: 'À propos de moi' }}
                     </h2>
 
-                    <div class="mt-8 prose prose-lg prose-zinc dark:prose-invert max-w-none transition-all duration-700 delay-200 ease-out"
+                    <div class="mt-5 prose prose-lg prose-zinc dark:prose-invert max-w-none transition-all duration-300 delay-200 ease-out"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                         @php $aboutBlocks = $this->about->aboutBlocks(); @endphp
                         @if (!empty($aboutBlocks))
@@ -143,30 +142,20 @@ new #[Layout('layouts::main')] class extends Component {
                                     @endif
                                 @endif
                             @endforeach
-                        @else
-                            <p>Je suis un développeur web full‑stack basé en RDC, spécialisé dans la création
-                                d’applications web modernes avec <strong>Laravel, Livewire, Alpine.js, Tailwind CSS,
-                                    Filament, React et Inertia.js</strong>.</p>
-                            <p>Passionné par le code propre et les solutions performantes, j’accompagne mes clients de
-                                l’analyse du besoin jusqu’à la mise en production, en passant par la conception d’APIs
-                                robustes et la création de tableaux de bord intuitifs.</p>
-                            <p>Curieux et autodidacte, je me tiens constamment à jour des dernières évolutions du
-                                développement web. Mon objectif : fournir des outils numériques de qualité qui aident
-                                les entreprises et les particuliers à atteindre leurs objectifs.</p>
                         @endif
                     </div>
                 </div>
 
                 {{-- Image --}}
                 <div x-cloak class="relative" x-data="{ shown: false }" x-intersect="shown = true">
-                    <div class="relative overflow-hidden transition-all duration-1000 delay-300 ease-out"
+                    <div class="relative overflow-hidden transition-all duration-500 delay-300 ease-out"
                         :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'">
                         @php $aboutImage = $aboutBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
-                        <img src="{{ $aboutImage ? $this->imageUrl($aboutImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
+                        <img loading="eager" decoding="async" src="{{ $aboutImage ? $this->imageUrl($aboutImage) : $this->imageUrl('images/gaudev-logo.png') }}"
                             alt="Gauthier Lobanga" class="w-full h-full object-contain aspect-4/3" />
                         <div class="absolute inset-0 ring-1 ring-inset ring-zinc-900/10 dark:ring-white/10"></div>
                     </div>
-                    <div class="absolute -bottom-6 -left-6 -z-10 transition-all duration-1000 delay-500 ease-out"
+                    <div class="absolute -bottom-6 -left-6 -z-10 transition-all duration-500 delay-500 ease-out"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
                         <svg class="w-32 h-32 text-emerald-500/20" fill="currentColor" viewBox="0 0 100 100">
                             <pattern id="dots" x="0" y="0" width="20" height="20"
@@ -185,9 +174,9 @@ new #[Layout('layouts::main')] class extends Component {
                 class="mt-20 grid gap-12 lg:grid-cols-2 lg:items-center overflow-hidden">
                 <div class="relative order-2 lg:order-1 transition-all duration-1200 ease-out delay-100"
                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'">
-                    <div class="overflow-hidden border border-zinc-200/60 dark:border-white/10">
+                    <div class="overflow-hidden">
                         @php $visionImage = $visionBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
-                        <img src="{{ $visionImage ? $this->imageUrl($visionImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
+                        <img loading="eager" decoding="async" src="{{ $visionImage ? $this->imageUrl($visionImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
                             alt="Vision" class="aspect-4/3 w-full object-cover">
                     </div>
                 </div>
@@ -283,9 +272,9 @@ new #[Layout('layouts::main')] class extends Component {
                 </div>
                 <div class="relative order-2 transition-all duration-1200 ease-out delay-300"
                     :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-16'">
-                    <div class="overflow-hidden border border-zinc-200/60 dark:border-white/10">
+                    <div class="overflow-hidden">
                         @php $missionImage = $missionBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
-                        <img src="{{ $missionImage ? $this->imageUrl($missionImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
+                        <img loading="eager" decoding="async" src="{{ $missionImage ? $this->imageUrl($missionImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
                             alt="Mission" class="aspect-4/3 w-full object-cover">
                     </div>
                 </div>

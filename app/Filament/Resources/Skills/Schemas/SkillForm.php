@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Skills\Schemas;
 
+use App\Filament\Resources\SkillCategories\Schemas\SkillCategoryForm;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Slider;
@@ -47,7 +48,7 @@ class SkillForm
                                         Select::make('icon')
                                             ->label('Icône')
                                             ->options(
-                                                \App\Filament\Resources\SkillCategories\Schemas\SkillCategoryForm::heroiconOptions()
+                                                SkillCategoryForm::heroiconOptions()
                                             )
                                             ->searchable(),
                                     ])
@@ -67,7 +68,7 @@ class SkillForm
                             ->default(50)
                             ->required()
                             ->helperText('Glissez pour ajuster.')
-                            ->hint(fn ($state) => $state . '%')
+                            ->hint(fn ($state) => $state.'%')
                             ->columnSpanFull(),
                     ]),
 

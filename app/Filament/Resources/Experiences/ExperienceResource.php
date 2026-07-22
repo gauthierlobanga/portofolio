@@ -9,11 +9,11 @@ use App\Filament\Resources\Experiences\Schemas\ExperienceForm;
 use App\Filament\Resources\Experiences\Tables\ExperiencesTable;
 use App\Models\Experience;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ExperienceResource extends Resource
 {
@@ -21,7 +21,7 @@ class ExperienceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Portofolio';
+    protected static string|UnitEnum|null $navigationGroup = 'Portofolio';
 
     public static function form(Schema $schema): Schema
     {

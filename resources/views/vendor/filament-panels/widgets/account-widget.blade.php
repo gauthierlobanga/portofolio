@@ -7,7 +7,7 @@
         <x-filament-panels::avatar.user
             size="lg"
             :user="$user"
-            loading="lazy"
+            loading="eager"
         />
 
         <div class="fi-account-widget-main">

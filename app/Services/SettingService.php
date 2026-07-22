@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use App\Models\Setting;
-use App\Models\User;
 
 class SettingService
 {
     /**
      * @var Setting
-     * The setting instance
+     *              The setting instance
      */
     protected $setting;
 
@@ -77,6 +76,7 @@ class SettingService
     {
         return $this->setting;
     }
+
     /**
      * récupère les booléens pour afficher ou non le lien github
      */

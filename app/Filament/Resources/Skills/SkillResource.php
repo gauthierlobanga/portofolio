@@ -9,11 +9,11 @@ use App\Filament\Resources\Skills\Schemas\SkillForm;
 use App\Filament\Resources\Skills\Tables\SkillsTable;
 use App\Models\Skill;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SkillResource extends Resource
 {
@@ -21,7 +21,7 @@ class SkillResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLightBulb;
 
-    protected static string | UnitEnum | null $navigationGroup = 'Portofolio';
+    protected static string|UnitEnum|null $navigationGroup = 'Portofolio';
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('formations', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('title');
             $table->string('slug')->unique();
             $table->string('subtitle')->nullable();
             $table->text('excerpt')->nullable();
             $table->longText('content')->nullable();
             $table->string('location')->nullable();
-            $table->enum('status', ['planned','ongoing','completed'])->default('planned');
+            $table->enum('status', ['planned', 'ongoing', 'completed'])->default('planned');
             $table->boolean('is_active')->default(true);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

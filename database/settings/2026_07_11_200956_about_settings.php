@@ -19,5 +19,7 @@ return new class extends SettingsMigration
         $this->migrator->add('about.about_text', '');
         $this->migrator->add('about.vision_text', '');
         $this->migrator->add('about.mission_text', '');
+
+        $this->migrator->add('about.contact_email', null);
     }
 };

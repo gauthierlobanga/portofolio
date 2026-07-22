@@ -7,65 +7,71 @@ use Spatie\LaravelSettings\Settings;
 
 class AboutSettings extends Settings
 {
-    public string $hero_title = '';
+    public ?string $hero_title = '';
 
-    public string $hero_subtitle = '';
+    public ?string $hero_subtitle = '';
 
-    public string $hero_badge = '';
+    public ?string $hero_badge = '';
 
-    public string $service_title = '';
+    public ?string $service_title = '';
 
-    public string $service_subtitle = '';
+    public ?string $service_subtitle = '';
 
-    public string $formation_title = '';
+    public ?string $formation_title = '';
 
-    public string $formation_subtitle = '';
+    public ?string $formation_subtitle = '';
 
-    public string $skill_title = '';
+    public ?string $skill_title = '';
 
-    public string $skill_subtitle = '';
+    public ?string $skill_subtitle = '';
 
-    public string $partner_title = '';
+    public ?string $skill_badge = '';
 
-    public string $partner_subtitle = '';
+    public ?string $partner_title = '';
 
-    public string $team_title = '';
+    public ?string $partner_subtitle = '';
 
-    public string $team_subtitle = '';
+    public ?string $team_title = '';
 
-    public string $project_hero_badge = '';
+    public ?string $team_subtitle = '';
 
-    public string $project_hero_title = '';
+    public ?string $project_hero_badge = '';
 
-    public string $project_hero_subtitle = '';
+    public ?string $project_hero_title = '';
 
-    public string $project_content_title = '';
+    public ?string $project_hero_subtitle = '';
 
-    public string $project_content_subtitle = '';
+    public ?string $project_content_title = '';
 
-    public string $project_banner_title = '';
+    public ?string $project_content_subtitle = '';
 
-    public string $project_banner_subtitle = '';
+    public ?string $project_banner_title = '';
 
-    public string $blog_hero_badge = '';
+    public ?string $project_banner_subtitle = '';
 
-    public string $blog_hero_title = '';
+    public ?string $blog_hero_badge = '';
 
-    public string $blog_hero_subtitle = '';
+    public ?string $blog_hero_title = '';
 
-    public string $blog_content_title = '';
+    public ?string $blog_hero_subtitle = '';
 
-    public string $blog_content_subtitle = '';
+    public ?string $blog_content_title = '';
 
-    public string $blog_banner_title = '';
+    public ?string $blog_content_subtitle = '';
 
-    public string $blog_banner_subtitle = '';
+    public ?string $blog_banner_title = '';
 
-    public string $author_home = '';
+    public ?string $blog_banner_subtitle = '';
 
-    public string $auteur_about = '';
+    public ?string $formation_banner_title = '';
 
-    public string $citation_footer = '';
+    public ?string $formation_banner_subtitle = '';
+
+    public ?string $author_home = '';
+
+    public ?string $auteur_about = '';
+
+    public ?string $citation_footer = '';
 
     // Content can be a Tiptap document array or a plain string.
     public mixed $about_text = null;
@@ -76,7 +82,7 @@ class AboutSettings extends Settings
     // Content can be a Tiptap document array or a plain string.
     public mixed $mission_text = null;
 
-    public string $impact_heading = '';
+    public ?string $impact_heading = '';
 
     // Contact information for the organisation (optional)
     public ?string $contact_email = null;
@@ -85,17 +91,21 @@ class AboutSettings extends Settings
 
     public ?string $address = null;
 
-    public string $impact_subtitle = '';
+    public ?string $impact_subtitle = '';
 
     public mixed $impact_description = null;
 
-    public string $impact_highlight_heading = '';
+    public ?string $impact_highlight_heading = '';
 
     public mixed $impact_highlight_text = null;
 
-    public string $impact_highlight_cta_label = '';
+    public ?string $impact_highlight_cta_label = '';
 
-    public string $impact_highlight_cta_url = '';
+    public ?string $impact_highlight_cta_url = '';
+
+    public ?string $footer_copyright = 'Tous droits réservés.';
+
+    public ?string $footer_text = '';
 
     /**
      * Repeater items for impact content.

@@ -8,7 +8,7 @@ use Carbon\CarbonImmutable;
 use Filament\Notifications\Livewire\Notifications;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
-use Illuminate\Foundation\Vite as ViteRoot;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
@@ -33,9 +33,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        if (! app()->isLocal() && method_exists(app(ViteRoot::class), 'usePreloadTag')) {
-            Vite::usePreloadTag(false);
-        }
+        Model::shouldBeStrict();
 
         Notifications::alignment(Alignment::Center);
         Notifications::verticalAlignment(VerticalAlignment::Start);

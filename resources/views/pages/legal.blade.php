@@ -15,7 +15,7 @@
     <div class="relative z-10 mx-auto max-w-4xl px-6 lg:px-8">
             <div class="text-center">
                 <flux:badge color="emerald" class="mb-4">{{ $settings->hero_badge ?: 'Informations Juridiques' }}</flux:badge>
-                <h1 class="text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl dark:text-white">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white">
                     {{ $settings->hero_title ?: 'Mentions Légales' }}
                 </h1>
                 <p class="mt-6 text-lg leading-8 text-zinc-600 dark:text-zinc-400">

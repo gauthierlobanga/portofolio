@@ -33,7 +33,7 @@ class PostLike extends Model
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeForUser(Builder $query, $userId): Builder

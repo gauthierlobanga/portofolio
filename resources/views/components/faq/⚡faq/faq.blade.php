@@ -6,7 +6,7 @@
              x-data="cspState"
              x-intersect="visible = true"
              :class="{ 'opacity-100 translate-y-0': visible, 'opacity-0 translate-y-4': !visible }"
-             class="transition-all duration-700">
+             class="transition-all duration-300">
             <flux:badge
                 class="mb-4 border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
                 FAQ

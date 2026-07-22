@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class NewsletterCampaign extends Model
@@ -156,7 +156,7 @@ class NewsletterCampaign extends Model
     /**
      * scopeEnvoyes.
      *
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeEnvoyes(Builder $query): Builder
@@ -169,7 +169,7 @@ class NewsletterCampaign extends Model
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeProgrammes(Builder $query): Builder
@@ -183,7 +183,7 @@ class NewsletterCampaign extends Model
 
      *
 
-     * @param Builder<self> $query
+     * @param  Builder<self>  $query
      * @return Builder<self>
      */
     public function scopeABientot(Builder $query, $hours = 24): Builder

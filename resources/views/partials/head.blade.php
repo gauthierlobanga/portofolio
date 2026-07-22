@@ -71,10 +71,13 @@ $schema = [
 {{-- Favicon --}}
 <link id="favicon" rel="icon" href="{{ $faviconUrl }}" data-favicon-href="{{ $faviconUrl }}">
 <link id="apple-touch-icon" rel="apple-touch-icon" href="{{ $faviconUrl }}">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..500&family=Playfair+Display:wght@600;700;800&display=swap">
 <style>
-    body {
-        font-family: 'Inter', sans-serif;
+    html, body {
         overflow-x: hidden;
     }
 
@@ -98,3 +101,32 @@ $schema = [
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
 @livewireStyles
+
+<script>
+    // Désactiver les transitions lors du changement de thème pour éviter les effets de "flash" blanc
+    document.addEventListener('DOMContentLoaded', () => {
+        let isTransitioning = false;
+        const observer = new MutationObserver((mutations) => {
+            for (let mutation of mutations) {
+                if (mutation.attributeName === 'class' && !isTransitioning) {
+                    const oldDark = mutation.oldValue ? mutation.oldValue.includes('dark') : false;
+                    const newDark = document.documentElement.classList.contains('dark');
+                    
+                    // Si la classe 'dark' a été ajoutée ou retirée
+                    if (oldDark !== newDark) {
+                        isTransitioning = true;
+                        document.documentElement.classList.add('no-transition');
+                        
+                        // Attendre un peu que le navigateur applique les nouvelles couleurs sans animation
+                        setTimeout(() => {
+                            document.documentElement.classList.remove('no-transition');
+                            // Petite pause pour éviter de re-déclencher
+                            setTimeout(() => { isTransitioning = false; }, 10);
+                        }, 50);
+                    }
+                }
+            }
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    });
+</script>

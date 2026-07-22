@@ -2,15 +2,16 @@
 
 namespace App\Filament\Resources\Permissions;
 
-use App\Enums\NavigationGroup;
 use App\Filament\Resources\Permissions\Pages\CreatePermission;
 use App\Filament\Resources\Permissions\Pages\EditPermission;
 use App\Filament\Resources\Permissions\Pages\ListPermissions;
 use App\Filament\Resources\Permissions\Schemas\PermissionForm;
 use App\Filament\Resources\Permissions\Tables\PermissionsTable;
 use App\Models\Permission;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -18,7 +19,9 @@ class PermissionResource extends Resource
 {
     protected static ?string $model = Permission::class;
 
-    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::Shield;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Security';
 
     protected static ?string $recordTitleAttribute = 'name';
 

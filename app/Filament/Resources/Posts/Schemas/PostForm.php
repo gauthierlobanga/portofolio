@@ -182,7 +182,12 @@ class PostForm
                                             ->appendFiles()
                                             ->panelLayout('grid')
                                             ->columnSpanFull()
-                                            ->helperText('Images supplémentaires (max 10 fichiers, 5MB chacun). Glissez pour réorganiser.'),
+                                            ->customProperties([
+                                                'title' => '',
+                                                'description' => '',
+                                                'alt' => '',
+                                            ])
+                                            ->helperText('Images supplémentaires (max 10 fichiers, 5MB chacun). Glissez pour réorganiser. Cliquez sur une image pour ajouter un titre, une description et un texte alternatif.'),
 
                                         // FICHIERS JOINTS
                                         SpatieMediaLibraryFileUpload::make('attachments')
