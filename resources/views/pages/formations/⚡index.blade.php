@@ -350,7 +350,7 @@ new #[Layout('layouts::main')] class extends Component {
 
             {{-- ========== SECTION GRILLE  ========== --}}
             <div wire:loading.class="opacity-50 pointer-events-none"
-                class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7 no-animate transition-opacity duration-300"
+                class="mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr items-start gap-7 no-animate transition-opacity duration-300"
                 aria-label="Liste des formations">
                 @forelse ($formations as $formation)
                     <a wire:navigate href="{{ route('formations.show', $formation) }}"
