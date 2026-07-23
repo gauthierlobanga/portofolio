@@ -1083,10 +1083,9 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
-    Alpine.data("homeHeroReveal", () => ({
+    Alpine.data("HeroReveal", () => ({
         init() {
-            if (typeof gsap === "undefined" || typeof SplitText === "undefined")
-                return;
+            if (typeof gsap === "undefined") return;
 
             const refs = this.$refs;
             if (
@@ -1096,46 +1095,112 @@ document.addEventListener("alpine:init", () => {
                 !refs.author &&
                 !refs.title &&
                 !refs.subtitle
-            )
+            ) {
                 return;
+            }
 
-            const tl = gsap.timeline({
-                defaults: { ease: "expo.out", duration: 0.8 }, // Accéléré : 0.8s au lieu de 1.2s
-            });
+            const getAuthorElement = () => {
+                if (!refs.author) {
+                    return null;
+                }
 
-            if (refs.bgImage)
-                tl.from(
-                    refs.bgImage,
-                    { scale: 1.05, duration: 1.4, ease: "power3.out" }, // Scale réduit et accéléré (1.4s au lieu de 2.5s)
-                    0,
-                );
+                if (refs.author.querySelector) {
+                    return refs.author.querySelector("p") || refs.author;
+                }
 
-            const authorSplit = refs.author
-                ? new SplitText(refs.author, { type: "words" })
-                : null;
+                return refs.author;
+            };
 
-            if (refs.badge) tl.from(refs.badge, { y: 20, opacity: 0 }, 0.2); // y réduit (20 au lieu de 40), déclenché plus tôt
-            if (refs.buttons)
-                tl.from(
-                    refs.buttons,
-                    { opacity: 0, y: 10, duration: 0.3, ease: "power2.out" }, // y réduit, accéléré
-                    "-=0.15",
-                );
-            if (authorSplit)
-                tl.from(
-                    authorSplit.words,
-                    {
-                        opacity: 0,
-                        y: 10,
-                        stagger: 0.015, // Plus rapide (0.015 au lieu de 0.02)
-                        duration: 0.3,
-                        ease: "power2.out",
-                    },
-                    "-=0.25",
-                );
-            if (refs.title) tl.from(refs.title, { y: 30, opacity: 0 }, 0.3);
-            if (refs.subtitle)
-                tl.from(refs.subtitle, { y: 20, opacity: 0 }, 0.4);
+            const runAnimation = () => {
+                const tl = gsap.timeline({
+                    defaults: { ease: "expo.out", duration: 0.75 },
+                });
+
+                if (refs.bgImage) {
+                    gsap.set(refs.bgImage, {
+                        transformOrigin: "center center",
+                        scale: 1.05,
+                    });
+
+                    tl.to(refs.bgImage, {
+                        scale: 1,
+                        duration: 1.2,
+                        ease: "power3.out",
+                    }, 0);
+                }
+
+                if (refs.title) {
+                    tl.from(refs.title, { y: 26, opacity: 0, duration: 0.5 }, 0.15);
+                }
+
+                const authorElement = getAuthorElement();
+                if (authorElement) {
+                    let authorSplit = null;
+                    try {
+                        if (typeof SplitText !== "undefined") {
+                            authorSplit = new SplitText(authorElement, { type: "words" });
+                        }
+                    } catch (error) {
+                        authorSplit = null;
+                    }
+
+                    if (authorSplit && authorSplit.words?.length > 0) {
+                        tl.from(
+                            authorSplit.words,
+                            {
+                                opacity: 0,
+                                y: 12,
+                                stagger: 0.02,
+                                duration: 0.35,
+                                ease: "power2.out",
+                            },
+                            "-=0.25",
+                        );
+                    } else {
+                        tl.from(
+                            refs.author,
+                            { opacity: 0, y: 12, duration: 0.35, ease: "power2.out" },
+                            "-=0.25",
+                        );
+                    }
+                }
+
+                if (refs.subtitle) {
+                    tl.from(
+                        refs.subtitle,
+                        { y: 20, opacity: 0, duration: 0.45 },
+                        "-=0.15",
+                    );
+                }
+
+                if (refs.buttons) {
+                    tl.from(
+                        refs.buttons,
+                        { opacity: 0, y: 10, duration: 0.35, ease: "power2.out" },
+                        "-=0.15",
+                    );
+                }
+
+                if (refs.decoLine) {
+                    tl.from(
+                        refs.decoLine,
+                        {
+                            scaleX: 0,
+                            transformOrigin: "left center",
+                            opacity: 0,
+                            duration: 0.35,
+                        },
+                        "-=0.25",
+                    );
+                }
+            };
+
+            const image = refs.bgImage;
+            if (image instanceof HTMLImageElement && !image.complete) {
+                image.addEventListener("load", runAnimation, { once: true });
+            } else {
+                runAnimation();
+            }
         },
     }));
 
@@ -1171,6 +1236,77 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
+    Alpine.data("homeHeroReveal", () => ({
+        init() {
+            if (
+                typeof gsap === "undefined" ||
+                typeof SplitText === "undefined" ||
+                typeof ScrollTrigger === "undefined"
+            )
+                return;
+            const tl = gsap.timeline({
+                defaults: { ease: "expo.out", duration: 0.8 },
+                scrollTrigger: {
+                    trigger: this.$el,
+                    start: "top 80%",
+                    once: true,
+                },
+            });
+            tl.from(
+                this.$refs.bgImage,
+                { scale: 1.05, duration: 1.4, ease: "power3.out" },
+                0,
+            );
+            const authorElement = this.$refs.author?.querySelector?.("p") || this.$refs.author;
+            let authorSplit = null;
+            if (authorElement) {
+                try {
+                    if (typeof SplitText !== "undefined") {
+                        authorSplit = new SplitText(authorElement, { type: "words" });
+                    }
+                } catch (error) {
+                    authorSplit = null;
+                }
+            }
+
+            tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3)
+                .from(
+                    this.$refs.buttons,
+                    { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" },
+                    "-=0.15",
+                );
+
+            if (authorSplit && authorSplit.words?.length > 0) {
+                tl.from(
+                    authorSplit.words,
+                    {
+                        opacity: 0,
+                        y: 10,
+                        stagger: 0.02,
+                        duration: 0.35,
+                        ease: "power2.out",
+                    },
+                    "-=0.25",
+                );
+            } else if (this.$refs.author) {
+                tl.from(
+                    this.$refs.author,
+                    { opacity: 0, y: 10, duration: 0.35, ease: "power2.out" },
+                    "-=0.25",
+                );
+            }
+
+            tl.from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
+                .from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7)
+                // Ligne retirée : .from(this.$refs.cta, ...)
+                .from(
+                    this.$refs.decoLine,
+                    { scaleX: 0, duration: 0.5, ease: "power1.out" },
+                    "-=0.1",
+                );
+        },
+    }));
+
     Alpine.data("aboutHeroReveal", () => ({
         init() {
             if (
@@ -1192,16 +1328,27 @@ document.addEventListener("alpine:init", () => {
                 { scale: 1.05, duration: 1.4, ease: "power3.out" },
                 0,
             );
-            const authorSplit = new SplitText(this.$refs.author, {
-                type: "words",
-            });
+            const authorElement = this.$refs.author?.querySelector?.("p") || this.$refs.author;
+            let authorSplit = null;
+            if (authorElement) {
+                try {
+                    if (typeof SplitText !== "undefined") {
+                        authorSplit = new SplitText(authorElement, { type: "words" });
+                    }
+                } catch (error) {
+                    authorSplit = null;
+                }
+            }
+
             tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3)
                 .from(
                     this.$refs.buttons,
                     { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" },
                     "-=0.15",
-                )
-                .from(
+                );
+
+            if (authorSplit && authorSplit.words?.length > 0) {
+                tl.from(
                     authorSplit.words,
                     {
                         opacity: 0,
@@ -1211,8 +1358,16 @@ document.addEventListener("alpine:init", () => {
                         ease: "power2.out",
                     },
                     "-=0.25",
-                )
-                .from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
+                );
+            } else if (this.$refs.author) {
+                tl.from(
+                    this.$refs.author,
+                    { opacity: 0, y: 10, duration: 0.35, ease: "power2.out" },
+                    "-=0.25",
+                );
+            }
+
+            tl.from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
                 .from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7)
                 // Ligne retirée : .from(this.$refs.cta, ...)
                 .from(

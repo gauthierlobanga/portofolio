@@ -66,6 +66,13 @@ class ManageAppSettings extends SettingsPage
                             ->directory('settings')
                             ->visibility('public')
                             ->maxSize(2048),
+                        FileUpload::make('cv_url')
+                            ->label('Curriculum Vitae (PDF)')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->disk('public')
+                            ->directory('settings/cv')
+                            ->visibility('public')
+                            ->maxSize(5120),
 
                         Group::make()
                             ->columns(2)
@@ -116,7 +123,9 @@ class ManageAppSettings extends SettingsPage
                                 TextInput::make('youtube_url')->url()->label('YouTube')
                                     ->url()
                                     ->suffixIcon(Heroicon::GlobeAlt),
-
+                                TextInput::make('stackoverflow_url')->url()->label('Stack Overflow')
+                                    ->url()
+                                    ->suffixIcon(Heroicon::GlobeAlt),
                             ]),
                     ]),
 

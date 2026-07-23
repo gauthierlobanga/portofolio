@@ -377,7 +377,7 @@ new #[Layout('layouts::main')] class extends Component {
                                 dark:border-zinc-700/60 dark:bg-zinc-900 dark:hover:border-emerald-700 dark:hover:shadow-emerald-900/20">
                         {{-- En‑tête de catégorie --}}
                         <div class="flex items-center gap-4 mb-6">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md"
+                            <div class="flex h-12 w-12 items-center justify-center rounded text-white"
                                 style="background-color: {{ $category->color }}">
                                 @if ($category->icon)
                                     @svg('heroicon-o-' . $category->icon, 'h-6 w-6')

@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Services\SiteService;
 use App\Settings\SettingApp;
 use Carbon\CarbonImmutable;
 use Filament\Notifications\Livewire\Notifications;
@@ -42,9 +41,7 @@ class AppServiceProvider extends ServiceProvider
          * Partage des données globales avec toutes les vues
          */
         View::composer('*', function ($view) {
-            $users = app(SiteService::class);
             $settings = app(SettingApp::class);
-            $view->with('users', $users);
             $view->with('settings', $settings);
         });
     }

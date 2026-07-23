@@ -59,7 +59,7 @@
                     <flux:icon.moon x-show="$flux.dark" variant="mini" class="h-5 w-5" />
                 </button>
                 <div class="relative group/github" x-ref="header_introducing">
-                    <a wire:navigate href="https://github.com/yourusername" target="_blank"
+                    <a wire:navigate href="https://github.com/gauthierlobanga" target="_blank"
                         class="transition duration-300 delay-75 peer text-gray-600 dark:text-gray-400 opacity-80 group-hover/github:opacity-100 group-hover/github:text-gray-900 dark:group-hover/github:text-white motion-reduce:transition-none">
                         <div class="gsap-fadein">
                             <svg fill="currentColor" viewBox="0 0 24 24" class="h-7 w-7">

@@ -18,3 +18,13 @@ it('has a renderRichContent method', function () {
     expect(method_exists($project, 'renderRichContent'))->toBeTrue();
     expect($project->renderRichContent('content'))->toBeString();
 });
+
+it('can store external project urls', function () {
+    $project = Project::factory()->create([
+        'website_url' => 'https://example.com',
+        'repository_url' => 'https://github.com/example/repo',
+    ]);
+
+    expect($project->website_url)->toBe('https://example.com')
+        ->and($project->repository_url)->toBe('https://github.com/example/repo');
+});

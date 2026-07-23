@@ -68,6 +68,11 @@ $schema = [
 </x-seo>
 
 @include('feed::links')
+
+@if(app()->environment('production'))
+    <script defer data-domain="{{ parse_url(config('app.url'), PHP_URL_HOST) }}" src="https://plausible.io/js/script.js"></script>
+@endif
+
 {{-- Favicon --}}
 <link id="favicon" rel="icon" href="{{ $faviconUrl }}" data-favicon-href="{{ $faviconUrl }}">
 <link id="apple-touch-icon" rel="apple-touch-icon" href="{{ $faviconUrl }}">

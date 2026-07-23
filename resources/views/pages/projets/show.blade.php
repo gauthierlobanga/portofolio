@@ -86,25 +86,16 @@ new #[Layout('layouts::main')] class extends Component {
     {{-- Hero Section Projet --}}
     <section wire:cloak class="relative flex min-h-[70vh] items-center overflow-hidden" x-data="projectShowHeroReveal()">
 
-        {{-- Background Image --}}
+        {{-- Clean Modern Background --}}
         <div x-ref="bg" class="absolute inset-0">
-            @if ($project->hasMedia('cover'))
-                <img fetchpriority="high" loading="eager" src="{{ $project->getFirstMediaUrl('cover') }}" alt="{{ $project->title }}"
-                    class="h-full w-full object-cover origin-center" loading="eager">
-            @else
-                <div class="h-full w-full bg-linear-to-br from-zinc-100 to-zinc-200 dark:from-zinc-900 dark:to-zinc-950"></div>
-            @endif
+            <div class="h-full w-full bg-gradient-to-br from-zinc-50 via-white to-emerald-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-emerald-950"></div>
 
-            {{-- Overlay Moderne (Adaptatif Light/Dark) --}}
-            <div class="absolute inset-0 dark:bg-zinc-950/70"></div>
-            <div class="absolute inset-0 bg-linear-to-b from-white/80 via-white/40 to-white/90 dark:from-zinc-950/80 dark:via-zinc-950/40 dark:to-zinc-950/90"></div>
-
-            {{-- Accents lumineux émeraude --}}
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.15),transparent_50%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.25),transparent_50%)]"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.10),transparent_50%)] dark:bg-[radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.15),transparent_50%)]"></div>
-
-            {{-- Effet de texture (grain léger) --}}
-            <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+            {{-- Light decorative forms --}}
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.12),transparent_40%)]"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.12),transparent_40%)]"></div>
+            <div class="absolute inset-x-0 top-12 h-44 rounded-full bg-white/70 blur-3xl dark:bg-white/5"></div>
+            <div class="absolute -left-16 top-24 h-36 w-36 rounded-full bg-emerald-200/40 blur-3xl dark:bg-emerald-500/15"></div>
+            <div class="absolute right-12 top-32 h-28 w-28 rounded-full bg-sky-200/40 blur-3xl dark:bg-sky-500/10"></div>
         </div>
 
         {{-- Contenu --}}
@@ -135,14 +126,18 @@ new #[Layout('layouts::main')] class extends Component {
                 @endif
 
                 @if ($project->tags->isNotEmpty())
-                    <span
-                        class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/50 px-4 py-1.5 text-sm font-medium text-zinc-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/10 dark:text-zinc-200">
-                        <svg class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        {{ $project->tags->first()->name }}
-                    </span>
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        @foreach ($project->tags as $tag)
+                            <span
+                                class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/50 px-4 py-1.5 text-sm font-medium text-zinc-700 backdrop-blur-sm dark:border-white/10 dark:bg-white/10 dark:text-zinc-200">
+                                <svg class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                {{ $tag->name }}
+                            </span>
+                        @endforeach
+                    </div>
                 @endif
             </div>
 
@@ -186,11 +181,37 @@ new #[Layout('layouts::main')] class extends Component {
                                 class="font-semibold text-zinc-900 dark:text-white">{{ $project->end_date->translatedFormat('F Y') }}</span></span>
                     </div>
                 @endif
-
+ 
             </div>
+ 
+            @if ($project->website_url || $project->repository_url)
+                <div class="mt-8 flex flex-wrap justify-center gap-3">
+                    @if ($project->website_url)
+                        <a href="{{ $project->website_url }}" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-300 dark:hover:bg-emerald-800">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13.828 10.172a4 4 0 010 5.656m-1.414-1.414a2 2 0 102.828-2.828l-1.415 1.414zm1.414-1.414l1.415-1.414a2 2 0 10-2.828 2.828z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 6.343a8 8 0 11-11.314 11.314 8 8 0 0111.314-11.314z" />
+                            </svg>
+                            Voir le site
+                        </a>
+                    @endif
+                    @if ($project->repository_url)
+                        <a href="{{ $project->repository_url }}" target="_blank" rel="noopener noreferrer"
+                            class="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-900 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-emerald-600 dark:hover:bg-emerald-900/30">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.603-3.369-1.341-3.369-1.341-.454-1.154-1.109-1.462-1.109-1.462-.908-.62.069-.608.069-.608 1.003.071 1.531 1.032 1.531 1.032.892 1.528 2.341 1.087 2.91.832.091-.647.35-1.087.636-1.337-2.22-.253-4.555-1.111-4.555-4.944 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.646 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.116 2.504.34 1.91-1.294 2.75-1.025 2.75-1.025.545 1.376.202 2.393.1 2.646.64.699 1.028 1.592 1.028 2.683 0 3.842-2.337 4.687-4.566 4.935.359.31.679.923.679 1.861 0 1.343-.012 2.425-.012 2.754 0 .268.18.579.688.481A10.013 10.013 0 0022 12c0-5.523-4.477-10-10-10z" />
+                            </svg>
+                            Code source
+                        </a>
+                    @endif
+                </div>
+            @endif
+ 
         </div>
     </section>
-
     {{-- Contenu & Galerie --}}
     <section class="relative py-20 lg:py-32">
         <div class="mx-auto max-w-4xl px-6 lg:px-8">
@@ -201,6 +222,50 @@ new #[Layout('layouts::main')] class extends Component {
                         bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-8 md:p-12 w-full">
                 {!! $project->renderRichContent('content') !!}
             </div>
+
+            {{-- Étude de Cas --}}
+            @if ($project->problematic || $project->solution || $project->results)
+                <div wire:cloak x-data="{ shown: false }" x-intersect.once="shown = true"
+                    :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+                    class="mt-16 space-y-8 transition-all duration-1000 ease-out delay-100">
+                    
+                    @if ($project->problematic)
+                        <div class="rounded-2xl border border-rose-200/60 bg-rose-50/30 p-8 shadow-sm dark:border-rose-900/30 dark:bg-rose-900/10">
+                            <h3 class="mb-4 flex items-center gap-3 text-xl font-bold text-rose-800 dark:text-rose-300">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                Problématique
+                            </h3>
+                            <div class="fi-prose max-w-none text-zinc-700 dark:text-zinc-300">
+                                {!! $project->renderRichContent('problematic') !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($project->solution)
+                        <div class="rounded-2xl border border-emerald-200/60 bg-emerald-50/30 p-8 shadow-sm dark:border-emerald-900/30 dark:bg-emerald-900/10">
+                            <h3 class="mb-4 flex items-center gap-3 text-xl font-bold text-emerald-800 dark:text-emerald-300">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                Solution technique
+                            </h3>
+                            <div class="fi-prose max-w-none text-zinc-700 dark:text-zinc-300">
+                                {!! $project->renderRichContent('solution') !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($project->results)
+                        <div class="rounded-2xl border border-indigo-200/60 bg-indigo-50/30 p-8 shadow-sm dark:border-indigo-900/30 dark:bg-indigo-900/10">
+                            <h3 class="mb-4 flex items-center gap-3 text-xl font-bold text-indigo-800 dark:text-indigo-300">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                Résultats & Impact
+                            </h3>
+                            <div class="fi-prose max-w-none text-zinc-700 dark:text-zinc-300">
+                                {!! $project->renderRichContent('results') !!}
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             {{-- Galerie --}}
             @if ($this->galleryImages->isNotEmpty())

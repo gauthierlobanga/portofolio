@@ -137,7 +137,7 @@ new #[Layout('layouts::main')] class extends Component {
 <div class="bg-white text-zinc-700 antialiased dark:bg-zinc-950 dark:text-zinc-300">
 
     {{-- ========== HERO ACCUEIL UNIFIÉ – Plus de duplication, animations OK ========== --}}
-    <section wire:cloak class="relative overflow-hidden bg-slate-900 dark:bg-zinc-950" x-data="homeHeroReveal">
+    <section x-cloak class="relative overflow-hidden bg-slate-900 dark:bg-zinc-950" x-data="homeHeroReveal">
         @php
             $heroImage = $this->about->hero_image_url
                 ? $this->imageUrl($this->about->hero_image_url)

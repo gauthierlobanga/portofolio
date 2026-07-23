@@ -310,4 +310,16 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
 
         return $text;
     }
+
+    public function chaptersCount(): int
+    {
+        $content = $this->content;
+        if (! is_array($content)) {
+            return 0;
+        }
+        $nodes = $content['content'] ?? [];
+
+        return count(array_filter($nodes, fn ($node) => ($node['type'] ?? '') === 'heading' && ($node['attrs']['level'] ?? 0) === 2
+        ));
+    }
 }

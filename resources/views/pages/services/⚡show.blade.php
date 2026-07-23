@@ -107,7 +107,7 @@ new #[Layout('layouts::main')] class extends Component {
 
         <div class="relative z-10 mx-auto max-w-4xl px-6 pt-20 pb-16 text-center lg:px-8">
             <h1
-                class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
+                class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tighter">
                 {{ $service->title }}
             </h1>
             @if ($service->excerpt)

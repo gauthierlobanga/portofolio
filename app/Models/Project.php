@@ -33,6 +33,15 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
 
         $this->registerRichContent('excerpt')
             ->fileAttachmentsDisk('media');
+
+        $this->registerRichContent('problematic')
+            ->fileAttachmentsDisk('media');
+
+        $this->registerRichContent('solution')
+            ->fileAttachmentsDisk('media');
+
+        $this->registerRichContent('results')
+            ->fileAttachmentsDisk('media');
     }
 
     /**
@@ -60,6 +69,8 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
     protected $fillable = [
         'title', 'slug', 'excerpt', 'content', 'location',
         'status', 'start_date', 'end_date', 'is_active',
+        'website_url', 'repository_url',
+        'problematic', 'solution', 'results', 'meta_title', 'meta_description',
     ];
 
     protected $casts = [
@@ -68,6 +79,9 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
         'is_active' => 'boolean',
         'excerpt' => 'array',
         'content' => 'array',
+        'problematic' => 'array',
+        'solution' => 'array',
+        'results' => 'array',
     ];
 
     // --------------------------------------------------------------
@@ -143,6 +157,45 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
             ]];
         }
         $this->attributes['excerpt'] = json_encode($value);
+    }
+
+    public function setProblematicAttribute($value): void
+    {
+        if (is_null($value) || $value === '') {
+            $value = ['type' => 'doc', 'content' => []];
+        }
+        if (is_string($value)) {
+            $value = ['type' => 'doc', 'content' => [
+                ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => $value]]],
+            ]];
+        }
+        $this->attributes['problematic'] = json_encode($value);
+    }
+
+    public function setSolutionAttribute($value): void
+    {
+        if (is_null($value) || $value === '') {
+            $value = ['type' => 'doc', 'content' => []];
+        }
+        if (is_string($value)) {
+            $value = ['type' => 'doc', 'content' => [
+                ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => $value]]],
+            ]];
+        }
+        $this->attributes['solution'] = json_encode($value);
+    }
+
+    public function setResultsAttribute($value): void
+    {
+        if (is_null($value) || $value === '') {
+            $value = ['type' => 'doc', 'content' => []];
+        }
+        if (is_string($value)) {
+            $value = ['type' => 'doc', 'content' => [
+                ['type' => 'paragraph', 'content' => [['type' => 'text', 'text' => $value]]],
+            ]];
+        }
+        $this->attributes['results'] = json_encode($value);
     }
 
     // --------------------------------------------------------------

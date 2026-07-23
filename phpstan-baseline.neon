@@ -61,48 +61,6 @@ parameters:
 			path: app/Filament/Resources/Announcements/AnnouncementResource.php
 
 		-
-			message: '#^Method App\\Filament\\Resources\\CadersaAsblDocumentLegals\\CadersaAsblDocumentLegalResource\:\:getNavigationBadge\(\) should return string\|null but returns int\<0, max\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/CadersaAsblDocumentLegalResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\TypeDocumentLegal\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\TypeDocumentLegal\>\:\:\$forme_juridique\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/Schemas/CadersaAsblDocumentLegalForm.php
-
-		-
-			message: '#^Method App\\Filament\\Resources\\CadersaAsblDocumentLegals\\Tables\\CadersaAsblDocumentLegalsTable\:\:getExpirationColor\(\) has parameter \$record with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/Tables/CadersaAsblDocumentLegalsTable.php
-
-		-
-			message: '#^Method App\\Filament\\Resources\\CadersaAsblDocumentLegals\\Tables\\CadersaAsblDocumentLegalsTable\:\:getExpirationColor\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/Tables/CadersaAsblDocumentLegalsTable.php
-
-		-
-			message: '#^Method App\\Filament\\Resources\\CadersaAsblDocumentLegals\\Tables\\CadersaAsblDocumentLegalsTable\:\:getExpirationIcon\(\) has parameter \$record with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/Tables/CadersaAsblDocumentLegalsTable.php
-
-		-
-			message: '#^Method App\\Filament\\Resources\\CadersaAsblDocumentLegals\\Tables\\CadersaAsblDocumentLegalsTable\:\:getExpirationTooltip\(\) has parameter \$record with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/Tables/CadersaAsblDocumentLegalsTable.php
-
-		-
-			message: '#^Method App\\Filament\\Resources\\CadersaAsblDocumentLegals\\Tables\\CadersaAsblDocumentLegalsTable\:\:getExpirationTooltip\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: app/Filament/Resources/CadersaAsblDocumentLegals/Tables/CadersaAsblDocumentLegalsTable.php
-
-		-
 			message: '#^Method App\\Filament\\Resources\\Categories\\CategoryResource\:\:getNavigationBadge\(\) should return string\|null but returns int\<0, max\>\.$#'
 			identifier: return.type
 			count: 1
@@ -337,12 +295,6 @@ parameters:
 			path: app/Filament/Resources/Newsletters/NewsletterResource.php
 
 		-
-			message: '#^Method App\\Filament\\Resources\\Partners\\PartnerResource\:\:getNavigationBadge\(\) should return string\|null but returns int\<0, max\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Filament/Resources/Partners/PartnerResource.php
-
-		-
 			message: '#^Method App\\Filament\\Resources\\Permissions\\PermissionResource\:\:getNavigationBadge\(\) should return string\|null but returns int\<0, max\>\.$#'
 			identifier: return.type
 			count: 1
@@ -443,36 +395,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: app/Filament/Resources/Timezones/TimezoneResource.php
-
-		-
-			message: '#^Call to static method make\(\) on an unknown class Filament\\Schemas\\Components\\Select\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Filament/Resources/TypeDocumentLegals/Schemas/TypeDocumentLegalForm.php
-
-		-
-			message: '#^Call to static method make\(\) on an unknown class Filament\\Schemas\\Components\\TextInput\.$#'
-			identifier: class.notFound
-			count: 4
-			path: app/Filament/Resources/TypeDocumentLegals/Schemas/TypeDocumentLegalForm.php
-
-		-
-			message: '#^Call to static method make\(\) on an unknown class Filament\\Schemas\\Components\\Textarea\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Filament/Resources/TypeDocumentLegals/Schemas/TypeDocumentLegalForm.php
-
-		-
-			message: '#^Call to static method make\(\) on an unknown class Filament\\Schemas\\Components\\Toggle\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Filament/Resources/TypeDocumentLegals/Schemas/TypeDocumentLegalForm.php
-
-		-
-			message: '#^Method App\\Filament\\Resources\\TypeDocumentLegals\\TypeDocumentLegalResource\:\:getNavigationBadge\(\) should return string\|null but returns int\<0, max\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Filament/Resources/TypeDocumentLegals/TypeDocumentLegalResource.php
 
 		-
 			message: '#^Method App\\Filament\\Resources\\Users\\UserResource\:\:getNavigationBadge\(\) should return string\|null but returns int\<0, max\>\.$#'
@@ -845,18 +767,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/Announcement.php
-
-		-
-			message: '#^Method App\\Models\\CadersaAsblDocumentLegal\:\:typeDocument\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/CadersaAsblDocumentLegal.php
-
-		-
-			message: '#^Method App\\Models\\CadersaAsblDocumentLegal\:\:verifiePar\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/CadersaAsblDocumentLegal.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
@@ -1487,42 +1397,6 @@ parameters:
 			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Notification.php
-
-		-
-			message: '#^Call to an undefined method Spatie\\Image\\Drivers\\ImageDriver\:\:performOnCollections\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Models/Partner.php
-
-		-
-			message: '#^Class App\\Models\\Partner uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Partner.php
-
-		-
-			message: '#^Method App\\Models\\Partner\:\:scopeActive\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Partner.php
-
-		-
-			message: '#^Method App\\Models\\Partner\:\:scopeActive\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Partner.php
-
-		-
-			message: '#^Method App\\Models\\Partner\:\:scopeOrdered\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Partner.php
-
-		-
-			message: '#^Method App\\Models\\Partner\:\:scopeOrdered\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Partner.php
 
 		-
 			message: '#^Class App\\Models\\Permission uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'

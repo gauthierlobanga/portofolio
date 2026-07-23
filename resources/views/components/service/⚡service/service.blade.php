@@ -23,7 +23,7 @@
                             class="group relative flex h-full flex-col border border-zinc-200/50 bg-white transition-all duration-500 ease-out
                                    hover:-translate-y-1 hover:border-emerald-300 hover:shadow hover:shadow-emerald-100/30
                                    dark:border-zinc-700/60 dark:bg-zinc-900 dark:hover:border-emerald-700 dark:hover:shadow-emerald-900/20">
-                            {{-- corps de la carte inchangé --}}
+                            {{-- corps de la carte --}}
                             <div class="flex flex-1 flex-col gap-3 p-5">
                                 <div class="flex items-center gap-3">
                                     <div

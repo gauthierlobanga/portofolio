@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Setting extends Model
+class Setting extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'user_id',
@@ -25,6 +27,9 @@ class Setting extends Model
         'is_linkedin_url',
         'is_twitter_url',
         'is_website_url',
+        'stackoverflow_url',
+        'is_stackoverflow_url',
+        'methodology',
     ];
 
     /**
@@ -39,7 +44,15 @@ class Setting extends Model
             'is_linkedin_url' => 'boolean',
             'is_twitter_url' => 'boolean',
             'is_website_url' => 'boolean',
+            'is_stackoverflow_url' => 'boolean',
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('cv')
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf']);
     }
 
     public function user()
@@ -65,5 +78,10 @@ class Setting extends Model
     public function isWebSiteUrl(): bool
     {
         return $this->is_website_url;
+    }
+
+    public function isStackoverflowUrl(): bool
+    {
+        return $this->is_stackoverflow_url;
     }
 }

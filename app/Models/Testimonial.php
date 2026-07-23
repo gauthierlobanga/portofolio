@@ -29,6 +29,7 @@ class Testimonial extends Model implements HasMedia
 
     protected $fillable = [
         'name', 'role', 'company', 'content', 'is_active',
+        'profile_url', 'rating', 'platform',
     ];
 
     protected $casts = [
@@ -45,6 +46,10 @@ class Testimonial extends Model implements HasMedia
         $this->addMediaCollection('photo')
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+
+        $this->addMediaCollection('company_logo')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']);
     }
 
     // ========== MEDIA CONVERSIONS ==========

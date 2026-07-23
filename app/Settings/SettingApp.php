@@ -49,6 +49,10 @@ class SettingApp extends Settings
 
     public ?string $youtube_url = null;
 
+    public ?string $stackoverflow_url = null;
+
+    public ?string $cv_url = null;
+
     public function logoUrl(): ?string
     {
         return static::publicLogoUrl($this->logo_url);
