@@ -6,9 +6,11 @@ use App\Models\FormationCategory;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Transition;
+use Livewire\Attributes\Lazy;
 use App\Settings\AboutSettings;
+use Illuminate\Database\Eloquent\Builder;
 
-new #[Layout('layouts::main')] class extends Component {
+new #[Lazy] #[Layout('layouts::main')] class extends Component {
     use \Livewire\WithPagination;
 
     protected $scrollToTop = false;
@@ -24,32 +26,65 @@ new #[Layout('layouts::main')] class extends Component {
 
     public function with(): array
     {
-        $query = Formation::query()
-            ->with(['category', 'media', 'user'])
-            ->active();
+        $sorts = ['newest', 'oldest', 'name-asc', 'name-desc'];
+        $categories = FormationCategory::orderBy('sort_order')->get();
 
-        if (!empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('title', 'LIKE', '%' . $this->search . '%')
-                    ->orWhere('content', 'LIKE', '%' . $this->search . '%')
-                    ->orWhere('excerpt', 'LIKE', '%' . $this->search . '%');
-            });
+        if (! $categories->contains('slug', $this->category)) {
+            $this->category = null;
         }
 
-        if ($this->category) {
-            $query->whereHas('category', fn($q) => $q->where('slug', $this->category));
+        if (! in_array($this->sort, $sorts, true)) {
+            $this->sort = 'newest';
         }
 
-        $query
-            ->when($this->sort === 'oldest', fn($q) => $q->oldest('created_at'))
-            ->when($this->sort === 'name-asc', fn($q) => $q->orderBy('title', 'asc'))
-            ->when($this->sort === 'name-desc', fn($q) => $q->orderBy('title', 'desc'))
-            ->when(!in_array($this->sort, ['oldest', 'name-asc', 'name-desc']), fn($q) => $q->latest('created_at'));
+        $formations = $this->search === ''
+            ? $this->applyFormationFilters(Formation::query())->paginate(9)
+            : Formation::search($this->search)
+                ->query(fn (Builder $query): Builder => $this->applyFormationFilters($query))
+                ->paginate(9);
 
         return [
-            'formations' => $query->paginate(9),
-            'categories' => FormationCategory::orderBy('sort_order')->get(),
+            'formations' => $formations,
+            'categories' => $categories,
         ];
+    }
+
+    private function applyFormationFilters(Builder $query): Builder
+    {
+        return $query
+            ->with(['category', 'media', 'user'])
+            ->active()
+            ->when($this->category, fn (Builder $query): Builder => $query->whereHas(
+                'category',
+                fn (Builder $categoryQuery): Builder => $categoryQuery->where('slug', $this->category)
+            ))
+            ->when($this->sort === 'oldest', fn (Builder $query): Builder => $query->oldest('created_at'))
+            ->when($this->sort === 'name-asc', fn (Builder $query): Builder => $query->orderBy('title'))
+            ->when($this->sort === 'name-desc', fn (Builder $query): Builder => $query->orderByDesc('title'))
+            ->when($this->sort === 'newest', fn (Builder $query): Builder => $query->latest('created_at'));
+    }
+
+    public function updatedSearch(string $value): void
+    {
+        $this->search = $this->normalizeSearch($value);
+        $this->resetPage();
+    }
+
+    public function updatedCategory(?string $value = null): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSort(): void
+    {
+        $this->resetPage();
+    }
+
+    private function normalizeSearch(string $value): string
+    {
+        $value = preg_replace('/\s+/u', ' ', trim($value)) ?? '';
+
+        return mb_substr($value, 0, 120);
     }
 
     #[Transition(skip: true)]
@@ -59,7 +94,7 @@ new #[Layout('layouts::main')] class extends Component {
         $this->resetPage();
     }
 
-    public function getStatsProperty()
+    public function getStatsProperty(): array
     {
         return [
             'Formations' => Formation::published()->count(),
@@ -77,105 +112,12 @@ new #[Layout('layouts::main')] class extends Component {
 
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     {{-- ========== HEADER ========== --}}
-    <section class="relative overflow-hidden bg-zinc-50 pt-24 pb-20 sm:pt-32 sm:pb-28 lg:pt-36 lg:pb-32 dark:bg-zinc-950"
-        x-data="{ shown: false }" x-intersect.once="shown = true">
-
-        {{-- Ambiance lumineuse dynamique et Orbes --}}
-        <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-            {{-- Orbes animés --}}
-            <div
-                class="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-emerald-400/20 mix-blend-multiply blur-[120px] animate-blob dark:bg-emerald-600/20 dark:mix-blend-screen">
-            </div>
-            <div
-                class="absolute top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-teal-300/20 mix-blend-multiply blur-[120px] animate-blob animation-delay-2000 dark:bg-teal-500/20 dark:mix-blend-screen">
-            </div>
-            <div
-                class="absolute -bottom-[20%] left-[20%] w-[80%] h-[80%] rounded-full bg-cyan-300/20 mix-blend-multiply blur-[120px] animate-blob animation-delay-4000 dark:bg-cyan-600/20 dark:mix-blend-screen">
-            </div>
-
-            {{-- Effet de texture (grain léger) --}}
-            <div class="absolute inset-0 opacity-[0.03] mix-blend-overlay"
-                style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');">
-            </div>
-
-            {{-- Grille subtile --}}
-            <div
-                class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[24px_24px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,#000_70%,transparent_100%)]">
-            </div>
-        </div>
-
-        <div class="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
-            <div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-12 lg:gap-24">
-
-                {{-- BLOC TEXTE PRINCIPAL --}}
-                <div class="flex flex-col items-start gap-8 lg:col-span-7">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-sm font-medium text-emerald-700 backdrop-blur-md dark:text-emerald-300 transition-all duration-500"
-                        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                        </span>
-                        Nouvelles sessions disponibles
-                    </div>
-
-                    <h1 class="text-pretty text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-zinc-900 drop-shadow-sm dark:text-white dark:drop-shadow-lg transition-all duration-700 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
-                        {!! $this->about->formation_banner_title ?:
-                            'Élevez vos compétences avec nos <span class="relative inline-block animate-text-gradient bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-[200%_auto] bg-clip-text text-transparent dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400">formations</span>' !!}
-                    </h1>
-
-                    <p class="max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-600 dark:text-zinc-400 font-medium transition-all duration-700 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
-                        {{ $this->about->formation_banner_subtitle ?: 'Découvrez des programmes intensifs et pratiques, conçus par des experts pour accélérer votre carrière professionnelle.' }}
-                    </p>
-                </div>
-
-                {{-- PANNEAU D'INFORMATION ET STATISTIQUES --}}
-                <div class="w-full lg:col-span-5 transition-all duration-700 delay-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                    :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'">
-                    <div
-                        class="group relative overflow-hidden rounded-3xl border border-white/40 bg-white/40 p-8 shadow-2xl shadow-emerald-500/5 backdrop-blur-xl transition-all duration-500 hover:border-emerald-500/30 dark:border-zinc-700/50 dark:bg-zinc-900/50 dark:shadow-emerald-900/10">
-
-                        {{-- Effet reflet glassmorphism --}}
-                        <div
-                            class="absolute inset-0 bg-gradient-to-tr from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 dark:from-white/5 dark:to-transparent">
-                        </div>
-
-                        <div class="relative z-10 flex flex-col gap-8">
-                            <div class="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 lg:grid-cols-2">
-                                @foreach ($this->stats as $label => $value)
-                                    <div x-data="{ hover: false }" @mouseenter="hover = true" @mouseleave="hover = false"
-                                        class="group/stat relative min-w-24 px-4 py-4 text-center transition-all duration-500 delay-{{ 300 + $loop->index * 100 }}"
-                                        :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
-
-                                        {{-- Background au survol --}}
-                                        <div class="absolute inset-0 rounded-2xl bg-emerald-500/0 transition-colors duration-300 ease-out group-hover/stat:bg-emerald-500/5 dark:group-hover/stat:bg-emerald-400/10"
-                                            aria-hidden="true"></div>
-
-                                        <div class="relative z-10 flex flex-col items-center gap-1">
-                                            <span
-                                                class="text-4xl sm:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 group-hover/stat:from-emerald-600 group-hover/stat:to-teal-500 dark:group-hover/stat:from-emerald-400 dark:group-hover/stat:to-teal-300 transition-all duration-300">
-                                                {{ $value }}
-                                            </span>
-                                            <span
-                                                class="text-xs font-bold uppercase tracking-wider text-zinc-500 group-hover/stat:text-emerald-700 transition-colors duration-300 dark:text-zinc-400 dark:group-hover/stat:text-emerald-400">
-                                                {{ $label }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <x-formations-banner :stats="$this->stats" :about="$this->about" />
 
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
     @island
         <section id="scroll-to-reference" data-preserve-scroll x-data="{ showFilters: false, sortOpen: false }"
+            @keydown.window.slash="if (!$event.target.matches('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.searchInput.focus() }"
             aria-label="Recherche et filtres des formations"
             class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
 
@@ -185,7 +127,8 @@ new #[Layout('layouts::main')] class extends Component {
             </div>
 
             {{-- Barre de recherche + bouton filtres --}}
-            <section class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center" role="search">
+            <section class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center" role="search"
+                aria-label="Rechercher dans les formations">
                 <div class="flex items-center">
                     {{-- Bouton Filtres --}}
                     <button type="button" x-ref="filtersButton" @click="showFilters = !showFilters"
@@ -270,9 +213,10 @@ new #[Layout('layouts::main')] class extends Component {
                             </svg>
                         </div>
                         <input autocomplete="off"
+                            id="formation-search" type="search" enterkeyhint="search"
                             class="h-full w-full border-0 bg-transparent pl-10 pr-12 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
                             wire:model.live.debounce.250ms.preserve-scroll="search" x-ref="searchInput"
-                            placeholder="Rechercher une formation...">
+                            placeholder="Rechercher une formation..." aria-label="Rechercher une formation">
                         <button x-cloak x-show="$wire.search !== ''"
                             @click="$wire.set('search', ''); $nextTick(() => $refs.searchInput?.focus())"
                             x-transition:enter="transition ease-out duration-200"
@@ -286,6 +230,13 @@ new #[Layout('layouts::main')] class extends Component {
                                     d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
+                        <span wire:loading.delay wire:target="search,category,sort,clearFilters,gotoPage,nextPage,previousPage"
+                            class="pointer-events-none absolute right-10 inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
+                            aria-live="polite">
+                            <span class="size-3 animate-spin rounded-full border-2 border-current border-r-transparent"
+                                aria-hidden="true"></span>
+                            <span class="sr-only">Recherche en cours</span>
+                        </span>
                     </div>
                 </div>
             </section>
@@ -350,7 +301,9 @@ new #[Layout('layouts::main')] class extends Component {
 
             {{-- ========== SECTION GRILLE  ========== --}}
             <div wire:loading.class="opacity-50 pointer-events-none"
-                class="mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr items-start gap-7 no-animate transition-opacity duration-300"
+                wire:target="search,category,sort,clearFilters,gotoPage,nextPage,previousPage"
+                wire:transition
+                class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7 transition-opacity duration-300"
                 aria-label="Liste des formations">
                 @forelse ($formations as $formation)
                     <a wire:navigate href="{{ route('formations.show', $formation) }}"
@@ -510,3 +463,49 @@ new #[Layout('layouts::main')] class extends Component {
         </section>
     @endisland
 </div>
+
+@placeholder
+    @php
+        $stats = [
+            'Formations' => \App\Models\Formation::published()->count(),
+            'Catégories' => \App\Models\FormationCategory::count(),
+            'Niveaux' => \App\Models\Formation::published()->distinct()->count(),
+        ];
+        $about = app(\App\Settings\AboutSettings::class);
+    @endphp
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <x-formations-banner :stats="$stats" :about="$about" />
+
+        {{-- Skeleton pour la zone Filtres + Liste --}}
+        <section class="px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12 animate-pulse">
+            <div class="mb-5 space-y-3">
+                <div class="h-8 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+                <div class="h-4 w-72 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+            
+            <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center">
+                <div class="h-10 w-24 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+                <div class="h-10 grow bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                @for ($i = 0; $i < 6; $i++)
+                    <div class="flex h-96 flex-col border border-zinc-200/50 bg-white dark:border-zinc-700/60 dark:bg-zinc-900 rounded-xl overflow-hidden">
+                        <div class="aspect-video w-full bg-zinc-200 dark:bg-zinc-800"></div>
+                        <div class="flex flex-1 flex-col gap-4 p-4">
+                            <div class="h-6 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                            <div class="space-y-2">
+                                <div class="h-4 w-full bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                <div class="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                            </div>
+                            <div class="mt-auto flex items-center justify-between">
+                                <div class="h-4 w-20 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                <div class="h-6 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </section>
+    </div>
+@endplaceholder

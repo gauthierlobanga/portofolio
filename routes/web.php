@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\site\SitemapController;
+use App\Models\Project;
+use App\Models\Service;
+use App\Models\Skill;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,7 +61,13 @@ Route::livewire('/search', 'pages::site.search')->name('search');
 
 // Tableau de bord
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', function () {
+        $recentProjects = Project::active()->ordered()->take(3)->get();
+        $skills = Skill::take(8)->get();
+        $services = Service::active()->ordered()->take(8)->get();
+
+        return view('dashboard', compact('recentProjects', 'skills', 'services'));
+    })->name('dashboard');
 });
 
 Route::feeds();

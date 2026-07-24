@@ -19,52 +19,53 @@ $aboutSettings = app(\App\Settings\AboutSettings::class);
     if (!empty($addresses) && is_array($addresses)) {
         $firstAddress = reset($addresses);
         $street = $firstAddress['address'] ?? ($firstAddress['street'] ?? '');
-        $locality = $firstAddress['city'] ?? ($firstAddress['locality'] ?? 'Bukavu');
-        $region = $firstAddress['state'] ?? ($firstAddress['region'] ?? 'Sud-Kivu');
+        $locality = $firstAddress['city'] ?? ($firstAddress['locality'] ?? 'Kinshasa');
+        $region = $firstAddress['state'] ?? ($firstAddress['region'] ?? 'Kinshasa');
         $country = $firstAddress['country'] ?? 'CD';
     } else {
         // Fallback sur l'adresse de AboutSettings
-    $street = $aboutSettings->address ?? 'Av. Mbaki N° 041, Q. Ndedere';
-    $locality = 'Bukavu';
-    $region = 'Sud-Kivu';
+    $street = $aboutSettings->address ?? 'Kinshasa Ngaliema, République Démocratique du Congo';
+    $locality = 'Kinshasa';
+    $region = 'Kinshasa';
     $country = 'CD';
 }
 
-// Construction du schéma Organization
-$schema = [
-    '@context' => 'https://schema.org',
-    '@type' => 'Organization',
-    'name' => $appSettings->name ?? config('app.name', 'CADERSA ASBL'),
-    'url' => url('/'),
-    'logo' => $appLogo,
-    'description' =>
-        'Centre d’Appui au Développement Rural et à la Sécurité Alimentaire. CADERSA accompagne les communautés congolaises à travers des projets agricoles, sociaux et environnementaux.',
-    'address' => [
-        '@type' => 'PostalAddress',
-        'streetAddress' => $street,
-        'addressLocality' => $locality,
-        'addressRegion' => $region,
-        'addressCountry' => $country,
-    ],
-    'contactPoint' => [
-        '@type' => 'ContactPoint',
-        'telephone' => $appSettings->phone,
-        'contactType' => 'customer service',
-        'email' => $appSettings->email,
-    ],
-    'sameAs' => array_values(
+// Construction du schéma Person par défaut
+if (!isset($schema)) {
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Person',
+        'name' => $appSettings->name ?? config('app.name', 'Gauthier Lobanga'),
+        'jobTitle' => 'Développeur Web',
+        'url' => url('/'),
+        'image' => $appLogo,
+        'description' => 'Portfolio de développeur passionné par la création d\'applications web performantes et d\'expériences utilisateur uniques.',
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $street,
+            'addressLocality' => $locality,
+            'addressRegion' => $region,
+            'addressCountry' => $country,
+        ],
+        'sameAs' => array_values(
             array_filter([
-                $appSettings->facebook_url,
-                $appSettings->x_url,
-                $appSettings->linkedin_url,
-                $appSettings->youtube_url,
+                $appSettings->facebook_url ?? null,
+                $appSettings->x_url ?? null,
+                $appSettings->linkedin_url ?? null,
+                $appSettings->youtube_url ?? null,
+                'https://github.com/gauthierlobanga'
             ]),
         ),
     ];
+}
 @endphp
 
 <x-seo :title="$title ?? null" :description="$seoDescription ?? null" :image="$seoImage" :url="$seoUrl ?? null" :type="$seoType ?? 'website'" :keywords="$seoKeywords ?? null">
-    <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}</script>
+    @if(isset($schema) && is_string($schema))
+        {!! $schema !!}
+    @else
+        <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}</script>
+    @endif
 </x-seo>
 
 @include('feed::links')
@@ -82,11 +83,7 @@ $schema = [
 <link rel="stylesheet" href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..500&family=Playfair+Display:wght@600;700;800&display=swap">
 <style>
-    html, body {
-        overflow-x: hidden;
-    }
-
-
+    /* removed overflow-x: hidden to allow position: sticky to work */
     .glass-panel {
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -106,32 +103,5 @@ $schema = [
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
 @livewireStyles
+@stack('styles')
 
-<script>
-    // Désactiver les transitions lors du changement de thème pour éviter les effets de "flash" blanc
-    document.addEventListener('DOMContentLoaded', () => {
-        let isTransitioning = false;
-        const observer = new MutationObserver((mutations) => {
-            for (let mutation of mutations) {
-                if (mutation.attributeName === 'class' && !isTransitioning) {
-                    const oldDark = mutation.oldValue ? mutation.oldValue.includes('dark') : false;
-                    const newDark = document.documentElement.classList.contains('dark');
-                    
-                    // Si la classe 'dark' a été ajoutée ou retirée
-                    if (oldDark !== newDark) {
-                        isTransitioning = true;
-                        document.documentElement.classList.add('no-transition');
-                        
-                        // Attendre un peu que le navigateur applique les nouvelles couleurs sans animation
-                        setTimeout(() => {
-                            document.documentElement.classList.remove('no-transition');
-                            // Petite pause pour éviter de re-déclencher
-                            setTimeout(() => { isTransitioning = false; }, 10);
-                        }, 50);
-                    }
-                }
-            }
-        });
-        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
-    });
-</script>

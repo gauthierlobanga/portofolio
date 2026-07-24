@@ -1,0 +1,13 @@
+{
+    "The password field must be at least 12 characters.": "Le mot de passe doit contenir au moins 12 caractères.",
+    "The password field must contain at least one uppercase and one lowercase letter.": "Le mot de passe doit contenir au moins une lettre majuscule et une minuscule.",
+    "The password field must contain at least one letter.": "Le mot de passe doit contenir au moins une lettre.",
+    "The password field must contain at least one symbol.": "Le mot de passe doit contenir au moins un symbole.",
+    "The password field must contain at least one number.": "Le mot de passe doit contenir au moins un chiffre.",
+    "The given password has appeared in a data leak. Please choose a different password.": "Ce mot de passe est apparu dans une fuite de données. Veuillez en choisir un autre.",
+    "The name field is required.": "Le nom est obligatoire.",
+    "The email field is required.": "L'email est obligatoire.",
+    "The email field must be a valid email address.": "L'adresse email doit être valide.",
+    "The password field is required.": "Le mot de passe est obligatoire.",
+    "The password field confirmation does not match.": "La confirmation du mot de passe ne correspond pas."
+}

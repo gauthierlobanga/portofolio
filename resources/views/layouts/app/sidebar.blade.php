@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     @include('partials.head')
 </head>
 
-<body class="min-h-dvh overflow-x-hidden bg-white antialiased dark:bg-zinc-800">
+<body class="min-h-dvh bg-white antialiased dark:bg-zinc-800">
     <flux:sidebar sticky collapsible="mobile"
-        class="h-dvh max-h-dvh overflow-y-auto border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+        class="h-screen max-h-screen overflow-y-auto top-0 border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.header class="shrink-0">
             <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
             <flux:sidebar.collapse class="lg:hidden" />
         </flux:sidebar.header>
 
-        <flux:sidebar.nav class="min-h-0 overflow-y-auto">
-            <flux:sidebar.group :heading="__('Platform')" class="grid">
+        <flux:sidebar.nav class="min-h-0 overflow-y-auto mb-3">
+            <flux:sidebar.group :heading="__('')" class="grid">
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>
                     {{ __('Dashboard') }}
@@ -25,8 +25,7 @@
         <flux:spacer />
 
         <flux:sidebar.nav class="shrink-0">
-            <flux:sidebar.item icon="folder-git-2" href="{{ route('home') }}"
-                target="_blank">
+            <flux:sidebar.item icon="home" href="{{ route('home') }}" target="_blank">
                 {{ __('Accueil') }}
             </flux:sidebar.item>
         </flux:sidebar.nav>
@@ -89,6 +88,41 @@
 
     @fluxScripts
     @livewireScripts
+
+    <script>
+        // Désactiver les transitions lors du changement de thème pour éviter les effets de "flash" blanc
+        document.addEventListener('DOMContentLoaded', () => {
+            let isTransitioning = false;
+            const observer = new MutationObserver((mutations) => {
+                for (let mutation of mutations) {
+                    if (mutation.attributeName === 'class' && !isTransitioning) {
+                        const oldDark = mutation.oldValue ? mutation.oldValue.includes('dark') : false;
+                        const newDark = document.documentElement.classList.contains('dark');
+
+                        // Si la classe 'dark' a été ajoutée ou retirée
+                        if (oldDark !== newDark) {
+                            isTransitioning = true;
+                            document.documentElement.classList.add('no-transition');
+
+                            // Attendre un peu que le navigateur applique les nouvelles couleurs sans animation
+                            setTimeout(() => {
+                                document.documentElement.classList.remove('no-transition');
+                                // Petite pause pour éviter de re-déclencher
+                                setTimeout(() => {
+                                    isTransitioning = false;
+                                }, 10);
+                            }, 50);
+                        }
+                    }
+                }
+            });
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class'],
+                attributeOldValue: true
+            });
+        });
+    </script>
 </body>
 
 </html>

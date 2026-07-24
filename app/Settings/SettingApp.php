@@ -22,21 +22,21 @@ class SettingApp extends Settings
 
     public string $email = '';
 
-    public string $contact_hero_badge = '';
+    public ?string $contact_hero_badge = null;
 
-    public string $contact_hero_title = '';
+    public ?string $contact_hero_title = null;
 
-    public string $contact_hero_subtitle = '';
+    public ?string $contact_hero_subtitle = null;
 
-    public string $contact_form_heading = '';
+    public ?string $contact_form_heading = null;
 
-    public string $contact_form_description = '';
+    public ?string $contact_form_description = null;
 
-    public string $contact_support_title = '';
+    public ?string $contact_support_title = null;
 
-    public string $contact_support_description = '';
+    public ?string $contact_support_description = null;
 
-    public string $contact_offices_title = '';
+    public ?string $contact_offices_title = null;
 
     // Réseaux sociaux
     public ?string $facebook_url = null;

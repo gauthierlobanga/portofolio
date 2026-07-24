@@ -83,7 +83,7 @@
      */
     Livewire.hook('commit', ({ succeed }) => {
         succeed(({ effect }) => {
-            if (Array.isArray(effect.dispatches)) {
+            if (effect && Array.isArray(effect.dispatches)) {
                 effect.dispatches = effect.dispatches.filter(
                     (dispatch) => dispatch.name !== 'scroll'
                 )

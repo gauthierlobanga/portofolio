@@ -28,7 +28,8 @@
                 class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
                 {{ __('Skill') }}
             </flux:navbar.item>
-            <flux:navbar.item :href="route('formations.index')" :current="request()->routeIs('formations.index')" wire:navigate
+            <flux:navbar.item :href="route('formations.index')" :current="request()->routeIs('formations.index')"
+                wire:navigate
                 class="!text-zinc-600 hover:!bg-emerald-50 hover:!text-emerald-600 dark:!text-zinc-400 dark:hover:!bg-emerald-900/20 dark:hover:!text-emerald-400 !transition !duration-200 !rounded-lg">
                 {{ __('Formations') }}
             </flux:navbar.item>
@@ -195,6 +196,42 @@
 
     @fluxScripts
     @livewireScripts
+
+    <script>
+        // Désactiver les transitions lors du changement de thème pour éviter les effets de "flash" blanc
+        document.addEventListener('DOMContentLoaded', () => {
+            let isTransitioning = false;
+            const observer = new MutationObserver((mutations) => {
+                for (let mutation of mutations) {
+                    if (mutation.attributeName === 'class' && !isTransitioning) {
+                        const oldDark = mutation.oldValue ? mutation.oldValue.includes('dark') : false;
+                        const newDark = document.documentElement.classList.contains('dark');
+
+                        // Si la classe 'dark' a été ajoutée ou retirée
+                        if (oldDark !== newDark) {
+                            isTransitioning = true;
+                            document.documentElement.classList.add('no-transition');
+
+                            // Attendre un peu que le navigateur applique les nouvelles couleurs sans animation
+                            setTimeout(() => {
+                                document.documentElement.classList.remove('no-transition');
+                                // Petite pause pour éviter de re-déclencher
+                                setTimeout(() => {
+                                    isTransitioning = false;
+                                }, 10);
+                            }, 50);
+                        }
+                    }
+                }
+            });
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class'],
+                attributeOldValue: true
+            });
+        });
+    </script>
+    @stack('scripts')
 </body>
 
 </html>

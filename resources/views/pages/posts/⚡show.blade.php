@@ -391,9 +391,20 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
                 @endif
 
-                <div class="fi-prose max-w-none w-full">
+                @assets
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+                @endassets
+
+                <div class="fi-prose max-w-none w-full overflow-hidden" wire:ignore>
                     {!! $post->renderRichContent('content') !!}
                 </div>
+
+                @script
+                <script>
+                    hljs.highlightAll();
+                </script>
+                @endscript
 
                 {{-- Navigation précédent/suivant --}}
                 <div class="mt-8 sm:mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">

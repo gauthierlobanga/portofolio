@@ -7,7 +7,7 @@ use Livewire\Component;
 
 new class extends Component
 {
-   #[Computed]
+    #[Computed]
     public function testimonials()
     {
         return Testimonial::query()

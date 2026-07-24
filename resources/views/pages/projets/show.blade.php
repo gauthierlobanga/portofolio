@@ -215,11 +215,16 @@ new #[Layout('layouts::main')] class extends Component {
     {{-- Contenu & Galerie --}}
     <section class="relative py-20 lg:py-32">
         <div class="mx-auto max-w-4xl px-6 lg:px-8">
+            @assets
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+            @endassets
+
             {{-- Contenu Prose --}}
             <div wire:cloak x-data="{ shown: false }" x-intersect.once="shown = true"
                 :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
                 class="fi-prose max-w-none transition-all duration-1000 ease-out
-                        bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-8 md:p-12 w-full">
+                        bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl p-8 md:p-12 w-full overflow-hidden" wire:ignore>
                 {!! $project->renderRichContent('content') !!}
             </div>
 
@@ -266,6 +271,12 @@ new #[Layout('layouts::main')] class extends Component {
                     @endif
                 </div>
             @endif
+
+            @script
+            <script>
+                hljs.highlightAll();
+            </script>
+            @endscript
 
             {{-- Galerie --}}
             @if ($this->galleryImages->isNotEmpty())

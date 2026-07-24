@@ -7,12 +7,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use App\Concerns\Traits\HasImageUrl;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Transition;
 
-new #[Layout('layouts::main')] class extends Component {
+new #[Lazy] #[Layout('layouts::main')] class extends Component {
     use HasImageUrl;
 
     use WithPagination;
@@ -51,17 +52,21 @@ new #[Layout('layouts::main')] class extends Component {
     #[Computed]
     public function skills(): Collection
     {
-        $query = Skill::with(['categorySkill', 'media']);
+        $applyFilters = function ($query) {
+            $query->with(['categorySkill', 'media']);
+            if ($this->filter !== 'all') {
+                $query->where('skill_category_id', $this->filter);
+            }
+            return $query;
+        };
 
-        if ($this->filter !== 'all') {
-            $query->where('skill_category_id', $this->filter);
+        if (empty($this->search)) {
+            $skills = $applyFilters(Skill::query())->get();
+        } else {
+            $skills = Skill::search($this->search)
+                ->query($applyFilters)
+                ->get();
         }
-
-        if (!empty($this->search)) {
-            $query->where('name', 'LIKE', '%' . $this->search . '%');
-        }
-
-        $skills = $query->get();
 
         if ($this->sort === 'level-asc') {
             $skills = $skills->sortBy('level');
@@ -115,52 +120,10 @@ new #[Layout('layouts::main')] class extends Component {
 
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     {{-- ==================== HERO ==================== --}}
-    <section wire:cloak
-        class="relative flex flex-col items-start gap-x-10 gap-y-8 overflow-hidden border-b border-zinc-200 px-5 py-10 xs:px-8 sm:py-16 lg:px-15 lg:py-20 dark:border-zinc-800 max-w-7xl mx-auto"
-        x-data="{ shown: false }" x-intersect.once="shown = true">
-
-        {{-- Ambiance lumineuse de fond --}}
-        <div class="pointer-events-none absolute inset-0 z-0">
-            <div class="absolute -top-40 right-0 h-150 w-150 rounded-full blur-3xl dark:to-transparent">
-            </div>
-            <div
-                class="absolute -bottom-20 -left-20 h-125 w-125 rounded-full bg-linear-to-tr from-zinc-200/40 to-emerald-100/0 blur-3xl dark:from-zinc-900/50 dark:to-transparent">
-            </div>
-            <div
-                class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[14px_24px] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]">
-            </div>
-        </div>
-
-        {{-- Contenu principal (à gauche) --}}
-        <div class="relative z-10 w-full max-w-4xl">
-            {{-- Badge --}}
-            <div class="inline-flex items-center gap-2.5 rounded-full border border-zinc-200 bg-white/80 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-500 shadow-[0_1px_2px_rgba(0,0,0,0.02)] backdrop-blur-md transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'">
-                <span class="relative flex h-1.5 w-1.5">
-                    <span
-                        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                    <span
-                        class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-                </span>
-                {{ $this->about->skill_badge ?: 'Compétences' }}
-            </div>
-
-            {{-- Titre --}}
-            <h1 class="mt-6 text-pretty text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-950 font-serif dark:text-zinc-50 transition-all duration-500 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                {!! $this->about->skill_title ?:
-                    'Mes <span class="relative inline-block bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-emerald-300 dark:to-teal-400">compétences</span>' !!}
-            </h1>
-
-            {{-- Sous‑titre --}}
-            <p class="mt-4 max-w-xl text-lg leading-relaxed text-zinc-600/90 dark:text-zinc-400 font-sans transition-all duration-500 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                {{ $this->about->skill_subtitle ?: 'Technologies et outils que je maîtrise au quotidien.' }}
-            </p>
-        </div>
-    </section>
+    <x-skills-banner :about="$this->about" />
 
     {{-- ========== SECTION GRILLE COMPÉTENCES ========== --}}
+    @island
     <section class="px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
         {{-- Barre de recherche + bouton filtres --}}
         <div class="mb-2" x-data="{ showFilters: false }">
@@ -366,7 +329,8 @@ new #[Layout('layouts::main')] class extends Component {
             </div>
         @endif
         {{-- Grille des catégories --}}
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div wire:loading.class="opacity-50 pointer-events-none" wire:target="search,filter,sort,clearFilters,gotoPage,nextPage,previousPage" class="mt-5 transition-opacity duration-300 min-h-136">
+            <div wire:transition="cards-grid" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             @foreach ($this->categories as $category)
                 <div x-cloak x-data="cspState" x-intersect="shown = true"
                     :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
@@ -436,9 +400,59 @@ new #[Layout('layouts::main')] class extends Component {
             @endforeach
         </div>
 
+        </div>
+
         {{-- Pagination --}}
         <div class="mt-12">
             {{ $this->categories->links('pagination::custom') }}
         </div>
     </section>
+    @endisland
 </div>
+
+@placeholder
+    @php
+        $about = app(\App\Settings\AboutSettings::class);
+    @endphp
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <x-skills-banner :about="$about" />
+
+        {{-- Skeleton filtres + grille --}}
+        <section class="px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12 animate-pulse">
+            <div class="mb-5 space-y-3">
+                <div class="h-8 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+
+            <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center">
+                <div class="h-10 w-24 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+                <div class="h-10 grow bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @for ($i = 0; $i < 6; $i++)
+                    <div class="flex h-100 flex-col rounded-2xl border border-zinc-200/50 bg-white p-6 dark:border-zinc-700/60 dark:bg-zinc-900 overflow-hidden">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="h-12 w-12 rounded bg-zinc-200 dark:bg-zinc-800"></div>
+                            <div class="space-y-2">
+                                <div class="h-5 w-32 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                <div class="h-3 w-24 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                            </div>
+                        </div>
+                        <div class="flex-1 space-y-5">
+                            @for ($j = 0; $j < 3; $j++)
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-8 w-8 rounded bg-zinc-200 dark:bg-zinc-800"></div>
+                                        <div class="h-4 w-24 flex-1 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                        <div class="h-3 w-6 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                    </div>
+                                    <div class="h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </section>
+    </div>
+@endplaceholder

@@ -5,12 +5,14 @@ use App\Models\Project;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Transition;
+use Livewire\Attributes\Lazy;
 use Livewire\WithPagination;
 use App\Settings\SettingApp;
 use App\Settings\AboutSettings;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
-new #[Layout('layouts::main')] class extends Component {
+new #[Lazy] #[Layout('layouts::main')] class extends Component {
     use \Livewire\WithPagination;
     protected $scrollToTop = false;
 
@@ -26,34 +28,57 @@ new #[Layout('layouts::main')] class extends Component {
     public function with(): array
     {
         $statuses = ['all' => 'Tous', 'planned' => 'Planifiés', 'ongoing' => 'En cours', 'completed' => 'Terminés'];
+        $sorts = ['newest', 'oldest', 'name-asc', 'name-desc'];
 
         if (!array_key_exists($this->filter, $statuses)) {
             $this->filter = 'all';
         }
 
-        $query = Project::query()
-            ->with(['media', 'tags'])
-            ->active();
-
-        if ($this->filter !== 'all') {
-            $query->where('status', $this->filter);
-        }
-        if (!empty($this->search)) {
-            $query->where(function ($q) {
-                $q->where('title', 'LIKE', '%' . $this->search . '%')->orWhere('location', 'LIKE', '%' . $this->search . '%');
-            });
+        if (!in_array($this->sort, $sorts, true)) {
+            $this->sort = 'newest';
         }
 
-        $query
-            ->when($this->sort === 'oldest', fn($q) => $q->oldest('start_date'))
-            ->when($this->sort === 'name-asc', fn($q) => $q->orderBy('title', 'asc'))
-            ->when($this->sort === 'name-desc', fn($q) => $q->orderBy('title', 'desc'))
-            ->when(!in_array($this->sort, ['oldest', 'name-asc', 'name-desc']), fn($q) => $q->latest('start_date'));
+        $projects = $this->search === '' ? $this->applyProjectFilters(Project::query())->paginate(9) : Project::search($this->search)->query(fn(Builder $query): Builder => $this->applyProjectFilters($query))->paginate(9);
 
         return [
-            'projects' => $query->paginate(9),
-            'statuses' => ['all' => 'Tous', 'planned' => 'Planifiés', 'ongoing' => 'En cours', 'completed' => 'Terminés'],
+            'projects' => $projects,
+            'statuses' => $statuses,
         ];
+    }
+
+    private function applyProjectFilters(Builder $query): Builder
+    {
+        return $query
+            ->with(['media', 'tags'])
+            ->active()
+            ->when($this->filter !== 'all', fn(Builder $query): Builder => $query->where('status', $this->filter))
+            ->when($this->sort === 'oldest', fn(Builder $query): Builder => $query->oldest('start_date'))
+            ->when($this->sort === 'name-asc', fn(Builder $query): Builder => $query->orderBy('title'))
+            ->when($this->sort === 'name-desc', fn(Builder $query): Builder => $query->orderByDesc('title'))
+            ->when($this->sort === 'newest', fn(Builder $query): Builder => $query->latest('start_date'));
+    }
+
+    public function updatedSearch(string $value): void
+    {
+        $this->search = $this->normalizeSearch($value);
+        $this->resetPage();
+    }
+
+    public function updatedFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSort(): void
+    {
+        $this->resetPage();
+    }
+
+    private function normalizeSearch(string $value): string
+    {
+        $value = preg_replace('/\s+/u', ' ', trim($value)) ?? '';
+
+        return mb_substr($value, 0, 120);
     }
 
     #[Transition(skip: true)]
@@ -63,7 +88,7 @@ new #[Layout('layouts::main')] class extends Component {
         $this->resetPage();
     }
 
-    public function getStatsProperty()
+    public function getStatsProperty(): array
     {
         return [
             'projets' => Project::active()->count(),
@@ -75,7 +100,7 @@ new #[Layout('layouts::main')] class extends Component {
     public function getHeroImageProperty(): string
     {
         $settings = app(SettingApp::class);
-        return $settings->logoUrl() ?? Storage::url('images/logo-app.svg');
+        return $settings->logoUrl() ?? Storage::url('images/cadersa-logo.png');
     }
 
     public function getAboutProperty(): AboutSettings
@@ -87,93 +112,12 @@ new #[Layout('layouts::main')] class extends Component {
 
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
     {{-- ==================== HERO ==================== --}}
-    <section wire:cloak
-        class="relative flex flex-col items-start gap-x-10 gap-y-8 overflow-hidden border-b border-zinc-200 px-5 py-10 xs:px-8 sm:py-16 lg:px-15 lg:py-20 dark:border-zinc-800 max-w-7xl mx-auto"
-        x-data="{ shown: false }" x-intersect.once="shown = true">
-
-        {{-- Ambiance lumineuse de fond --}}
-        <div class="pointer-events-none absolute inset-0 z-0">
-            <div
-                class="absolute -top-40 right-0 h-150 w-150 rounded-full bg-linear-to-br from-emerald-200/20 to-teal-100/0 blur-3xl dark:from-emerald-500/5 dark:to-transparent">
-            </div>
-            <div
-                class="absolute -bottom-20 -left-20 h-125 w-125 rounded-full bg-linear-to-tr from-zinc-200/40 to-emerald-100/0 blur-3xl dark:from-zinc-900/50 dark:to-transparent">
-            </div>
-            <div
-                class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[14px_24px] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]">
-            </div>
-        </div>
-
-        {{-- Contenu principal (à gauche) --}}
-        <div class="relative z-10 w-full max-w-3xl">
-            {{-- Badge --}}
-            <div class="inline-flex items-center gap-2.5 rounded-full border border-zinc-200 bg-white/80 px-3.5 py-1 text-[11px] font-medium uppercase tracking-[0.15em] text-zinc-500 shadow-[0_1px_2px_rgba(0,0,0,0.02)] backdrop-blur-md transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-400"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'">
-                <span class="relative flex h-1.5 w-1.5">
-                    <span
-                        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                    <span
-                        class="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-                </span>
-                Projets
-            </div>
-
-            {{-- Titre --}}
-            <h1 class="mt-6 text-pretty text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-950 font-serif dark:text-zinc-50 transition-all duration-500 delay-100 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                {!! $this->about->project_banner_title ?:
-                    'Nos <span class="relative inline-block bg-linear-to-r from-emerald-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-emerald-300 dark:to-teal-400">projets</span>' !!}
-            </h1>
-
-            {{-- Sous‑titre --}}
-            <p class="mt-4 max-w-xl text-lg leading-relaxed text-zinc-600/90 dark:text-zinc-400 font-sans transition-all duration-500 delay-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                {{ $this->about->project_banner_subtitle ?: 'Découvrez l\'impact de nos actions sur le terrain au profit des communautés agricoles.' }}
-            </p>
-
-            {{-- Statistiques --}}
-            <div class="mt-8 flex flex-wrap gap-5 transition-all duration-500 delay-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'">
-                @foreach ($this->stats as $label => $value)
-                    <div x-data="hoverStatsCard()" class="group relative px-4 py-3 text-center">
-                        <div x-ref="background"
-                            class="absolute inset-0 rounded-lg bg-zinc-100 transition duration-300 ease-out group-hover:bg-emerald-100/50 dark:bg-zinc-800 dark:group-hover:bg-emerald-900/20"
-                            aria-hidden="true"></div>
-                        <div class="relative z-10 flex flex-col items-center gap-0.5">
-                            <span
-                                class="text-xs font-semibold uppercase tracking-widest text-zinc-500 mix-blend-luminosity dark:text-zinc-400">{{ $label }}</span>
-                            <span class="text-xl font-bold text-zinc-900 dark:text-white">{{ $value }}</span>
-                        </div>
-                        <div x-ref="topLeftCorner" class="absolute top-0 left-0" aria-hidden="true">
-                            <svg class="h-2.5 text-emerald-500" viewBox="0 0 11 11" fill="none">
-                                <path d="M9.5 0.5H0.5V9.5" stroke="currentColor" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                        <div x-ref="bottomLeftCorner" class="absolute bottom-0 left-0" aria-hidden="true">
-                            <svg class="h-2.5 -scale-y-100 text-emerald-500" viewBox="0 0 11 11" fill="none">
-                                <path d="M9.5 0.5H0.5V9.5" stroke="currentColor" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                        <div x-ref="topRightCorner" class="absolute top-0 right-0" aria-hidden="true">
-                            <svg class="h-2.5 -scale-x-100 text-emerald-500" viewBox="0 0 11 11" fill="none">
-                                <path d="M9.5 0.5H0.5V9.5" stroke="currentColor" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                        <div x-ref="bottomRightCorner" class="absolute right-0 bottom-0" aria-hidden="true">
-                            <svg class="h-2.5 -scale-x-100 -scale-y-100 text-emerald-500" viewBox="0 0 11 11"
-                                fill="none">
-                                <path d="M9.5 0.5H0.5V9.5" stroke="currentColor" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
+    <x-projects-banner :stats="$this->stats" :about="$this->about" />
 
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
     @island
         <section wire:cloak id="scroll-to-reference" data-preserve-scroll x-data="{ showFilters: false, sortOpen: false }"
+            @keydown.window.slash="if (!$event.target.matches('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.searchInput.focus() }"
             aria-label="Recherche et filtres des projets"
             class="scroll-mt-11 px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
 
@@ -227,7 +171,8 @@ new #[Layout('layouts::main')] class extends Component {
             </div>
 
             {{-- Barre de recherche + bouton filtres --}}
-            <section class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center" role="search">
+            <section class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center" role="search"
+                aria-label="Rechercher dans les projets">
                 <div class="flex items-center">
                     {{-- Bouton Filtres --}}
                     <button type="button" x-ref="filtersButton" @click="showFilters = !showFilters"
@@ -314,10 +259,11 @@ new #[Layout('layouts::main')] class extends Component {
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input autocomplete="off"
+                        <input autocomplete="off" id="project-search" type="search" enterkeyhint="search"
                             class="h-full w-full border-0 bg-transparent pl-10 pr-12 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
                             wire:model.live.debounce.250ms.preserve-scroll="search" x-ref="searchInput"
-                            placeholder="Rechercher un projet...">
+                            placeholder="Rechercher un projet..." aria-label="Rechercher un projet">
+                        <input type="hidden" wire:model.live.preserve-scroll="filter">
                         <button x-cloak x-show="$wire.search !== ''"
                             @click="$wire.set('search', ''); $nextTick(() => $refs.searchInput?.focus())"
                             x-transition:enter="transition ease-out duration-200"
@@ -331,6 +277,14 @@ new #[Layout('layouts::main')] class extends Component {
                                     d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
+                        <span wire:loading.delay
+                            wire:target="search,filter,sort,clearFilters,gotoPage,nextPage,previousPage"
+                            class="pointer-events-none absolute right-10 inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400"
+                            aria-live="polite">
+                            <span class="size-3 animate-spin rounded-full border-2 border-current border-r-transparent"
+                                aria-hidden="true"></span>
+                            <span class="sr-only">Recherche en cours</span>
+                        </span>
                     </div>
                 </div>
             </section>
@@ -393,7 +347,9 @@ new #[Layout('layouts::main')] class extends Component {
                 </nav>
             </div>
             {{-- Grille des projets --}}
-            <div class="mt-5" aria-label="Liste des projets">
+            <div wire:loading.class="opacity-50 pointer-events-none"
+                wire:target="search,filter,sort,clearFilters,gotoPage,nextPage,previousPage"
+                class="mt-5 transition-opacity duration-300 min-h-136" aria-label="Liste des projets">
                 <div wire:transition="cards-grid"
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7">
 
@@ -553,3 +509,50 @@ new #[Layout('layouts::main')] class extends Component {
         </section>
     @endisland
 </div>
+
+@placeholder
+    @php
+        $stats = [
+            'projets'   => \App\Models\Project::active()->count(),
+            'en_cours'  => \App\Models\Project::active()->where('status', 'ongoing')->count(),
+            'termines'  => \App\Models\Project::active()->where('status', 'completed')->count(),
+        ];
+        $about = app(\App\Settings\AboutSettings::class);
+    @endphp
+    <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+        <x-projects-banner :stats="$stats" :about="$about" />
+
+        {{-- Skeleton filtres + grille --}}
+        <section class="px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12 animate-pulse">
+            <div class="mb-5 space-y-3">
+                <div class="h-8 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+                <div class="h-4 w-72 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+
+            <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center">
+                <div class="h-10 w-24 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+                <div class="h-10 grow bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                @for ($i = 0; $i < 6; $i++)
+                    <div class="flex h-96 flex-col border border-zinc-200/50 bg-white dark:border-zinc-700/60 dark:bg-zinc-900 rounded-xl overflow-hidden">
+                        <div class="aspect-video w-full bg-zinc-200 dark:bg-zinc-800"></div>
+                        <div class="flex flex-1 flex-col gap-4 p-4">
+                            <div class="h-5 w-20 bg-zinc-200 dark:bg-zinc-800 rounded-full"></div>
+                            <div class="h-6 w-3/4 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                            <div class="space-y-2">
+                                <div class="h-4 w-full bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                                <div class="h-4 w-5/6 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                            </div>
+                            <div class="mt-auto flex flex-wrap gap-2">
+                                <div class="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full"></div>
+                                <div class="h-5 w-20 bg-zinc-200 dark:bg-zinc-800 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                @endfor
+            </div>
+        </section>
+    </div>
+@endplaceholder

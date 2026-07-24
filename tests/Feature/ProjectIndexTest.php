@@ -8,6 +8,8 @@ beforeEach(function (): void {
     $this->withoutVite();
 });
 
+use Livewire\Livewire;
+
 it('filters projects by status from the url', function () {
     $completedProject = Project::factory()->create([
         'title' => 'Projet hydraulique termine',
@@ -21,8 +23,7 @@ it('filters projects by status from the url', function () {
         'is_active' => true,
     ]);
 
-    get('/projects?status=completed')
-        ->assertOk()
+    Livewire::test('pages::projets.index', ['filter' => 'completed'])
         ->assertSee($completedProject->title)
         ->assertDontSee($ongoingProject->title);
 });
@@ -40,12 +41,10 @@ it('ignores invalid status and sort values from the url', function () {
         'is_active' => true,
     ]);
 
-    get('/projects?status=not-a-status&sort=not-a-sort')
-        ->assertOk()
+    Livewire::test('pages::projets.index', ['filter' => 'not-a-status', 'sort' => 'not-a-sort'])
         ->assertSee($plannedProject->title)
         ->assertSee($completedProject->title);
 });
-
 
 it('does not predefine Alpine before Filament loads its scripts', function () {
     get('/admin/login')

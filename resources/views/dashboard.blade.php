@@ -1,30 +1,280 @@
 <x-layouts::app :title="__('Dashboard')">
-    <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
-        <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
+    <div class="flex flex-col gap-12 px-4 py-8 lg:px-8 max-w-7xl mx-auto w-full">
+
+        {{-- Bannière de Bienvenue --}}
+        <div class="relative overflow-hidden rounded-4xl border border-black/5 bg-zinc-50/50 p-8 backdrop-blur-xl dark:border-white/5 dark:bg-white/5 md:p-14">
+            {{-- Effets de lueur en arrière-plan --}}
+            <div class="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl transition-opacity duration-700 dark:bg-emerald-500/20"></div>
+            <div class="absolute bottom-[-20%] left-[-10%] h-64 w-64 rounded-full bg-blue-500/10 blur-3xl transition-opacity duration-700 dark:bg-blue-500/20"></div>
+
+            <div class="relative z-10 flex flex-col items-start justify-between gap-10 md:flex-row md:items-center">
+                <div class="space-y-5">
+                    <h1 class="flex items-center gap-3 text-4xl font-light tracking-tight text-zinc-900 dark:text-white md:text-5xl lg:text-6xl">
+                        <span>Bonjour, <span class="font-medium">{{ auth()->user()->name }}</span></span>
+                        <flux:icon.hand-raised class="size-10 text-yellow-500/80 dark:text-yellow-500/70 lg:size-12" />
+                    </h1>
+                    <p class="max-w-2xl text-lg font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
+                        Bienvenue dans votre espace personnel. Découvrez mon univers, explorez mes réalisations
+                        récentes, ou contactez-moi pour discuter de votre prochain projet.
+                    </p>
+                </div>
+
+                <div class="flex w-full shrink-0 flex-col gap-4 sm:flex-row md:w-auto">
+                    <a href="{{ route('projects.index') }}" wire:navigate
+                        class="group inline-flex items-center justify-center gap-3 rounded-full border border-black/5 bg-white/80 px-8 py-4 font-medium text-zinc-900 backdrop-blur-md transition-all duration-300 ease-out hover:bg-white dark:border-white/5 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
+                        Voir les projets
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-4 transition-transform duration-300 group-hover:translate-x-1">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+                        </svg>
+                    </a>
+                </div>
             </div>
-            <div
-                class="relative aspect-video overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-                <x-placeholder-pattern
-                    class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
+        </div>
+
+        {{-- Grille principale (Accès Rapide & Projets) --}}
+        <div class="grid grid-cols-1 gap-10 lg:grid-cols-3">
+
+            {{-- Colonne Accès Rapide --}}
+            <div class="flex flex-col gap-6 lg:col-span-1">
+                <h2 class="flex items-center gap-3 text-lg font-medium tracking-tight text-zinc-900 dark:text-white">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-zinc-50 dark:border-white/5 dark:bg-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="size-4 text-emerald-500">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                        </svg>
+                    </span>
+                    Accès Rapide
+                </h2>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                    {{-- Profil --}}
+                    <div class="group relative overflow-hidden rounded-3xl border border-black/5 bg-zinc-50/50 p-6 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-zinc-100/50 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+                        <div class="flex items-center gap-5">
+                            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-black/5 bg-white text-zinc-900 transition-colors duration-300 group-hover:border-emerald-500/30 group-hover:text-emerald-500 dark:border-white/5 dark:bg-white/5 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-medium text-zinc-900 transition-colors dark:text-white">Gauthier Lobanga</h3>
+                                <p class="text-sm font-light text-zinc-500 dark:text-zinc-400">Développeur Full-Stack</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('about') }}" wire:navigate class="absolute inset-0 z-10"><span class="sr-only">À propos</span></a>
+                    </div>
+
+                    {{-- Contact --}}
+                    <div class="group relative overflow-hidden rounded-3xl border border-black/5 bg-zinc-50/50 p-6 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-zinc-100/50 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+                        <div class="flex items-center gap-5">
+                            <div class="flex h-14 w-14 items-center justify-center rounded-2xl border border-black/5 bg-white text-zinc-900 transition-colors duration-300 group-hover:border-blue-500/30 group-hover:text-blue-500 dark:border-white/5 dark:bg-white/5 dark:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-medium text-zinc-900 transition-colors dark:text-white">Me Contacter</h3>
+                                <p class="text-sm font-light text-zinc-500 dark:text-zinc-400">Discutons de votre idée</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('contact') }}" wire:navigate class="absolute inset-0 z-10"><span class="sr-only">Contact</span></a>
+                    </div>
+                </div>
             </div>
 
+            {{-- Projets Récents --}}
+            <div class="flex flex-col gap-6 lg:col-span-2">
+                <div class="flex items-center justify-between">
+                    <h2 class="flex items-center gap-3 text-lg font-medium tracking-tight text-zinc-900 dark:text-white">
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-zinc-50 dark:border-white/5 dark:bg-white/5">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-4 text-blue-500">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                            </svg>
+                        </span>
+                        Nouveautés & Récents
+                    </h2>
+                    <a href="{{ route('projects.index') }}" wire:navigate
+                        class="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                        Tout voir &rarr;
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    @forelse ($recentProjects as $project)
+                        <a href="{{ route('projects.show', $project) }}" wire:navigate
+                            class="group relative flex flex-col overflow-hidden rounded-4xl border border-black/5 bg-zinc-50/50 backdrop-blur-sm transition-all duration-500 ease-out hover:-translate-y-2 hover:bg-zinc-100/50 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+                            <div class="aspect-4/3 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                                @if ($project->cover_url)
+                                    <img src="{{ $project->cover_url }}" alt="{{ $project->title }}"
+                                        class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                        loading="lazy">
+                                @else
+                                    <div class="flex h-full w-full items-center justify-center text-zinc-400 dark:text-zinc-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1" stroke="currentColor" class="size-12">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex flex-1 flex-col justify-between p-6">
+                                <div>
+                                    <h3 class="mb-2 line-clamp-1 text-lg font-medium text-zinc-900 transition-colors group-hover:text-emerald-500 dark:text-white">
+                                        {{ $project->title }}
+                                    </h3>
+                                    <p class="line-clamp-2 text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
+                                        {{ $project->getPlainTextContent(120) ?: 'Pas de description' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    @empty
+                        <div class="col-span-full rounded-4xl border border-dashed border-black/10 bg-zinc-50/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
+                            <p class="text-sm font-light text-zinc-500 dark:text-zinc-400">Aucun projet récent pour le moment.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
-        <div class="relative h-full flex-1 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700">
-            <div x-data="buttonAnimation" class="rounded-full bg-emerald-200 dark:bg-emerald-900">
-                <a href="{{ route('projects.index') }}" wire:navigate
-                    class="group inline-flex w-full items-center justify-between rounded-full font-medium whitespace-nowrap text-stone-900 dark:text-white transition duration-300 ease-out will-change-transform hover:scale-y-102 focus:outline-none focus-visible:ring focus-visible:ring-emerald-500/50 focus-visible:ring-inset h-13 gap-2.5 pr-1.25 pl-5 bg-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900 dark:hover:bg-emerald-800">
-                    <span data-text class="grow">Découvrir mes projets</span>
-                    <div data-icon
-                        class="relative isolate grid shrink-0 place-items-center overflow-hidden rounded-full size-11 bg-white text-stone-900 dark:bg-zinc-800 dark:text-zinc-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.25" viewBox="0 0 28 22" fill="none">
-                            <path class="fill-current"
-                                d="M1 10H5.96046e-08V12H1V10ZM27 12C27.5523 12 28 11.5523 28 11C28 10.4477 27.5523 10 27 10V12ZM18 1V5.96046e-08H16V1H18ZM26.4207 11.7774C26.9055 12.0419 27.5129 11.8632 27.7774 11.3783C28.0419 10.8935 27.8632 10.286 27.3783 10.0216L26.4207 11.7774ZM15.9999 20.8995V21.8995H17.9999V20.8995H15.9999ZM1 12H26.8994V10H1V12ZM26.8994 12H27V10H26.8994V12ZM16 1C16 2.47241 16.7953 3.87873 17.7716 5.0769C18.7678 6.29956 20.0716 7.44977 21.3383 8.42854C22.6109 9.41186 23.8784 10.2469 24.825 10.835C25.2993 11.1295 25.6952 11.3635 25.9738 11.5245C26.1131 11.605 26.2233 11.6674 26.2993 11.71C26.3374 11.7314 26.3669 11.7478 26.3873 11.7591C26.3975 11.7647 26.4055 11.7691 26.411 11.7721C26.4138 11.7737 26.416 11.7749 26.4176 11.7758C26.4184 11.7762 26.4191 11.7765 26.4196 11.7768C26.4199 11.777 26.4201 11.7771 26.4202 11.7772C26.4205 11.7773 26.4207 11.7774 26.8995 10.8995C27.3783 10.0216 27.3784 10.0217 27.3785 10.0217C27.3785 10.0217 27.3785 10.0217 27.3785 10.0217C27.3784 10.0216 27.3781 10.0215 27.3777 10.0213C27.3769 10.0208 27.3756 10.0201 27.3736 10.019C27.3697 10.0168 27.3634 10.0134 27.3549 10.0087C27.3378 9.99926 27.3118 9.98479 27.2773 9.96547C27.2084 9.92682 27.1058 9.86878 26.9745 9.79288C26.7117 9.64102 26.3342 9.41799 25.8804 9.13606C24.9708 8.57104 23.7635 7.77501 22.5612 6.84596C21.353 5.91235 20.182 4.86894 19.322 3.81356C18.4422 2.73371 18 1.77759 18 1H16ZM26.8994 11C26.5248 10.0728 26.5245 10.0729 26.5242 10.0731C26.524 10.0731 26.5237 10.0733 26.5234 10.0734C26.5228 10.0736 26.522 10.0739 26.5211 10.0743C26.5193 10.0751 26.5169 10.076 26.5138 10.0773C26.5078 10.0797 26.4994 10.0832 26.4888 10.0876C26.4674 10.0964 26.4369 10.1091 26.3979 10.1257C26.3199 10.1587 26.2077 10.2071 26.0662 10.2703C25.7834 10.3967 25.3826 10.5825 24.903 10.824C23.9463 11.3055 22.6639 12.0142 21.3751 12.919C20.0914 13.8201 18.7665 14.94 17.7546 16.2535C16.7415 17.5685 15.9999 19.1342 15.9999 20.8995H17.9999C17.9999 19.715 18.4958 18.5685 19.3389 17.4742C20.1831 16.3784 21.333 15.3922 22.5242 14.5559C23.7103 13.7232 24.9028 13.0632 25.8022 12.6104C26.2507 12.3846 26.6233 12.2119 26.8818 12.0965C27.011 12.0388 27.1115 11.9955 27.1785 11.967C27.212 11.9528 27.2371 11.9424 27.2533 11.9357C27.2613 11.9324 27.2671 11.93 27.2706 11.9286C27.2724 11.9279 27.2735 11.9274 27.2741 11.9271C27.2744 11.927 27.2745 11.927 27.2745 11.927C27.2745 11.927 27.2744 11.927 27.2744 11.927C27.2742 11.9271 27.274 11.9272 26.8994 11Z" />
+
+        <hr class="border-black/5 dark:border-white/5">
+
+        {{-- Section Services --}}
+        <div class="flex flex-col gap-8">
+            <div class="flex items-center justify-between">
+                <h2 class="flex items-center gap-3 text-lg font-medium tracking-tight text-zinc-900 dark:text-white">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-zinc-50 dark:border-white/5 dark:bg-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="size-4 text-purple-500">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
                         </svg>
+                    </span>
+                    Services Proposés
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                @forelse($services as $service)
+                    <a href="{{ route('services.show', $service) }}" wire:navigate
+                        class="group flex flex-col items-center gap-5 rounded-4xl border border-black/5 bg-zinc-50/50 p-8 text-center backdrop-blur-sm transition-all duration-500 ease-out hover:-translate-y-2 hover:bg-zinc-100/50 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+                        @if ($service->icon)
+                            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-zinc-700 transition-all duration-300 group-hover:scale-110 group-hover:text-purple-500 dark:bg-white/5 dark:text-zinc-300">
+                                @php
+                                    $icon = $service->icon;
+                                    $isFa = Str::contains($icon, 'fa-') || Str::contains($icon, 'fi-') || Str::contains($icon, 'bx-');
+                                    $isSvg = Str::startsWith($icon, '<svg');
+                                @endphp
+                                @if ($isFa)
+                                    <i class="{{ $icon }} text-3xl"></i>
+                                @elseif ($isSvg)
+                                    {!! $icon !!}
+                                @else
+                                    <img src="{{ $icon }}" alt="{{ $service->title }}" class="max-h-8 max-w-8 object-contain">
+                                @endif
+                            </div>
+                        @else
+                            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-zinc-500 transition-all duration-300 group-hover:scale-110 group-hover:text-purple-500 dark:bg-white/5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                                </svg>
+                            </div>
+                        @endif
+                        <h3 class="text-base font-medium text-zinc-900 dark:text-white">{{ $service->title }}</h3>
+                    </a>
+                @empty
+                    <div class="col-span-full rounded-4xl border border-dashed border-black/10 bg-zinc-50/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
+                        <p class="text-sm font-light text-zinc-500 dark:text-zinc-400">Aucun service pour le moment.</p>
                     </div>
+                @endforelse
+            </div>
+
+            <div class="flex justify-center pt-2">
+                <a href="{{ route('services.index') }}" wire:navigate
+                    class="group inline-flex items-center gap-2 rounded-full border border-black/5 bg-zinc-50/50 px-6 py-3 text-sm font-medium text-zinc-900 backdrop-blur-sm transition-all duration-300 ease-out hover:bg-zinc-100 dark:border-white/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                    Explorer tous mes services
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-4 transition-transform duration-300 group-hover:translate-x-1">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <hr class="border-black/5 dark:border-white/5">
+
+        {{-- Section Compétences --}}
+        <div class="flex flex-col gap-8">
+            <div class="flex items-center justify-between">
+                <h2 class="flex items-center gap-3 text-lg font-medium tracking-tight text-zinc-900 dark:text-white">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full border border-black/5 bg-zinc-50 dark:border-white/5 dark:bg-white/5">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="size-4 text-orange-500">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                        </svg>
+                    </span>
+                    Mes Compétences
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:grid-cols-4">
+                @forelse($skills as $skill)
+                    <div class="group flex items-center gap-4 rounded-3xl border border-black/5 bg-zinc-50/50 p-4 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-zinc-100/50 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+                        @if ($skill->icon)
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white transition-transform duration-300 group-hover:scale-110 dark:bg-white/5">
+                                @php
+                                    $icon = $skill->icon;
+                                    $isFa = Str::contains($icon, 'fa-') || Str::contains($icon, 'fi-') || Str::contains($icon, 'bx-');
+                                    $isSvg = Str::startsWith($icon, '<svg');
+                                @endphp
+                                @if ($isFa)
+                                    <i class="{{ $icon }} text-2xl text-zinc-700 dark:text-zinc-300"></i>
+                                @elseif ($isSvg)
+                                    {!! $icon !!}
+                                @else
+                                    <img src="{{ $icon }}" alt="{{ $skill->name }}" class="max-h-6 max-w-6 object-contain">
+                                @endif
+                            </div>
+                        @else
+                            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-zinc-500 transition-transform duration-300 group-hover:scale-110 dark:bg-white/5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="size-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                                </svg>
+                            </div>
+                        @endif
+                        <span class="truncate text-sm font-medium text-zinc-900 dark:text-white">{{ $skill->name }}</span>
+                    </div>
+                @empty
+                    <div class="col-span-full rounded-4xl border border-dashed border-black/10 bg-zinc-50/50 p-8 text-center dark:border-white/10 dark:bg-white/5">
+                        <p class="text-sm font-light text-zinc-500 dark:text-zinc-400">Aucune compétence pour le moment.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="flex justify-center pt-2">
+                <a href="{{ route('skill') }}" wire:navigate
+                    class="group inline-flex items-center gap-2 rounded-full border border-black/5 bg-zinc-50/50 px-6 py-3 text-sm font-medium text-zinc-900 backdrop-blur-sm transition-all duration-300 ease-out hover:bg-zinc-100 dark:border-white/5 dark:bg-white/5 dark:text-white dark:hover:bg-white/10">
+                    Parcourir mes compétences
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-4 transition-transform duration-300 group-hover:translate-x-1">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                    </svg>
                 </a>
             </div>
         </div>

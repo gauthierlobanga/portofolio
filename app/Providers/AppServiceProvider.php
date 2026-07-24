@@ -61,14 +61,12 @@ class AppServiceProvider extends ServiceProvider
             Vite::useHotFile(storage_path('framework/vite.hot'));
         }
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
+        Password::defaults(fn () => Password::min(12)
+            ->mixedCase()
+            ->letters()
+            ->numbers()
+            ->symbols()
+            ->uncompromised()
         );
     }
 }
