@@ -21,6 +21,9 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
     #[Url(as: 'cat')]
     public ?string $category = null;
 
+    #[Url(as: 'niveau')]
+    public ?string $niveau = null;
+
     #[Url(as: 'sort')]
     public string $sort = 'newest';
 
@@ -58,6 +61,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                 'category',
                 fn (Builder $categoryQuery): Builder => $categoryQuery->where('slug', $this->category)
             ))
+            ->when($this->niveau, fn (Builder $query): Builder => $query->where('niveau', $this->niveau))
             ->when($this->sort === 'oldest', fn (Builder $query): Builder => $query->oldest('created_at'))
             ->when($this->sort === 'name-asc', fn (Builder $query): Builder => $query->orderBy('title'))
             ->when($this->sort === 'name-desc', fn (Builder $query): Builder => $query->orderByDesc('title'))
@@ -71,6 +75,11 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
     }
 
     public function updatedCategory(?string $value = null): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedNiveau(?string $value = null): void
     {
         $this->resetPage();
     }
@@ -90,7 +99,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
     #[Transition(skip: true)]
     public function clearFilters(): void
     {
-        $this->reset(['search', 'category', 'sort']);
+        $this->reset(['search', 'category', 'niveau', 'sort']);
         $this->resetPage();
     }
 
@@ -185,8 +194,8 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                                 </svg>
                             </div>
                             <button type="button" wire:click="clearFilters" @click="showFilters = false"
-                                :inert="!$wire.category && $wire.sort === 'newest' && $wire.search === ''"
-                                :aria-hidden="!$wire.category && $wire.sort === 'newest' && $wire.search === ''"
+                                :inert="!$wire.category && !$wire.niveau && $wire.sort === 'newest' && $wire.search === ''"
+                                :aria-hidden="!$wire.category && !$wire.niveau && $wire.sort === 'newest' && $wire.search === ''"
                                 class="group inline-flex h-10 items-center justify-center gap-1.5 border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-600 shadow-sm transition-all duration-300 ease-out hover:border-red-300 hover:bg-red-50 hover:text-red-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-400 active:scale-[0.97]">
                                 <svg class="size-4 transition-transform duration-300 group-hover:rotate-180"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -195,7 +204,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                                 <span>Réinitialiser</span>
                                 <span
                                     class="inline-grid h-5 min-w-5 place-items-center rounded-full bg-emerald-500 px-1 text-xs font-bold text-white"
-                                    x-text="($wire.category ? 1 : 0) + ($wire.sort !== 'newest' ? 1 : 0) + ($wire.search !== '' ? 1 : 0)"></span>
+                                    x-text="($wire.category ? 1 : 0) + ($wire.niveau ? 1 : 0) + ($wire.sort !== 'newest' ? 1 : 0) + ($wire.search !== '' ? 1 : 0)"></span>
                             </button>
                         </div>
                     </div>
@@ -263,6 +272,30 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                                         'bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600' :
                                         'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200'">
                                     {{ $cat->name }}
+                                </button>
+                            @endforeach
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend class="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">Niveau :</legend>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" wire:click.preserve-scroll="$set('niveau', null)"
+                                class="cursor-pointer select-none rounded px-4 py-2 text-sm font-medium transition-all duration-300 ease-out active:scale-95"
+                                :class="!$wire.niveau ?
+                                    'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20 hover:bg-emerald-600' :
+                                    'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200'">
+                                Tous
+                            </button>
+
+                            @foreach (['Débutant', 'Intermédiaire', 'Junior', 'Senior', 'Avancé', 'Tous niveaux'] as $lvl)
+                                <button type="button" wire:key="lvl-{{ $lvl }}"
+                                    wire:click.preserve-scroll="$set('niveau', '{{ $lvl }}')"
+                                    class="cursor-pointer select-none rounded px-4 py-2 text-sm font-medium transition-all duration-300 ease-out active:scale-95 shadow-sm hover:shadow-md"
+                                    :class="$wire.niveau === '{{ $lvl }}' ?
+                                        'bg-emerald-500 text-white shadow-emerald-500/20 hover:bg-emerald-600' :
+                                        'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-200'">
+                                    {{ $lvl }}
                                 </button>
                             @endforeach
                         </div>
@@ -383,6 +416,13 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                                     <span
                                         class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200/60 bg-white px-2 py-0.5 text-xs font-medium dark:border-zinc-700 dark:bg-zinc-800">
                                         {{ $formation->category->name }}
+                                    </span>
+                                @endif
+                                
+                                @if ($formation->niveau)
+                                    <span
+                                        class="inline-flex items-center gap-1.5 rounded-full border border-zinc-200/60 bg-white px-2 py-0.5 text-xs font-medium dark:border-zinc-700 dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400">
+                                        {{ $formation->niveau }}
                                     </span>
                                 @endif
                             </div>

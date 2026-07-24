@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Contact;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -16,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
  * de son message. Il utilise le layout premium "modern" et injecte
  * dynamiquement les informations du portfolio dans le footer.
  */
-class ContactAutoReply extends Mailable
+class ContactAutoReply extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

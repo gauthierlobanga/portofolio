@@ -202,6 +202,19 @@ class FormationForm
                                     ->required()
                                     ->default('planned'),
 
+                                Select::make('niveau')
+                                    ->label('Niveau')
+                                    ->options([
+                                        'Débutant' => 'Débutant',
+                                        'Intermédiaire' => 'Intermédiaire',
+                                        'Junior' => 'Junior',
+                                        'Senior' => 'Senior',
+                                        'Avancé' => 'Avancé',
+                                        'Tous niveaux' => 'Tous niveaux',
+                                    ])
+                                    ->nullable()
+                                    ->searchable(),
+
                                 DatePicker::make('start_date')
                                     ->label('Date de début')
                                     ->native(false)

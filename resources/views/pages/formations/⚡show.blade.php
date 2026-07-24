@@ -427,6 +427,14 @@ new #[Layout('layouts::main')] class extends Component {
                                     <span>{{ $formation->location }}</span>
                                 </div>
                             @endif
+                            @if ($formation->niveau)
+                                <div class="flex items-center gap-2.5">
+                                    <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    <span>Niveau {{ $formation->niveau }}</span>
+                                </div>
+                            @endif
                         </div>
 
                         {{-- Boutons d'action --}}
@@ -638,7 +646,7 @@ new #[Layout('layouts::main')] class extends Component {
                 @endif
 
                 {{-- Contenu (chapitre, leçon ou vue d'ensemble) avec transition --}}
-                <div wire:transition class="fi-prose max-w-none w-full mb-16">
+                <div wire:transition class="fi-prose max-w-none w-full mb-16 prose-li:my-0 prose-ul:my-1 prose-ol:my-1">
                     @if ($activeLesson)
                         @php
                             $lessonData = null;

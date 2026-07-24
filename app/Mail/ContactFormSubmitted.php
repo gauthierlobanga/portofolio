@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Contact;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -13,10 +14,10 @@ use Illuminate\Queue\SerializesModels;
 /**
  * Mailable de notification administrateur pour le formulaire de contact.
  *
- * Cet e-mail est envoyé à l'administrateur de l'application lorsqu'un 
+ * Cet e-mail est envoyé à l'administrateur de l'application lorsqu'un
  * visiteur soumet un message depuis la page de contact.
  */
-class ContactFormSubmitted extends Mailable
+class ContactFormSubmitted extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

@@ -87,6 +87,13 @@ class FormationsTable
                     })
                     ->sortable(),
 
+                TextColumn::make('niveau')
+                    ->label('Niveau')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->toggleable(),
+
                 TextColumn::make('location')
                     ->label('Lieu')
                     ->searchable()
@@ -130,6 +137,16 @@ class FormationsTable
                         'planned' => 'Planifié',
                         'ongoing' => 'En cours',
                         'completed' => 'Terminé',
+                    ]),
+                SelectFilter::make('niveau')
+                    ->label('Niveau')
+                    ->options([
+                        'Débutant' => 'Débutant',
+                        'Intermédiaire' => 'Intermédiaire',
+                        'Junior' => 'Junior',
+                        'Senior' => 'Senior',
+                        'Avancé' => 'Avancé',
+                        'Tous niveaux' => 'Tous niveaux',
                     ]),
                 SelectFilter::make('is_active')
                     ->label('Actif')

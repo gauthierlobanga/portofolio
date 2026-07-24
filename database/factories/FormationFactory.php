@@ -31,6 +31,7 @@ class FormationFactory extends Factory
             'content' => $this->generateContent(),
             'location' => fake()->city(),                 // Plus de null
             'status' => fake()->randomElement(['planned', 'ongoing', 'completed']),
+            'niveau' => fake()->randomElement(['Débutant', 'Intermédiaire', 'Junior', 'Senior', 'Avancé', 'Tous niveaux']),
             'is_active' => true,
             'start_date' => $start ? $start->format('Y-m-d') : null,
             'end_date' => $end ? $end->format('Y-m-d') : null,

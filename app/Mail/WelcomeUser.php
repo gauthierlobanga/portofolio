@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -16,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
  * pour lui souhaiter la bienvenue sur la plateforme. Il utilise le layout
  * premium "modern" avec la présentation du portfolio dans le footer.
  */
-class WelcomeUser extends Mailable
+class WelcomeUser extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 

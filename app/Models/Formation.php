@@ -51,6 +51,7 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
         'content',
         'location',
         'status',
+        'niveau',
         'is_active',
         'start_date',
         'end_date',
@@ -97,6 +98,7 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
             'content' => $this->getRawOriginal('content'),
             'location' => $this->location,
             'status' => $this->status,
+            'niveau' => $this->niveau,
             'meta' => $this->getRawOriginal('meta'),
             'duration' => $this->duration,
         ];
