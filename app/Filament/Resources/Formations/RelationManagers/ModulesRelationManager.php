@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Formations\RelationManagers;
 
 use App\Filament\Resources\FormationModules\Schemas\FormationModuleForm;
 use App\Filament\Resources\FormationModules\Tables\FormationModulesTable;
+use Filament\Actions\AssociateAction;
 use Filament\Actions\CreateAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -23,8 +24,8 @@ class ModulesRelationManager extends RelationManager
         return FormationModulesTable::configure($table)
             ->recordTitleAttribute('title')
             ->headerActions([
-                \Filament\Tables\Actions\CreateAction::make(),
-                \Filament\Tables\Actions\AssociateAction::make()
+                CreateAction::make(),
+                AssociateAction::make()
                     ->preloadRecordSelect(),
             ]);
     }

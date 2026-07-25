@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('formation_id')->constrained()->cascadeOnDelete();
             $table->string('title');
-            $table->string('slug')->unique();
             $table->text('description')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();

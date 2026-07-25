@@ -22,8 +22,8 @@ new #[Layout('layouts::main')] class extends Component {
     public $isLiked = false;
     public $bookmarksCount = 0;
     public $isBookmarked = false;
-    public ?string $activeChapter = null;
-    public ?string $activeLesson = null;
+    public ?string $activeModule = null;
+    public ?string $activeProject = null;
     public bool $showRegistrationModal = false;
     public string $registrationMessage = '';
     public bool $termsAccepted = false;
@@ -31,7 +31,7 @@ new #[Layout('layouts::main')] class extends Component {
 
     public function mount(Formation $formation)
     {
-        $this->formation = $formation->load(['category', 'media', 'tags', 'user']);
+        $this->formation = $formation->load(['category', 'media', 'tags', 'user', 'modules.projects']);
         $sessionKey = 'viewed_formation_' . $formation->id;
         if (!session()->has($sessionKey)) {
             $this->formation->increment('views_count');
@@ -234,20 +234,6 @@ new #[Layout('layouts::main')] class extends Component {
     #[Computed]
     public function activeVideo(): ?\Spatie\MediaLibrary\MediaCollections\Models\Media
     {
-        // Priorité à la leçon
-        if ($this->activeLesson) {
-            $video = $this->formation->getVideoForTarget($this->activeLesson);
-            if ($video) {
-                return $video;
-            }
-        }
-        // Sinon, on cherche pour le chapitre actif
-        if ($this->activeChapter) {
-            $video = $this->formation->getVideoForTarget($this->activeChapter);
-            if ($video) {
-                return $video;
-            }
-        }
         return null;
     }
 
@@ -354,130 +340,18 @@ new #[Layout('layouts::main')] class extends Component {
     }
 
     // --------------------------------------------------------------
-    //  Gestion des chapitres / leçons (headings Tiptap)
+    //  Gestion des modules / projets (FormationModule & ModuleProject)
     // --------------------------------------------------------------
-    #[Computed]
-    public function chapters(): array
+    public function setModule(?string $moduleId): void
     {
-        $content = $this->formation->content;
-        if (!is_array($content)) {
-            return [];
-        }
-        $nodes = $content['content'] ?? [];
-        $chapters = [];
-        $currentChapter = null;
-        $currentLesson = null;
-
-        foreach ($nodes as $node) {
-            $type = $node['type'] ?? '';
-            $level = $node['attrs']['level'] ?? 0;
-
-            if ($type === 'heading' && $level === 2) {
-                // Fermeture de la leçon en cours
-                if ($currentLesson) {
-                    $currentChapter['lessons'][] = $currentLesson;
-                    $currentLesson = null;
-                }
-                // Fermeture du chapitre en cours
-                if ($currentChapter) {
-                    $chapters[] = $currentChapter;
-                }
-                // Nouveau chapitre
-                $id = 'chapter-' . count($chapters);
-                $currentChapter = [
-                    'id' => $id,
-                    'text' => $this->extractTextFromTiptapNode($node),
-                    'level' => 2,
-                    'lessons' => [],
-                    'content' => [$node],
-                ];
-            } elseif ($type === 'heading' && $level === 3) {
-                // Fermeture de la leçon précédente
-                if ($currentLesson) {
-                    $currentChapter['lessons'][] = $currentLesson;
-                }
-                $lessonId = ($currentChapter['id'] ?? 'chapter-0') . '-lesson-' . count($currentChapter['lessons'] ?? []);
-                $currentLesson = [
-                    'id' => $lessonId,
-                    'text' => $this->extractTextFromTiptapNode($node),
-                    'level' => 3,
-                    'content' => [$node],
-                ];
-            } else {
-                // Contenu hors titre : on l'ajoute à la leçon, au chapitre ou au premier chapitre implicite
-                if ($currentLesson) {
-                    $currentLesson['content'][] = $node;
-                } elseif ($currentChapter) {
-                    $currentChapter['content'][] = $node;
-                } else {
-                    if (!isset($chapters[0]) || $chapters[0]['id'] !== 'chapter-0') {
-                        $currentChapter = [
-                            'id' => 'chapter-0',
-                            'text' => 'Introduction',
-                            'level' => 2,
-                            'lessons' => [],
-                            'content' => [],
-                        ];
-                        $chapters[] = $currentChapter;
-                    }
-                    $chapters[0]['content'][] = $node;
-                }
-            }
-        }
-
-        // Ajout de la dernière leçon et du dernier chapitre
-        if ($currentLesson) {
-            $currentChapter['lessons'][] = $currentLesson;
-        }
-        if ($currentChapter) {
-            $chapters[] = $currentChapter;
-        }
-
-        // === Fusion des chapitres consécutifs portant le même titre ===
-        $merged = [];
-        foreach ($chapters as $chapter) {
-            if (empty($merged)) {
-                $merged[] = $chapter;
-                continue;
-            }
-
-            $lastIndex = count($merged) - 1;
-            // Comparaison insensible à la casse et aux espaces
-            if (strtolower(trim($merged[$lastIndex]['text'])) === strtolower(trim($chapter['text']))) {
-                // Fusion : on fusionne les contenus et les leçons
-                $merged[$lastIndex]['content'] = array_merge($merged[$lastIndex]['content'], $chapter['content']);
-                $merged[$lastIndex]['lessons'] = array_merge($merged[$lastIndex]['lessons'], $chapter['lessons']);
-            } else {
-                $merged[] = $chapter;
-            }
-        }
-
-        return $merged;
+        $this->activeModule = $moduleId;
+        $this->activeProject = null;
     }
 
-    public function setChapter(?string $chapterId): void
+    public function setProject(string $projectId): void
     {
-        $this->activeChapter = $chapterId;
-        $this->activeLesson = null;
-    }
-
-    public function setLesson(string $lessonId): void
-    {
-        $this->activeLesson = $lessonId;
-    }
-
-    private function extractTextFromTiptapNode(array $node): string
-    {
-        $text = '';
-        if (isset($node['text'])) {
-            $text .= $node['text'];
-        }
-        if (isset($node['content'])) {
-            foreach ($node['content'] as $child) {
-                $text .= $this->extractTextFromTiptapNode($child);
-            }
-        }
-        return $text;
+        $this->activeProject = $projectId;
+        $this->activeModule = null;
     }
 };
 ?>
@@ -726,9 +600,9 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
                     <nav class="space-y-1">
                         {{-- Vue d’ensemble --}}
-                        <button wire:click="setChapter(null)"
+                        <button wire:click="setModule(null)"
                             class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3 group
-                           {{ is_null($activeChapter) && is_null($activeLesson) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800' }}">
+                           {{ is_null($activeModule) && is_null($activeProject) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800' }}">
                             <span
                                 class="shrink-0 w-6 h-6 flex items-center justify-center rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 text-xs font-bold">
                                 1
@@ -736,53 +610,34 @@ new #[Layout('layouts::main')] class extends Component {
                             <span>Vue d'ensemble</span>
                         </button>
 
-                        {{-- Chapitres et leçons --}}
-                        @foreach ($this->chapters as $chapterIndex => $chapter)
-                            {{-- Chapitre --}}
+                        {{-- Modules et projets --}}
+                        @foreach ($formation->modules as $moduleIndex => $module)
+                            {{-- Module --}}
                             <div class="space-y-1">
-                                <button wire:click="setChapter('{{ $chapter['id'] }}')"
+                                <button wire:click="setModule('{{ $module->id }}')"
                                     class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-3 group
-                                   {{ $activeChapter === $chapter['id'] && is_null($activeLesson) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm' : 'text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                                   {{ $activeModule === $module->id && is_null($activeProject) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm' : 'text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                                     <span
                                         class="shrink-0 w-6 h-6 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 text-xs font-bold">
-                                        {{ $chapterIndex + 2 }}
+                                        {{ $moduleIndex + 2 }}
                                     </span>
-                                    <span>{{ $chapter['text'] }}</span>
+                                    <span>{{ $module->title }}</span>
                                 </button>
 
-                                {{-- Leçons --}}
-                                @if (!empty($chapter['lessons']))
+                                {{-- Projets --}}
+                                @if ($module->projects->isNotEmpty())
                                     <div class="ml-10 space-y-1 border-l-2 border-zinc-200 dark:border-zinc-700 pl-4">
-                                        @foreach ($chapter['lessons'] as $lesson)
-                                            @php
-                                                // Extraction éventuelle de la durée si présente dans le texte (ex: "Les variables 16min")
-                                                $lessonText = $lesson['text'];
-                                                $duration = '';
-                                                if (preg_match('/\d+\s?min$/', $lessonText, $matches)) {
-                                                    $duration = $matches[0];
-                                                    $lessonText = trim(
-                                                        preg_replace('/\d+\s?min$/', '', $lesson['text']),
-                                                    );
-                                                }
-                                            @endphp
-                                            <button wire:click="setLesson('{{ $lesson['id'] }}')"
+                                        @foreach ($module->projects as $project)
+                                            <button wire:click="setProject('{{ $project->id }}')"
                                                 class="w-full text-left py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-between group
-                                               {{ $activeLesson === $lesson['id'] ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
+                                               {{ $activeProject === $project->id ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
                                                 <span class="flex items-center gap-2">
                                                     <svg class="h-4 w-4 shrink-0 text-emerald-500" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                                     </svg>
-                                                    <span class="line-clamp-1">{{ $lessonText }}</span>
+                                                    <span class="line-clamp-1">{{ $project->title }}</span>
                                                 </span>
-                                                @if ($duration)
-                                                    <span
-                                                        class="text-xs text-zinc-400 dark:text-zinc-500 shrink-0 ml-2">{{ $duration }}</span>
-                                                @endif
                                             </button>
                                         @endforeach
                                     </div>
@@ -869,27 +724,52 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
                 @endif
 
-                {{-- Contenu (chapitre, leçon ou vue d'ensemble) avec transition --}}
+                {{-- Contenu (module, projet ou vue d'ensemble) avec transition --}}
                 <div wire:transition class="fi-prose max-w-none w-full mb-16 prose-li:my-0 prose-ul:my-1 prose-ol:my-1">
-                    @if ($activeLesson)
+                    @if ($activeProject)
                         @php
-                            $lessonData = null;
-                            foreach ($this->chapters as $chapter) {
-                                foreach ($chapter['lessons'] as $lesson) {
-                                    if ($lesson['id'] === $activeLesson) {
-                                        $lessonData = $lesson;
-                                        break 2;
-                                    }
-                                }
-                            }
+                            $project = \App\Models\ModuleProject::find($activeProject);
                         @endphp
-                        @if ($lessonData)
-                            {!! new \Tiptap\Editor()->setContent(['type' => 'doc', 'content' => $lessonData['content']])->getHTML() !!}
+                        @if ($project)
+                            <h2 class="text-2xl font-bold mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
+                                <svg class="h-6 w-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Projet : {{ $project->title }}
+                            </h2>
+                            <div class="prose dark:prose-invert max-w-none">
+                                {!! $project->description !!}
+                            </div>
                         @endif
-                    @elseif($activeChapter)
-                        @php $chap = collect($this->chapters)->firstWhere('id', $activeChapter); @endphp
-                        @if ($chap)
-                            {!! new \Tiptap\Editor()->setContent(['type' => 'doc', 'content' => $chap['content']])->getHTML() !!}
+                    @elseif($activeModule)
+                        @php $module = \App\Models\FormationModule::find($activeModule); @endphp
+                        @if ($module)
+                            <h2 class="text-3xl font-bold mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
+                                <span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg">M</span>
+                                {{ $module->title }}
+                            </h2>
+                            <div class="prose dark:prose-invert max-w-none mb-8">
+                                {!! $module->description !!}
+                            </div>
+                            
+                            @if($module->projects->isNotEmpty())
+                                <h3 class="text-xl font-bold mt-8 mb-4 text-zinc-800 dark:text-zinc-200">Projets de ce module</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @foreach($module->projects as $project)
+                                        <button wire:click="setProject('{{ $project->id }}')" class="flex flex-col text-left p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 hover:shadow-md transition-all group bg-zinc-50 dark:bg-zinc-900/50">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <svg class="h-5 w-5 text-emerald-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                </svg>
+                                                <h4 class="font-bold text-zinc-900 dark:text-white line-clamp-1">{{ $project->title }}</h4>
+                                            </div>
+                                            <p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                                                {{ Str::limit(strip_tags($project->description), 100) }}
+                                            </p>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
                         @endif
                     @else
                         @if (is_array($formation->content))
