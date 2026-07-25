@@ -8,6 +8,7 @@ use Filament\Notifications\Livewire\Notifications;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Passkeys\Passkeys;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
@@ -33,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Model::shouldBeStrict();
+
+        // Register a custom passkey model that uses UUIDs so inserts match the
+        // project's passkeys migration (which defines a uuid primary key).
+        Passkeys::usePasskeyModel(\App\Models\Passkey::class);
 
         Notifications::alignment(Alignment::Center);
         Notifications::verticalAlignment(VerticalAlignment::Start);
