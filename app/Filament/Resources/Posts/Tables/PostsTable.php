@@ -98,6 +98,15 @@ class PostsTable
                     ->color('gray')
                     ->searchable(),
 
+                TextColumn::make('services_count')
+                    ->label('Services liés')
+                    ->counts('services')
+                    ->numeric()
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->toggleable(),
+
                 SpatieTagsColumn::make('tags')
                     ->toggleable(isToggledHiddenByDefault: true),
 

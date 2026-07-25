@@ -42,6 +42,7 @@ class PostResource extends Resource
     {
         return [
             CommentsRelationManager::class,
+            RelationManagers\ServicesRelationManager::class,
         ];
     }
 

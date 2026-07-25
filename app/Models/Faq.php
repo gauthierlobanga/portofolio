@@ -16,6 +16,7 @@ class Faq extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     // Scopes

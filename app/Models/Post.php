@@ -104,8 +104,8 @@ class Post extends Model implements Feedable, HasMedia, HasRichContent, Sitemapa
             ->summary($this->getPlainTextContent(200) ?: $this->title)
             ->updated($this->updated_at)
             ->link(route('posts.show', $this->slug)) // Votre route de détail
-            ->authorName($this->user?->name ?? 'CADERSA')
-            ->authorEmail($this->user?->email ?? 'cadresa.asbl@gmail.com');
+            ->authorName($this->user?->name ?? 'Gauthier Lobanga')
+            ->authorEmail($this->user?->email ?? 'gauthierlobanga914@gmail.com');
     }
 
     /**
@@ -227,6 +227,33 @@ class Post extends Model implements Feedable, HasMedia, HasRichContent, Sitemapa
             ->withPivot('est_principale', 'ordre')
             ->withTimestamps()
             ->orderByPivot('ordre');
+    }
+
+    /**
+     * Services associated with this post.
+     */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'service_post_pivot', 'post_id', 'service_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Posts manually related to this post.
+     */
+    public function relatedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'post_related', 'post_id', 'related_post_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Posts that manually reference this post.
+     */
+    public function relatedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'post_related', 'related_post_id', 'post_id')
+            ->withTimestamps();
     }
 
     public function getPrimaryCategoryId(): ?string

@@ -1252,11 +1252,13 @@ document.addEventListener("alpine:init", () => {
                     once: true,
                 },
             });
-            tl.from(
-                this.$refs.bgImage,
-                { scale: 1.05, duration: 1.4, ease: "power3.out" },
-                0,
-            );
+            if (this.$refs.bgImage) {
+                tl.from(
+                    this.$refs.bgImage,
+                    { scale: 1.05, duration: 1.4, ease: "power3.out" },
+                    0,
+                );
+            }
             const authorElement = this.$refs.author?.querySelector?.("p") || this.$refs.author;
             let authorSplit = null;
             if (authorElement) {
@@ -1269,12 +1271,16 @@ document.addEventListener("alpine:init", () => {
                 }
             }
 
-            tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3)
-                .from(
+            if (this.$refs.badge) {
+                tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3);
+            }
+            if (this.$refs.buttons) {
+                tl.from(
                     this.$refs.buttons,
                     { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" },
                     "-=0.15",
                 );
+            }
 
             if (authorSplit && authorSplit.words?.length > 0) {
                 tl.from(
@@ -1296,14 +1302,20 @@ document.addEventListener("alpine:init", () => {
                 );
             }
 
-            tl.from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
-                .from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7)
-                // Ligne retirée : .from(this.$refs.cta, ...)
-                .from(
+            if (this.$refs.title) {
+                tl.from(this.$refs.title, { y: 50, opacity: 0 }, 0.5);
+            }
+            if (this.$refs.subtitle) {
+                tl.from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7);
+            }
+            // Ligne retirée : .from(this.$refs.cta, ...)
+            if (this.$refs.decoLine) {
+                tl.from(
                     this.$refs.decoLine,
                     { scaleX: 0, duration: 0.5, ease: "power1.out" },
                     "-=0.1",
                 );
+            }
         },
     }));
 
@@ -1323,11 +1335,13 @@ document.addEventListener("alpine:init", () => {
                     once: true,
                 },
             });
-            tl.from(
-                this.$refs.bgImage,
-                { scale: 1.05, duration: 1.4, ease: "power3.out" },
-                0,
-            );
+            if (this.$refs.bgImage) {
+                tl.from(
+                    this.$refs.bgImage,
+                    { scale: 1.05, duration: 1.4, ease: "power3.out" },
+                    0,
+                );
+            }
             const authorElement = this.$refs.author?.querySelector?.("p") || this.$refs.author;
             let authorSplit = null;
             if (authorElement) {
@@ -1340,12 +1354,16 @@ document.addEventListener("alpine:init", () => {
                 }
             }
 
-            tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3)
-                .from(
+            if (this.$refs.badge) {
+                tl.from(this.$refs.badge, { y: 40, opacity: 0 }, 0.3);
+            }
+            if (this.$refs.buttons) {
+                tl.from(
                     this.$refs.buttons,
                     { opacity: 0, y: 15, duration: 0.4, ease: "power2.out" },
                     "-=0.15",
                 );
+            }
 
             if (authorSplit && authorSplit.words?.length > 0) {
                 tl.from(
@@ -1367,14 +1385,20 @@ document.addEventListener("alpine:init", () => {
                 );
             }
 
-            tl.from(this.$refs.title, { y: 50, opacity: 0 }, 0.5)
-                .from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7)
-                // Ligne retirée : .from(this.$refs.cta, ...)
-                .from(
+            if (this.$refs.title) {
+                tl.from(this.$refs.title, { y: 50, opacity: 0 }, 0.5);
+            }
+            if (this.$refs.subtitle) {
+                tl.from(this.$refs.subtitle, { y: 30, opacity: 0 }, 0.7);
+            }
+            // Ligne retirée : .from(this.$refs.cta, ...)
+            if (this.$refs.decoLine) {
+                tl.from(
                     this.$refs.decoLine,
                     { scaleX: 0, duration: 0.5, ease: "power1.out" },
                     "-=0.1",
                 );
+            }
         },
     }));
 
@@ -1880,3 +1904,5 @@ if (
 // enregistré le magic $flux. Appeler Alpine.start() ici provoquerait
 // une erreur « $flux is not defined » car Flux n'aurait pas encore
 // enregistré ses plugins Alpine.
+
+

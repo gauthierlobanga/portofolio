@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Services;
 
+use App\Filament\Resources\Comments\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\Services\Pages\CreateService;
 use App\Filament\Resources\Services\Pages\EditService;
 use App\Filament\Resources\Services\Pages\ListServices;
@@ -38,7 +39,9 @@ class ServiceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CommentsRelationManager::class,
+            RelationManagers\ProjectsRelationManager::class,
+            RelationManagers\PostsRelationManager::class,
         ];
     }
 

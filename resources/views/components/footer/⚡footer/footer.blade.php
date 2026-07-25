@@ -118,7 +118,7 @@
                     <h3 class="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white">Navigation
                     </h3>
                     <nav class="flex flex-col items-start space-y-2.5" aria-label="Liens principaux">
-                        @foreach ([['route' => 'home', 'label' => 'Accueil'], ['route' => 'about', 'label' => 'À propos'], ['route' => 'contact', 'label' => 'Contact']] as $link)
+                        @foreach ([['route' => 'home', 'label' => 'Accueil'], ['route' => 'about', 'label' => 'À propos'], ['route' => 'contact', 'label' => 'Contact'], ['route' => 'faq', 'label' => 'FAQ']] as $link)
                             <a href="{{ route($link['route']) }}" wire:navigate
                                 class="group relative flex items-center py-1 text-base text-zinc-600 transition-colors duration-300 hover:text-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 dark:text-zinc-400 dark:hover:text-emerald-400 rounded-sm">
                                 <span

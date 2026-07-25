@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasComments;
 use Filament\Forms\Components\RichEditor\Models\Concerns\InteractsWithRichContent;
 use Filament\Forms\Components\RichEditor\Models\Contracts\HasRichContent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -25,7 +27,7 @@ use Tiptap\Nodes\Image;
 
 class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitemapable
 {
-    use HasFactory, HasTags, HasUuids, InteractsWithMedia, InteractsWithRichContent, Searchable, SoftDeletes;
+    use HasComments, HasFactory, HasTags, HasUuids, InteractsWithMedia, InteractsWithRichContent, Searchable, SoftDeletes;
 
     public function setUpRichContent(): void
     {
@@ -288,6 +290,15 @@ class Project extends Model implements Feedable, HasMedia, HasRichContent, Sitem
     public function getPdfsAttribute(): Collection
     {
         return $this->getMedia('documents', ['mime_type' => 'application/pdf']);
+    }
+
+    /**
+     * Services associated with this project.
+     */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'service_project_pivot', 'project_id', 'service_id')
+            ->withTimestamps();
     }
 
     // --------------------------------------------------------------

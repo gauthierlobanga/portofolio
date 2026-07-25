@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Formations\Schemas;
 
+use App\Models\Formation;
 use App\Models\FormationCategory;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
@@ -9,6 +10,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
@@ -176,6 +178,13 @@ class FormationForm
                                     ->label('Localisation')
                                     ->maxLength(255),
 
+                                Select::make('delivery_mode')
+                                    ->label('Mode de formation')
+                                    ->options(Formation::deliveryModes())
+                                    ->required()
+                                    ->default('online')
+                                    ->live(),
+
                                 TextInput::make('duration')
                                     ->label('Durée')
                                     ->maxLength(255)
@@ -226,6 +235,59 @@ class FormationForm
                                     ->displayFormat('d/m/Y')
                                     ->after('start_date')
                                     ->helperText('Optionnelle.'),
+                            ]),
+                    ]),
+
+                Section::make('Inscription et accès')
+                    ->description('Tarif, capacité et informations nécessaires à l’inscription.')
+                    ->icon('heroicon-o-ticket')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('price')
+                                    ->label('Tarif')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->prefixIcon('heroicon-m-banknotes')
+                                    ->helperText('Laissez vide pour une formation gratuite.'),
+
+                                Select::make('currency')
+                                    ->label('Devise')
+                                    ->options(Formation::currencyOptions())
+                                    ->required()
+                                    ->default('EUR'),
+
+                                TextInput::make('capacity')
+                                    ->label('Nombre de places')
+                                    ->numeric()
+                                    ->integer()
+                                    ->minValue(1)
+                                    ->nullable()
+                                    ->helperText('Laissez vide pour un nombre de places illimité.'),
+
+                                DatePicker::make('registration_deadline')
+                                    ->label('Clôture des inscriptions')
+                                    ->native(false)
+                                    ->displayFormat('d/m/Y')
+                                    ->helperText('Laissez vide pour garder les inscriptions ouvertes jusqu’au début de la session.'),
+
+                                TextInput::make('online_url')
+                                    ->label('Lien d’accès en ligne')
+                                    ->url()
+                                    ->maxLength(2048)
+                                    ->visible(fn (callable $get): bool => in_array($get('delivery_mode'), ['online', 'hybrid'], true))
+                                    ->required(fn (callable $get): bool => in_array($get('delivery_mode'), ['online', 'hybrid'], true))
+                                    ->helperText('Ce lien sera communiqué uniquement aux participants approuvés.')
+                                    ->columnSpanFull(),
+
+                                Textarea::make('payment_instructions')
+                                    ->label('Instructions de paiement')
+                                    ->rows(4)
+                                    ->maxLength(2000)
+                                    ->placeholder('Coordonnées bancaires, Mobile Money ou consignes de paiement manuel…')
+                                    ->helperText('Utilisé pour les formations payantes avant intégration d’un prestataire de paiement.')
+                                    ->columnSpanFull(),
                             ]),
                     ]),
 

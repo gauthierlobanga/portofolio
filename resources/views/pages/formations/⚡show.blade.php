@@ -1,10 +1,20 @@
 <?php
 
-use Livewire\Component;
+use App\Actions\Formations\ChangeFormationRegistrationStatus;
+use App\Actions\Formations\RegisterForFormation;
+use App\Exceptions\Formations\FormationRegistrationException;
 use App\Models\Formation;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Computed;
+use App\Models\FormationRegistration;
+use App\Models\User;
+use App\Notifications\FormationRegistrationAdminAlert;
+use App\Notifications\FormationRegistrationSubmitted;
+use Flux\Flux;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 new #[Layout('layouts::main')] class extends Component {
     public Formation $formation;
@@ -14,6 +24,10 @@ new #[Layout('layouts::main')] class extends Component {
     public $isBookmarked = false;
     public ?string $activeChapter = null;
     public ?string $activeLesson = null;
+    public bool $showRegistrationModal = false;
+    public string $registrationMessage = '';
+    public bool $termsAccepted = false;
+    public string $registrationSuccessMessage = '';
 
     public function mount(Formation $formation)
     {
@@ -50,6 +64,149 @@ new #[Layout('layouts::main')] class extends Component {
     public function hasPdf()
     {
         return $this->formation->getFirstMedia('documents', ['mime_type' => 'application/pdf']) !== null;
+    }
+
+    #[Computed]
+    public function existingRegistration(): ?FormationRegistration
+    {
+        $user = Auth::user();
+
+        if (! $user instanceof User) {
+            return null;
+        }
+
+        return $user->formationRegistrations()
+            ->whereBelongsTo($this->formation, 'formation')
+            ->first();
+    }
+
+    #[Computed]
+    public function availableSeats(): ?int
+    {
+        return $this->formation->availableRegistrationSeats();
+    }
+
+    #[Computed]
+    public function canRegister(): bool
+    {
+        return $this->formation->acceptsRegistrations() && $this->existingRegistration === null;
+    }
+
+    public function openRegistration(): void
+    {
+        $user = Auth::user();
+
+        if (! $user instanceof User) {
+            session()->put('url.intended', url()->current());
+            $this->redirectRoute('login');
+
+            return;
+        }
+
+        if (! $user->hasVerifiedEmail()) {
+            $message = 'Vérifiez votre adresse email avant de vous inscrire.';
+            $this->addError('registration', $message);
+            Flux::toast(heading: 'Email à vérifier', text: $message, variant: 'warning');
+
+            return;
+        }
+
+        if (! $this->canRegister) {
+            $message = 'Vous ne pouvez pas vous inscrire à cette formation pour le moment.';
+            $this->addError('registration', $message);
+            Flux::toast(heading: 'Inscription indisponible', text: $message, variant: 'warning');
+
+            return;
+        }
+
+        $this->resetValidation();
+        $this->registrationSuccessMessage = '';
+        $this->registrationMessage = '';
+        $this->termsAccepted = false;
+        $this->showRegistrationModal = true;
+    }
+
+    public function register(RegisterForFormation $register): void
+    {
+        $user = Auth::user();
+
+        if (! $user instanceof User) {
+            $this->openRegistration();
+
+            return;
+        }
+
+        try {
+            $this->validate([
+                'registrationMessage' => ['nullable', 'string', 'max:2000'],
+                'termsAccepted' => ['accepted'],
+            ], [
+                'termsAccepted.accepted' => 'Vous devez accepter les conditions d’inscription.',
+            ]);
+        } catch (ValidationException $exception) {
+            Flux::toast(
+                heading: 'Formulaire incomplet',
+                text: 'Acceptez les conditions d’inscription pour continuer.',
+                variant: 'warning',
+            );
+
+            throw $exception;
+        }
+
+        try {
+            $registration = $register(
+                $this->formation,
+                $user,
+                $this->registrationMessage,
+                $this->termsAccepted,
+            );
+        } catch (FormationRegistrationException $exception) {
+            $this->addError('registration', $exception->getMessage());
+            Flux::toast(heading: 'Inscription impossible', text: $exception->getMessage(), variant: 'danger');
+
+            return;
+        }
+
+        $user->notify(new FormationRegistrationSubmitted($registration));
+
+        User::query()
+            ->whereHas('roles', fn (Builder $query): Builder => $query->whereIn('name', ['super_admin', 'admin', 'Manager']))
+            ->get()
+            ->each(fn (User $admin): mixed => $admin->notify(
+                new FormationRegistrationAdminAlert($registration)
+            ));
+
+        $this->showRegistrationModal = false;
+        $this->registrationSuccessMessage = $registration->status === FormationRegistration::STATUS_WAITLISTED
+            ? 'La formation est complète. Votre demande a été ajoutée à la liste d’attente.'
+            : 'Votre demande d’inscription a bien été envoyée.';
+        Flux::toast(
+            heading: $registration->status === FormationRegistration::STATUS_WAITLISTED
+                ? 'Vous êtes sur la liste d’attente'
+                : 'Demande envoyée',
+            text: $this->registrationSuccessMessage,
+            variant: 'success',
+            duration: 7000,
+        );
+        $this->registrationMessage = '';
+        $this->termsAccepted = false;
+    }
+
+    public function cancelRegistration(ChangeFormationRegistrationStatus $changeStatus): void
+    {
+        $registration = $this->existingRegistration;
+
+        if (! $registration?->isOpen()) {
+            $message = 'Cette inscription ne peut plus être annulée.';
+            $this->addError('registration', $message);
+            Flux::toast(heading: 'Annulation impossible', text: $message, variant: 'danger');
+
+            return;
+        }
+
+        $changeStatus($registration, FormationRegistration::STATUS_CANCELLED);
+        $this->registrationSuccessMessage = 'Votre inscription a été annulée.';
+        Flux::toast(heading: 'Inscription annulée', text: $this->registrationSuccessMessage, variant: 'success');
     }
 
     public function rendering(\Illuminate\View\View $view): void
@@ -410,6 +567,14 @@ new #[Layout('layouts::main')] class extends Component {
                                 <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v12m-6-6h12M4.5 4.5h15A2.25 2.25 0 0121.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 014.5 4.5z" />
+                                </svg>
+                                <span>{{ $formation->delivery_mode_label }}</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                                 <span>{{ \Illuminate\Support\Number::format($formation->views_count ?? 0, locale: 'fr') }}
@@ -435,20 +600,65 @@ new #[Layout('layouts::main')] class extends Component {
                                     <span>Niveau {{ $formation->niveau }}</span>
                                 </div>
                             @endif
+                            @if ($formation->price !== null)
+                                <div class="flex items-center gap-2.5">
+                                    <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{{ \Illuminate\Support\Number::currency((float) $formation->price, $formation->currency, locale: 'fr') }}</span>
+                                </div>
+                            @endif
+                            @if ($formation->capacity !== null)
+                                <div class="flex items-center gap-2.5">
+                                    <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-8a4 4 0 100-8 4 4 0 000 8zm7-1a4 4 0 10-3-3.465M22 21v-2a4 4 0 00-3-3.87" />
+                                    </svg>
+                                    <span>{{ $this->availableSeats }} place{{ $this->availableSeats === 1 ? '' : 's' }} disponible{{ $this->availableSeats === 1 ? '' : 's' }}</span>
+                                </div>
+                            @endif
                         </div>
 
                         {{-- Boutons d'action --}}
                         <div class="mt-10 flex flex-wrap items-center gap-4 transition-all duration-700 delay-500"
                             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'">
-                            <a href="{{ route('contact') }}" wire:navigate
-                                class="inline-flex h-14 items-center justify-center rounded-full bg-emerald-600 px-8 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-300 hover:bg-emerald-700 hover:shadow-emerald-700/30 dark:bg-emerald-500 dark:hover:bg-emerald-600 active:scale-[0.97]">
-                                Je m'inscris à cette formation
-                                <svg class="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </a>
+                            @if ($this->existingRegistration)
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <span class="inline-flex h-14 items-center rounded-full border border-emerald-200 bg-emerald-50 px-6 text-sm font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+                                        Demande : {{ \App\Models\FormationRegistration::statusOptions()[$this->existingRegistration->status] ?? $this->existingRegistration->status }}
+                                    </span>
+                                    @if ($this->existingRegistration->isOpen())
+                                        <button type="button" wire:click="cancelRegistration"
+                                            wire:confirm="Voulez-vous vraiment annuler cette inscription ?"
+                                            class="inline-flex h-14 items-center justify-center rounded-full border border-zinc-300 px-6 text-sm font-semibold text-zinc-700 transition hover:border-rose-300 hover:text-rose-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-rose-700 dark:hover:text-rose-400">
+                                            Annuler l’inscription
+                                        </button>
+                                    @endif
+                                </div>
+                            @elseif ($this->canRegister)
+                                <button type="button" wire:click="openRegistration"
+                                    class="inline-flex h-14 items-center justify-center rounded-full bg-emerald-600 px-8 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-300 hover:bg-emerald-700 hover:shadow-emerald-700/30 dark:bg-emerald-500 dark:hover:bg-emerald-600 active:scale-[0.97]">
+                                    Je m'inscris à cette formation
+                                    <svg class="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </button>
+                            @else
+                                <span class="inline-flex h-14 items-center rounded-full border border-zinc-300 px-8 text-sm font-semibold text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                                    Inscriptions fermées
+                                </span>
+                            @endif
+                            @if ($errors->has('registration'))
+                                <p class="basis-full text-sm font-medium text-rose-600 dark:text-rose-400">{{ $errors->first('registration') }}</p>
+                            @endif
+                            @if ($registrationSuccessMessage)
+                                <p class="basis-full text-sm font-medium text-emerald-700 dark:text-emerald-400">{{ $registrationSuccessMessage }}</p>
+                            @endif
                             <a href="#chapitres"
                                 class="inline-flex h-14 items-center justify-center rounded-full border border-zinc-300 bg-white px-8 text-sm font-semibold text-zinc-700 shadow-sm transition-all duration-300 hover:border-emerald-300 hover:text-emerald-700 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-emerald-500 dark:hover:text-emerald-400 active:scale-[0.97]">
                                 Voir le programme
@@ -459,6 +669,20 @@ new #[Layout('layouts::main')] class extends Component {
                                 </svg>
                             </a>
                         </div>
+
+                        @if ($this->existingRegistration?->status === \App\Models\FormationRegistration::STATUS_APPROVED && $formation->hasOnlineAccess() && $formation->online_url)
+                            <div class="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-900 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-100">
+                                <p class="text-sm font-semibold">Votre accès en ligne est disponible</p>
+                                <p class="mt-1 text-sm text-sky-700 dark:text-sky-300">Utilisez ce lien pour rejoindre la session à distance.</p>
+                                <a href="{{ $formation->online_url }}" target="_blank" rel="noopener noreferrer"
+                                    class="mt-4 inline-flex items-center rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600">
+                                    Rejoindre la formation
+                                    <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-6-10h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -1134,4 +1358,75 @@ new #[Layout('layouts::main')] class extends Component {
             </div>
         </section>
     @endif
+
+    <flux:modal wire:model="showRegistrationModal" variant="floating" class="w-full max-w-xl" scroll="body">
+        <div class="space-y-7">
+            <div class="flex items-start gap-4">
+                <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14.25a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0 0c-4.142 0-7.5 1.679-7.5 3.75M12 14.25c4.142 0 7.5 1.679 7.5 3.75M19.5 9.75a3 3 0 10-2.357-4.86M4.5 9.75a3 3 0 112.357-4.86" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <flux:heading size="lg">S’inscrire à la formation</flux:heading>
+                    <flux:text class="mt-1" variant="subtle">
+                        Votre demande sera examinée avant confirmation définitive.
+                    </flux:text>
+                    <p class="mt-2 truncate text-sm font-semibold text-zinc-900 dark:text-white" title="{{ $formation->title }}">
+                        {{ $formation->title }}
+                    </p>
+                </div>
+            </div>
+
+            <flux:separator variant="subtle" />
+
+            <div class="grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-800/60">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Format</p>
+                    <p class="mt-1 font-semibold text-zinc-900 dark:text-white">{{ $formation->delivery_mode_label }}</p>
+                </div>
+                <div class="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-800/60">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Tarif</p>
+                    <p class="mt-1 font-semibold text-zinc-900 dark:text-white">
+                        {{ $formation->price !== null ? \Illuminate\Support\Number::currency((float) $formation->price, $formation->currency, locale: 'fr') : 'Gratuit' }}
+                    </p>
+                </div>
+            </div>
+
+            @if ($formation->payment_instructions && $formation->price !== null)
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+                    <p class="font-semibold">Instructions de paiement</p>
+                    <p class="mt-2 whitespace-pre-line leading-relaxed">{{ $formation->payment_instructions }}</p>
+                </div>
+            @endif
+
+            <form wire:submit="register" class="space-y-6">
+                <flux:textarea
+                    wire:model="registrationMessage"
+                    label="Message complémentaire"
+                    description="Facultatif : niveau, attentes ou contraintes particulières."
+                    rows="4"
+                    placeholder="Écrivez votre message…"
+                />
+                <flux:error name="registrationMessage" />
+
+                <div class="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-700">
+                    <flux:checkbox wire:model="termsAccepted" label="J’accepte les conditions d’inscription et le traitement de mes données." />
+                    <flux:error name="termsAccepted" class="mt-2" />
+                </div>
+
+                <flux:error name="registration" />
+
+                <div class="flex flex-col-reverse gap-3 border-t border-zinc-200 pt-5 sm:flex-row sm:justify-end dark:border-zinc-700">
+                    <flux:modal.close>
+                        <flux:button variant="ghost" type="button" class="w-full sm:w-auto">Annuler</flux:button>
+                    </flux:modal.close>
+                    <flux:button variant="primary" type="submit" class="w-full sm:w-auto" wire:loading.attr="disabled" wire:target="register">
+                        <span wire:loading.remove wire:target="register">Envoyer ma demande</span>
+                        <span wire:loading wire:target="register">Envoi en cours…</span>
+                    </flux:button>
+                </div>
+            </form>
+        </div>
+    </flux:modal>
 </div>

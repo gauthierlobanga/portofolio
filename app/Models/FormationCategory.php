@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use Spatie\Tags\HasTags;
 
@@ -38,7 +39,7 @@ class FormationCategory extends Model
         });
     }
 
-    public function formations()
+    public function formations(): HasMany
     {
         return $this->hasMany(Formation::class, 'formation_category_id');
     }

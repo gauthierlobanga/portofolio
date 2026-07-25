@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Project;
+use App\Models\Service;
 
 it('can be created', function () {
     $project = Project::factory()->create([
@@ -27,4 +28,13 @@ it('can store external project urls', function () {
 
     expect($project->website_url)->toBe('https://example.com')
         ->and($project->repository_url)->toBe('https://github.com/example/repo');
+});
+
+it('exposes its service relationship', function () {
+    $project = Project::factory()->create();
+    $service = Service::factory()->create();
+
+    $project->services()->attach($service);
+
+    expect($project->services()->whereKey($service->id)->exists())->toBeTrue();
 });

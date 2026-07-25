@@ -33,38 +33,41 @@ new #[Layout('layouts::main')] class extends Component {
                 $this->imageUrl($this->about->hero_image_url) ?: $this->imageUrl('images/gaudev-hero.png');
         @endphp
 
-        {{-- Image de fond visible uniquement sur mobile/tablette (overlay pour lisibilité) --}}
+        {{-- Image de fond visible uniquement sur mobile/tablette --}}
         <img x-ref="bgImage" src="{{ $heroImage }}" alt="Portrait de Gauthier Lobanga"
             class="absolute inset-0 h-full w-full object-cover lg:hidden" />
+            
+        {{-- Overlay sombre incontournable pour garantir la lisibilité du texte (qui est blanc) par-dessus l'image --}}
+        <div class="absolute inset-0 bg-slate-900/75 dark:bg-zinc-950/80 lg:hidden pointer-events-none"></div>
 
         <div class="relative flex flex-col lg:flex-row lg:min-h-[50svh] max-w-7xl mx-auto">
             {{-- Colonne texte (toujours à gauche sur desktop) --}}
             <div
-                class="flex items-center justify-center lg:justify-start w-full lg:w-1/2 px-6 py-12 lg:py-16 lg:px-12 order-1 lg:order-1">
-                <div class="w-full max-w-xl">
+                class="flex items-center justify-center lg:justify-start w-full lg:w-1/2 px-6 py-16 sm:py-24 lg:py-32 lg:px-12 order-1 lg:order-1 relative z-10">
+                <div class="w-full max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
                     <h1 x-ref="title"
-                        class="mt-8 text-4xl sm:text-5xl md:text-6xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                        class="mt-4 text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-[1.1]">
                         {{ $this->about->hero_title ?: 'À propos de moi' }}
                     </h1>
 
-                    <div x-ref="author" class="mt-4 flex items-center gap-3">
-                        <div class="h-px w-16 bg-emerald-500/80"></div>
-                        <p class="text-2xl font-extrabold tracking-tight text-emerald-300 lg:text-3xl">
+                    <div x-ref="author" class="mt-6 flex flex-row items-center justify-center lg:justify-start gap-4">
+                        <div class="h-px w-12 sm:w-16 bg-emerald-500/80"></div>
+                        <p class="text-xl sm:text-2xl font-bold tracking-tight text-emerald-400">
                             {{ $this->about->auteur_about ?: 'Gauthier Lobanga' }}
                         </p>
-                        <div class="h-px w-16 bg-emerald-500/80 hidden sm:block"></div>
+                        <div class="h-px w-12 sm:w-16 bg-emerald-500/80 lg:hidden"></div>
                     </div>
 
-                    <p x-ref="subtitle" class="mt-8 text-xl leading-7 text-zinc-300 md:text-2xl">
+                    <p x-ref="subtitle" class="mt-8 text-lg sm:text-xl leading-relaxed text-zinc-300 max-w-xl mx-auto lg:mx-0">
                         {{ $this->about->hero_subtitle ?: 'Développeur web passionné, spécialisé TALL stack, React, Inertia.js et Filament.' }}
                     </p>
 
-                    <div x-ref="buttons" class="mt-10 flex flex-col sm:flex-row items-center gap-5">
+                    <div x-ref="buttons" class="mt-10 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                         <a href="{{ route('projects.index') }}" wire:navigate
-                            class="group relative inline-flex h-14 items-center justify-center border border-emerald-600 bg-emerald-600 px-8 font-semibold text-white transition-all duration-300 hover:bg-emerald-700 hover:border-emerald-700 active:scale-[0.97] text-lg">
-                            <span class="flex items-center gap-2.5">
+                            class="group relative inline-flex h-14 w-full sm:w-auto items-center justify-center rounded-full bg-emerald-600 px-8 font-semibold text-white transition-all duration-300 hover:bg-emerald-500 hover:shadow-lg hover:shadow-emerald-500/25 active:scale-[0.97] text-base sm:text-lg">
+                            <span class="flex items-center gap-2">
                                 Découvrir mes projets
-                                <svg class="h-5 w-5 transition-transform group-hover:translate-x-1.5" fill="none"
+                                <svg class="size-5 transition-transform group-hover:translate-x-1" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                         d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -72,20 +75,15 @@ new #[Layout('layouts::main')] class extends Component {
                             </span>
                         </a>
                         <a href="{{ route('contact') }}" wire:navigate
-                            class="group relative inline-flex h-14 items-center justify-center border border-zinc-500/50 px-8 font-semibold text-white transition-all duration-300 hover:bg-white/10 active:scale-[0.97] text-lg">
-                            <span class="flex items-center gap-2.5">
+                            class="group relative inline-flex h-14 w-full sm:w-auto items-center justify-center rounded-full border border-zinc-600 bg-transparent px-8 font-semibold text-white transition-all duration-300 hover:bg-zinc-800 hover:border-zinc-500 active:scale-[0.97] text-base sm:text-lg">
+                            <span class="flex items-center gap-2">
                                 Me contacter
-                                <svg class="h-5 w-5 transition-transform group-hover:translate-x-1.5" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
                             </span>
                         </a>
                     </div>
 
-                     {{-- Liens sociaux horizontaux – label + flèche vers le bas (animation conservée) --}}
-                    <div wire:cloak x-data="{}" class="block">
+                    {{-- Liens sociaux horizontaux – label + flèche vers le bas (animation conservée) --}}
+                    <div wire:cloak x-data="{}" class="block mt-12">
                         <div x-data="{}" x-init="$nextTick(() => {
                             if (!$refs.socialHeader) return;
                             const tl = gsap.timeline({
@@ -102,7 +100,7 @@ new #[Layout('layouts::main')] class extends Component {
                             if ($refs.social_6) tl.fromTo($refs.social_5, { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'circ.out' }, '>-0.5');
                         })">
                             <ul x-ref="socialHeader"
-                                class="flex items-center my-8 space-x-2 sm:space-x-2 justify-center lg:justify-start">
+                                class="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 my-8">
                                 @if ($settings->facebook_url)
                                     <li x-ref="social_1" class="group relative flex flex-col items-center">
                                         <a href="{{ $settings->facebook_url }}" target="_blank" rel="noopener"
@@ -236,7 +234,7 @@ new #[Layout('layouts::main')] class extends Component {
                         </div>
                     </div>
 
-                    <div x-ref="decoLine" class="mt-12 h-0.5 w-0 bg-linear-to-r from-emerald-500 to-transparent">
+                    <div x-ref="decoLine" class="mt-12 h-0.5 w-0 bg-linear-to-r from-emerald-500 to-transparent mx-auto lg:mx-0">
                     </div>
                 </div>
             </div>
@@ -294,8 +292,7 @@ new #[Layout('layouts::main')] class extends Component {
                         :class="shown ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'">
                         @php $aboutImage = $aboutBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
                         <img loading="eager" decoding="async" src="{{ $aboutImage ? $this->imageUrl($aboutImage) : $this->imageUrl('images/gaudev-logo.png') }}"
-                            alt="Gauthier Lobanga" class="w-full h-full object-contain aspect-4/3" />
-                        <div class="absolute inset-0 ring-1 ring-inset ring-zinc-900/10 dark:ring-white/10"></div>
+                            alt="Gauthier Lobanga" class="w-full h-auto object-contain rounded-2xl" />
                     </div>
                     <div class="absolute -bottom-6 -left-6 -z-10 transition-all duration-500 delay-500 ease-out"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
@@ -319,7 +316,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <div class="overflow-hidden">
                         @php $visionImage = $visionBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
                         <img loading="eager" decoding="async" src="{{ $visionImage ? $this->imageUrl($visionImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
-                            alt="Vision" class="aspect-4/3 w-full object-cover">
+                            alt="Vision" class="w-full h-auto object-contain rounded-2xl">
                     </div>
                 </div>
                 <div class="order-1 lg:order-2 space-y-6 lg:pl-10 transition-all duration-1200 ease-out delay-300"
@@ -417,7 +414,7 @@ new #[Layout('layouts::main')] class extends Component {
                     <div class="overflow-hidden">
                         @php $missionImage = $missionBlocks[0]['image_url'] ?? $this->about->about_image_url ?? null; @endphp
                         <img loading="eager" decoding="async" src="{{ $missionImage ? $this->imageUrl($missionImage) : $this->imageUrl('images/gauthier-lobanga.jpg') }}"
-                            alt="Mission" class="aspect-4/3 w-full object-cover">
+                            alt="Mission" class="w-full h-auto object-contain rounded-2xl">
                     </div>
                 </div>
             </div>

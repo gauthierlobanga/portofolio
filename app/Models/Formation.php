@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Laravel\Scout\Searchable;
@@ -50,6 +52,7 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
         'excerpt',
         'content',
         'location',
+        'delivery_mode',
         'status',
         'niveau',
         'is_active',
@@ -62,6 +65,12 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
         'user_id',
         'views_count',
         'duration',
+        'price',
+        'currency',
+        'capacity',
+        'registration_deadline',
+        'online_url',
+        'payment_instructions',
     ];
 
     protected $casts = [
@@ -72,6 +81,9 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
         'meta' => 'array',
         'excerpt' => 'array',
         'content' => 'array',
+        'price' => 'decimal:2',
+        'capacity' => 'integer',
+        'registration_deadline' => 'date',
     ];
 
     public function setUpRichContent(): void
@@ -120,8 +132,8 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
             ->summary($this->getPlainTextContent(200) ?: $this->title)
             ->updated($this->updated_at)
             ->link(route('formations.show', $this->slug)) // Votre route de détail
-            ->authorName($this->user?->name ?? 'CADERSA')
-            ->authorEmail($this->user?->email ?? 'cadersa.asbl@gmail.com');
+            ->authorName($this->user?->name ?? 'Gauthier Lobanga')
+            ->authorEmail($this->user?->email ?? 'gauthierlobanga914@gmail.com');
     }
 
     /**
@@ -210,14 +222,79 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
     // --------------------------------------------------------------
     // Relations
     // --------------------------------------------------------------
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(FormationCategory::class, 'formation_category_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(FormationRegistration::class);
+    }
+
+    public function modules(): HasMany
+    {
+        return $this->hasMany(FormationModule::class)->orderBy('sort_order');
+    }
+
+    public static function deliveryModes(): array
+    {
+        return [
+            'online' => 'En ligne',
+            'in_person' => 'En présentiel',
+            'hybrid' => 'Hybride',
+        ];
+    }
+
+    public static function currencyOptions(): array
+    {
+        return [
+            'EUR' => 'EUR (€)',
+            'USD' => 'USD ($)',
+            'CDF' => 'CDF (FC)',
+        ];
+    }
+
+    public function getDeliveryModeLabelAttribute(): string
+    {
+        return self::deliveryModes()[$this->delivery_mode] ?? 'Non précisé';
+    }
+
+    public function acceptsRegistrations(): bool
+    {
+        if (! $this->is_active || $this->status === 'completed') {
+            return false;
+        }
+
+        return ! $this->registration_deadline
+            || $this->registration_deadline->isToday()
+            || $this->registration_deadline->isFuture();
+    }
+
+    public function registrationSeatsTaken(): int
+    {
+        return $this->registrations()
+            ->activeForCapacity()
+            ->count();
+    }
+
+    public function availableRegistrationSeats(): ?int
+    {
+        if ($this->capacity === null) {
+            return null;
+        }
+
+        return max(0, $this->capacity - $this->registrationSeatsTaken());
+    }
+
+    public function hasOnlineAccess(): bool
+    {
+        return in_array($this->delivery_mode, ['online', 'hybrid'], true);
     }
 
     // --------------------------------------------------------------

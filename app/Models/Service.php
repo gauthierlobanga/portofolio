@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -157,6 +158,10 @@ class Service extends Model implements HasMedia, HasRichContent, Sitemapable
             ->acceptsMimeTypes(['image/png', 'image/webp', 'image/svg+xml'])
             ->withResponsiveImages();
 
+        $this->addMediaCollection('gallery')
+            ->useDisk('public')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+
         $this->addMediaCollection('documents')
             ->useDisk('public')
             ->acceptsMimeTypes(['application/pdf']);
@@ -176,7 +181,7 @@ class Service extends Model implements HasMedia, HasRichContent, Sitemapable
             ->quality(90)                     // 80 → 90
             ->sharpen(10)                     // netteté renforcée
             ->withResponsiveImages()
-            ->performOnCollections('image')
+            ->performOnCollections('image', 'gallery')
             ->optimize();
 
         // Carte (400x300) – pour les grilles de services, mise en avant
@@ -188,7 +193,7 @@ class Service extends Model implements HasMedia, HasRichContent, Sitemapable
             ->quality(90)                     // 85 → 90
             ->sharpen(10)
             ->withResponsiveImages()
-            ->performOnCollections('image')
+            ->performOnCollections('image', 'gallery')
             ->optimize();
 
         // Grande taille (1200x800) – pour la page détail, affichage principal
@@ -200,7 +205,7 @@ class Service extends Model implements HasMedia, HasRichContent, Sitemapable
             ->quality(90)
             ->sharpen(10)                     // ajouté
             ->withResponsiveImages()
-            ->performOnCollections('image')
+            ->performOnCollections('image', 'gallery')
             ->optimize();
 
         $this->addMediaConversion('icon_thumb')
@@ -242,6 +247,24 @@ class Service extends Model implements HasMedia, HasRichContent, Sitemapable
     {
         Cache::forget("service_{$this->id}_image_url");
         Cache::forget("service_{$this->id}_image_thumb_url");
+    }
+
+    /**
+     * Projects associated with this service.
+     */
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'service_project_pivot', 'service_id', 'project_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Posts associated with this service.
+     */
+    public function posts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'service_post_pivot', 'service_id', 'post_id')
+            ->withTimestamps();
     }
 
     /*

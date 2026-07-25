@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Formations\Tables;
 
+use App\Models\Formation;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -15,7 +16,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FormationsTable
 {
@@ -35,7 +35,7 @@ class FormationsTable
                     ->label('Formation')
                     ->searchable()
                     ->sortable()
-                    ->description(fn ($record) => Str::limit(strip_tags($record->excerpt ?? ''), 30)),
+                    ->description(fn (Formation $record): string => $record->getPlainTextExcerpt(30)),
 
                 TextColumn::make('category.name')
                     ->label('Catégorie')
@@ -87,6 +87,24 @@ class FormationsTable
                     })
                     ->sortable(),
 
+                TextColumn::make('delivery_mode')
+                    ->label('Mode')
+                    ->badge()
+                    ->formatStateUsing(fn ($state): string => Formation::deliveryModes()[$state] ?? 'Non précisé')
+                    ->color(fn ($state): string => match ($state) {
+                        'online' => 'info',
+                        'in_person' => 'success',
+                        'hybrid' => 'warning',
+                        default => 'gray',
+                    })
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('duration')
+                    ->label('Durée')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('niveau')
                     ->label('Niveau')
                     ->badge()
@@ -111,6 +129,36 @@ class FormationsTable
                     ->date('d/m/Y')
                     ->sortable()
                     ->toggleable(),
+
+                TextColumn::make('price')
+                    ->label('Tarif')
+                    ->money(fn (Formation $record): string => $record->currency ?? 'EUR')
+                    ->placeholder('Gratuit')
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('capacity')
+                    ->label('Places')
+                    ->numeric()
+                    ->placeholder('Illimitées')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('registrations_count')
+                    ->label('Inscriptions')
+                    ->counts('registrations')
+                    ->numeric()
+                    ->badge()
+                    ->color('success')
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('registration_deadline')
+                    ->label('Clôture des inscriptions')
+                    ->date('d/m/Y')
+                    ->placeholder('Aucune')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 IconColumn::make('is_active')
                     ->label('Actif')

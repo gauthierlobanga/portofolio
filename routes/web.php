@@ -19,6 +19,7 @@ Route::livewire('/', 'pages::site.home')->name('home');
 Route::livewire('/about', 'pages::site.about')->name('about');
 Route::livewire('/contact', 'pages::site.contact')->name('contact');
 Route::livewire('/gallery', 'pages::site.gallery')->name('gallery');
+Route::livewire('/faq', 'pages::faq.index')->name('faq');
 
 // ==================== Services ====================
 
@@ -62,7 +63,7 @@ Route::livewire('/search', 'pages::site.search')->name('search');
 // Tableau de bord
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        $recentProjects = Project::active()->ordered()->take(3)->get();
+        $recentProjects = Project::active()->ordered()->take(6)->get();
         $skills = Skill::take(8)->get();
         $services = Service::active()->ordered()->take(8)->get();
 

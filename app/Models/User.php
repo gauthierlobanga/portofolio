@@ -137,6 +137,56 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasMedia,
         return $this->hasMany(Post::class);
     }
 
+    public function formations(): HasMany
+    {
+        return $this->hasMany(Formation::class);
+    }
+
+    public function formationRegistrations(): HasMany
+    {
+        return $this->hasMany(FormationRegistration::class);
+    }
+
+    public function moduleProgress(): HasMany
+    {
+        return $this->hasMany(UserModuleProgress::class);
+    }
+
+    public function projectSubmissions(): HasMany
+    {
+        return $this->hasMany(UserProjectSubmission::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function postLikes(): HasMany
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function postBookmarks(): HasMany
+    {
+        return $this->hasMany(PostBookMark::class);
+    }
+
+    public function answeredContacts(): HasMany
+    {
+        return $this->hasMany(Contact::class, 'repondu_par');
+    }
+
+    public function newsletterCampaigns(): HasMany
+    {
+        return $this->hasMany(NewsletterCampaign::class, 'cree_par');
+    }
+
+    public function cookieConsents(): HasMany
+    {
+        return $this->hasMany(CookieConsent::class);
+    }
+
     /**
      * Media Library
      */

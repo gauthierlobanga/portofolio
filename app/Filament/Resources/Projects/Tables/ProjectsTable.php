@@ -25,7 +25,7 @@ class ProjectsTable
                 SpatieMediaLibraryImageColumn::make('cover')
                     ->collection('cover')
                     ->label('Couverture')
-                    ->conversion('cover')
+                    ->conversion('thumb')
                     ->disk('public')
                     ->visibility('public')
                     ->imageSize(40)
@@ -51,6 +51,15 @@ class ProjectsTable
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->getPlainTextContent(80)),
+
+                TextColumn::make('services_count')
+                    ->label('Services liés')
+                    ->counts('services')
+                    ->numeric()
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('location')
                     ->label('Localisation')

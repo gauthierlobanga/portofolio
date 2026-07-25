@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Services\Schemas;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\TextColor;
 use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -113,6 +115,31 @@ class ServiceForm
                                     ->acceptedFileTypes(['image/png', 'image/webp', 'image/svg+xml'])
                                     ->helperText('Format carré recommandé (PNG, SVG, WEBP), max 2 Mo.'),
                             ]),
+
+                        SpatieMediaLibraryFileUpload::make('gallery')
+                            ->label('Galerie d’images')
+                            ->collection('gallery')
+                            ->multiple()
+                            ->image()
+                            ->imageEditor()
+                            ->responsiveImages()
+                            ->conversion('thumb')
+                            ->disk('public')
+                            ->directory('services/gallery')
+                            ->visibility('public')
+                            ->maxFiles(10)
+                            ->maxSize(5120)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->reorderable()
+                            ->appendFiles()
+                            ->panelLayout('grid')
+                            ->customProperties([
+                                'title' => '',
+                                'description' => '',
+                                'alt' => '',
+                            ])
+                            ->helperText('Images supplémentaires du service, 5 Mo maximum par fichier.')
+                            ->columnSpanFull(),
                     ]),
 
                 // ========== NOUVELLE SECTION : DOCUMENTS PDF ==========
@@ -160,6 +187,37 @@ class ServiceForm
                                     ->default(0)
                                     ->minValue(0),
                             ]),
+                    ]),
+
+                Section::make('Relations')
+                    ->icon('heroicon-o-link')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('projects')
+                                    ->label('Projets associés')
+                                    ->relationship('projects', 'title')
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload(),
+
+                                Select::make('posts')
+                                    ->label('Articles associés')
+                                    ->relationship('posts', 'title')
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload(),
+                            ]),
+                    ]),
+
+                Section::make('Tags')
+                    ->icon('heroicon-o-tag')
+                    ->schema([
+                        SpatieTagsInput::make('tags')
+                            ->label('Tags')
+                            ->type('services')
+                            ->splitKeys(['Tab', ' ', ','])
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

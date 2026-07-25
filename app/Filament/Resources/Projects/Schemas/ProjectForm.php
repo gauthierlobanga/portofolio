@@ -6,7 +6,9 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\TextColor;
 use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
@@ -199,6 +201,23 @@ class ProjectForm
                                     ->displayFormat('d/m/Y')
                                     ->after('start_date'),
                             ]),
+                    ]),
+
+                Section::make('Relations et tags')
+                    ->icon('heroicon-o-link')
+                    ->schema([
+                        Select::make('services')
+                            ->label('Services associés')
+                            ->relationship('services', 'title')
+                            ->multiple()
+                            ->searchable()
+                            ->preload(),
+
+                        SpatieTagsInput::make('tags')
+                            ->label('Tags')
+                            ->type('projects')
+                            ->splitKeys(['Tab', ' ', ','])
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Étude de cas')

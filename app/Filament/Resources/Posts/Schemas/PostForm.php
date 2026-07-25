@@ -339,6 +339,18 @@ class PostForm
                                     ->helperText('Catégorie principale pour le fil d\'Ariane'),
                             ]),
 
+                        Section::make('Services associés')
+                            ->icon('heroicon-m-wrench-screwdriver')
+                            ->schema([
+                                Select::make('services')
+                                    ->label('Services')
+                                    ->relationship('services', 'title')
+                                    ->multiple()
+                                    ->searchable()
+                                    ->preload()
+                                    ->helperText('Reliez cet article aux services concernés.'),
+                            ]),
+
                         Section::make('Statistiques')
                             ->icon('heroicon-m-chart-bar')
                             ->collapsed()

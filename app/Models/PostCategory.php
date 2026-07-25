@@ -39,7 +39,7 @@ class PostCategory extends Model implements Sitemapable
 
     public function toSitemapTag(): Url|string|array
     {
-        return Url::create(route('blog.category', $this->slug))
+        return Url::create(route('posts.show', $this->slug))
             ->setLastModificationDate($this->updated_at)
             ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
             ->setPriority(0.6);
@@ -105,7 +105,7 @@ class PostCategory extends Model implements Sitemapable
     // Accessors
     public function getUrlAttribute(): string
     {
-        return route('blog.category', $this->slug);
+        return route('posts.show', $this->slug);
     }
 
     public function getFullPathAttribute(): string

@@ -18,7 +18,7 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $view->title($this->service->title);
 
-        $imageUrl = $this->service->getFirstMediaUrl('featured') ?: asset('images/logo-app.svg');
+        $imageUrl = $this->service->getFirstMediaUrl('image') ?: asset('images/logo-app.svg');
         $description = $this->service->getPlainTextContent(160);
 
         $schema = [

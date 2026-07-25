@@ -34,11 +34,11 @@ class SkillsTable
                     ->description(fn ($record) => $record->category),
 
                 CircleProgress::make('level')
+                    ->label('Niveau')
                     ->getStateUsing(fn ($record) => [
                         'total' => 100,
                         'progress' => $record->level,
-                    ])
-                    ->hideProgressValue(false),
+                    ]),
 
                 TextColumn::make('categorySkill.name')
                     ->label('Catégorie')
@@ -61,7 +61,9 @@ class SkillsTable
                         'DevOps' => 'DevOps',
                         'Outils' => 'Outils',
                         'Bureautique' => 'Bureautique',
-                    ]),
+                    ])
+                    ->preload()
+                    ->searchable(),
                 Filter::make('level')
                     ->schema([
                         Select::make('operator')
@@ -71,7 +73,9 @@ class SkillsTable
                                 '=' => 'Égal à',
                             ])
                             ->default('>=')
-                            ->selectablePlaceholder(false),
+                            ->selectablePlaceholder(false)
+                            ->preload()
+                            ->searchable(),
                         TextInput::make('value')
                             ->numeric()
                             ->minValue(0)

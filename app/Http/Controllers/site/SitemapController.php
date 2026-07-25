@@ -47,6 +47,13 @@ class SitemapController extends Controller
                 ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                 ->setPriority(0.7));
         }
+        // Services
+        foreach (Service::active()->get() as $service) {
+            $sitemap->add(Url::create(route('services.show', $service))
+                ->setLastModificationDate($service->updated_at)
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.7));
+        }
 
         // Formations
         foreach (Formation::published()->latest()->get() as $formation) {

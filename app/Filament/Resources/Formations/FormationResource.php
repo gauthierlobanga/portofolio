@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Formations;
 
+use App\Filament\Resources\Comments\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\Formations\Pages\CreateFormation;
 use App\Filament\Resources\Formations\Pages\EditFormation;
 use App\Filament\Resources\Formations\Pages\ListFormations;
+use App\Filament\Resources\Formations\RelationManagers\ModulesRelationManager;
+use App\Filament\Resources\Formations\RelationManagers\RegistrationsRelationManager;
 use App\Filament\Resources\Formations\Schemas\FormationForm;
 use App\Filament\Resources\Formations\Tables\FormationsTable;
 use App\Models\Formation;
@@ -40,7 +43,9 @@ class FormationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ModulesRelationManager::class,
+            CommentsRelationManager::class,
+            RegistrationsRelationManager::class,
         ];
     }
 

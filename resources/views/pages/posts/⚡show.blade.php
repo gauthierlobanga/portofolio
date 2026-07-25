@@ -6,6 +6,7 @@ use App\Models\Post;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 new #[Layout('layouts::main')] class extends Component {

@@ -31,7 +31,7 @@ class ServicesTable
                 SpatieMediaLibraryImageColumn::make('service_icon')
                     ->collection('service_icon')
                     ->label('Icon')
-                    ->conversion('service_icon')
+                    ->conversion('icon_thumb')
                     ->visibility('public')
                     ->imageSize(50)
                     ->square(),
@@ -41,6 +41,24 @@ class ServicesTable
                     ->searchable()
                     ->sortable()
                     ->description(fn ($record) => $record->getPlainTextContent(80)),
+
+                TextColumn::make('projects_count')
+                    ->label('Projets liés')
+                    ->counts('projects')
+                    ->numeric()
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('posts_count')
+                    ->label('Articles liés')
+                    ->counts('posts')
+                    ->numeric()
+                    ->badge()
+                    ->color('gray')
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('icon')
                     ->label('Icône')

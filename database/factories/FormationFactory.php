@@ -18,6 +18,7 @@ class FormationFactory extends Factory
         $end = $start ? fake()->optional(0.6)->dateTimeBetween($start, '+6 months') : null;
 
         $title = fake()->unique()->sentence(3);
+        $meta = $this->generateMeta($start, $end);
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id
@@ -30,15 +31,28 @@ class FormationFactory extends Factory
             'excerpt' => fake()->paragraph(2),           // Chaîne simple
             'content' => $this->generateContent(),
             'location' => fake()->city(),                 // Plus de null
+            'delivery_mode' => $this->deliveryModeFromFormat($meta['format']),
             'status' => fake()->randomElement(['planned', 'ongoing', 'completed']),
             'niveau' => fake()->randomElement(['Débutant', 'Intermédiaire', 'Junior', 'Senior', 'Avancé', 'Tous niveaux']),
             'is_active' => true,
             'start_date' => $start ? $start->format('Y-m-d') : null,
             'end_date' => $end ? $end->format('Y-m-d') : null,
             'published_at' => fake()->optional(0.6)->dateTimeBetween('-1 years', 'now'),
-            'meta' => $this->generateMeta($start, $end),
+            'meta' => $meta,
             'sort_order' => fake()->numberBetween(1, 200),
+            'price' => $meta['prix'],
+            'currency' => 'EUR',
+            'capacity' => $meta['places_limit'],
         ];
+    }
+
+    private function deliveryModeFromFormat(string $format): string
+    {
+        return match ($format) {
+            'Présentiel' => 'in_person',
+            'Hybride' => 'hybrid',
+            default => 'online',
+        };
     }
 
     // Contenu riche structuré (Tiptap)

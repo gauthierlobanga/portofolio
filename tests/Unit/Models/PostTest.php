@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Post;
+use App\Models\Service;
 use App\Models\User;
 
 it('can be created', function () {
@@ -28,4 +29,13 @@ it('has a renderRichContent method', function () {
 
     expect(method_exists($post, 'renderRichContent'))->toBeTrue();
     expect($post->renderRichContent('content'))->toBeString();
+});
+
+it('exposes its service relationship', function () {
+    $post = Post::factory()->create();
+    $service = Service::factory()->create();
+
+    $post->services()->attach($service);
+
+    expect($post->services()->whereKey($service->id)->exists())->toBeTrue();
 });
