@@ -70,4 +70,14 @@ class FormationRegistrationResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    public static function getNavigationBadge(): null|string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() > 10 ? 'success' : 'warning';
+    }
 }

@@ -27,7 +27,7 @@ class FormationModulesTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('order_column')
+                TextColumn::make('sort_order')
                     ->label('Ordre')
                     ->numeric()
                     ->sortable(),
@@ -41,16 +41,16 @@ class FormationModulesTable
                     ->label('Projets')
                     ->badge(),
             ])
-            ->defaultSort('order_column')
-            ->reorderable('order_column')
+            ->defaultSort('sort_order')
+            ->reorderable('sort_order')
             ->filters([
                 //
             ])
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

@@ -23,7 +23,9 @@ class ModulesRelationManager extends RelationManager
         return FormationModulesTable::configure($table)
             ->recordTitleAttribute('title')
             ->headerActions([
-                CreateAction::make(),
+                \Filament\Tables\Actions\CreateAction::make(),
+                \Filament\Tables\Actions\AssociateAction::make()
+                    ->preloadRecordSelect(),
             ]);
     }
 }

@@ -30,13 +30,13 @@ class FormationRegistrationsTable
                     ->label('Formation')
                     ->searchable()
                     ->sortable()
-                    ->description(fn (FormationRegistration $record): string => $record->formation?->delivery_mode_label ?? 'Non précisé'),
+                    ->description(fn (FormationRegistration $record): string => $record->formation->delivery_mode_label ?? 'Non précisé'),
 
                 TextColumn::make('user.name')
                     ->label('Participant')
                     ->searchable()
                     ->sortable()
-                    ->description(fn (FormationRegistration $record): string => $record->user?->email ?? 'Email indisponible'),
+                    ->description(fn (FormationRegistration $record): string => $record->user->email ?? 'Email indisponible'),
 
                 TextColumn::make('status')
                     ->label('Statut')

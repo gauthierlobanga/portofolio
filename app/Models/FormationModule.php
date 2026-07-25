@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $formation_id
  * @property string $title
+ * @property string|null $slug
  * @property string|null $description
  * @property int $sort_order
  * 
@@ -26,6 +27,7 @@ class FormationModule extends Model
     protected $fillable = [
         'formation_id',
         'title',
+        'slug',
         'description',
         'sort_order',
     ];
