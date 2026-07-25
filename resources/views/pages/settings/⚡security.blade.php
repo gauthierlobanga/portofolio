@@ -166,6 +166,7 @@ new #[Title('Security settings')] class extends Component {
     }
 }; ?>
 
+<div>
 <x-pages::settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">
     <form method="POST" wire:submit="updatePassword" class="w-full space-y-6">
         <flux:input
@@ -337,3 +338,4 @@ new #[Title('Security settings')] class extends Component {
         </div>
     </div>
 </flux:modal>
+</div>
