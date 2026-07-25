@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\site\SitemapController;
+use App\Livewire\Assessments\TakeAssessment;
+use App\Models\FormationRegistration;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Skill;
@@ -39,7 +41,6 @@ Route::livewire('/posts/{post:slug}', 'pages::posts.show')->name('posts.show');
 
 // ==================== Formations ====================
 Route::livewire('/formations', 'pages::formations.index')->name('formations.index');
-Route::livewire('/formations/{formation:slug}', 'pages::formations.show')->name('formations.show');
 
 // // ==================== Newsletter ====================
 
@@ -69,8 +70,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return view('dashboard', compact('recentProjects', 'skills', 'services'));
     })->name('dashboard');
+
+    Route::get('/assessments/{assessment}/take', TakeAssessment::class)->name('assessments.take');
 });
 
+// ==================== Formations ====================
+Route::livewire('/formations', 'pages::formations.index')->name('formations.index');
+
+// Route de suivi (doit être placée AVANT la route avec paramètre)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/formations/suivi', function () {
+        $registrations = FormationRegistration::with('formation')
+            ->where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('formations.suivi', compact('registrations'));
+    })->name('formations.suivi');
+});
+
+// Route show (générique) – en dernier
+Route::livewire('/formations/{formation:slug}', 'pages::formations.show')->name('formations.show');
 Route::feeds();
 
 require __DIR__.'/settings.php';
