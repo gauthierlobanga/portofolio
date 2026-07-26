@@ -7,7 +7,6 @@ Route::middleware(['auth'])->group(function () {
 
     Route::livewire('settings/profile', 'pages::settings.profile')->name('profile.edit');
 
-    Route::livewire('settings/formations', 'pages::settings.formations')->name('formations.suivi');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
