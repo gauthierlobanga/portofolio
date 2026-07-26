@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->domain(app()->isProduction() ? 'gaudev.alwaysdata.net' : null)
+            ->domain(app()->isProduction() ? 'gaudev.cadersaasbl.com' : null)
             ->brandLogo(function () {
                 $settings = app(SettingApp::class);
                 $logoUrl = $settings->logoUrl();
