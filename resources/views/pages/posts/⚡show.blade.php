@@ -136,7 +136,7 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $user = Auth::user();
         if (!$user) {
-            session()->flash('error', 'Vous devez être connecté.');
+            \Flux\Flux::toast(text: 'Vous devez être connecté.', variant: 'danger');
             return;
         }
 
@@ -154,7 +154,7 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $user = Auth::user();
         if (!$user) {
-            session()->flash('error', 'Vous devez être connecté.');
+            \Flux\Flux::toast(text: 'Vous devez être connecté.', variant: 'danger');
             return;
         }
 

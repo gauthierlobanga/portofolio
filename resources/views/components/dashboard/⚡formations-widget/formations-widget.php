@@ -42,4 +42,12 @@ new class extends Component
             ])
             ->count();
     }
+
+    public function notifyNotApproved()
+    {
+        \Flux\Flux::toast(
+            text: 'Votre inscription nécessite l\'approbation de l\'administrateur et le paiement.',
+            variant: 'danger'
+        );
+    }
 };

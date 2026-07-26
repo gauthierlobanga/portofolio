@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ModuleProjects\Tables;
 
-
+use App\Models\ModuleProject;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -16,6 +16,7 @@ class ModuleProjectsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->query(ModuleProject::query()->with('module.formation'))
             ->columns([
                 TextColumn::make('module.title')
                     ->label('Module')
@@ -45,11 +46,11 @@ class ModuleProjectsTable
             ->filters([
                 //
             ])
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

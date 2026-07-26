@@ -9,7 +9,6 @@ use App\Filament\Resources\Comments\Pages\ListComments;
 use App\Filament\Resources\Comments\Schemas\CommentForm;
 use App\Filament\Resources\Comments\Tables\CommentsTable;
 use App\Models\Comment;
-use App\Models\Post;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -27,8 +26,7 @@ class CommentResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', 'pending')
-            ->where('commentable_type', Post::class)
+        return static::getModel()::where('status', Comment::STATUS_PENDING)
             ->count();
     }
 
@@ -74,7 +72,6 @@ class CommentResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('commentable_type', Post::class)
             ->with(['user', 'commentable']);
     }
 }

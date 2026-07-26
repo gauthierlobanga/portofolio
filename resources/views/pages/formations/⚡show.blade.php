@@ -14,7 +14,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Transition;
 use Livewire\Component;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 
 new #[Layout('layouts::main')] class extends Component {
     public Formation $formation;
@@ -22,7 +26,9 @@ new #[Layout('layouts::main')] class extends Component {
     public $isLiked = false;
     public $bookmarksCount = 0;
     public $isBookmarked = false;
+    #[Locked]
     public ?string $activeModule = null;
+    #[Locked]
     public ?string $activeProject = null;
     public bool $showRegistrationModal = false;
     public string $registrationMessage = '';
@@ -31,7 +37,7 @@ new #[Layout('layouts::main')] class extends Component {
 
     public function mount(Formation $formation)
     {
-        $this->formation = $formation->load(['category', 'media', 'tags', 'user', 'modules.projects']);
+        $this->formation = $formation->load(['category', 'media', 'tags', 'user', 'modules.projects', 'assessments']);
         $sessionKey = 'viewed_formation_' . $formation->id;
         if (!session()->has($sessionKey)) {
             $this->formation->increment('views_count');
@@ -71,13 +77,11 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (!$user instanceof User) {
             return null;
         }
 
-        return $user->formationRegistrations()
-            ->whereBelongsTo($this->formation, 'formation')
-            ->first();
+        return $user->formationRegistrations()->whereBelongsTo($this->formation, 'formation')->first();
     }
 
     #[Computed]
@@ -96,14 +100,14 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (!$user instanceof User) {
             session()->put('url.intended', url()->current());
             $this->redirectRoute('login');
 
             return;
         }
 
-        if (! $user->hasVerifiedEmail()) {
+        if (!$user->hasVerifiedEmail()) {
             $message = 'Vérifiez votre adresse email avant de vous inscrire.';
             $this->addError('registration', $message);
             Flux::toast(heading: 'Email à vérifier', text: $message, variant: 'warning');
@@ -111,7 +115,7 @@ new #[Layout('layouts::main')] class extends Component {
             return;
         }
 
-        if (! $this->canRegister) {
+        if (!$this->canRegister) {
             $message = 'Vous ne pouvez pas vous inscrire à cette formation pour le moment.';
             $this->addError('registration', $message);
             Flux::toast(heading: 'Inscription indisponible', text: $message, variant: 'warning');
@@ -130,36 +134,30 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $user = Auth::user();
 
-        if (! $user instanceof User) {
+        if (!$user instanceof User) {
             $this->openRegistration();
 
             return;
         }
 
         try {
-            $this->validate([
-                'registrationMessage' => ['nullable', 'string', 'max:2000'],
-                'termsAccepted' => ['accepted'],
-            ], [
-                'termsAccepted.accepted' => 'Vous devez accepter les conditions d’inscription.',
-            ]);
-        } catch (ValidationException $exception) {
-            Flux::toast(
-                heading: 'Formulaire incomplet',
-                text: 'Acceptez les conditions d’inscription pour continuer.',
-                variant: 'warning',
+            $this->validate(
+                [
+                    'registrationMessage' => ['nullable', 'string', 'max:2000'],
+                    'termsAccepted' => ['accepted'],
+                ],
+                [
+                    'termsAccepted.accepted' => 'Vous devez accepter les conditions d’inscription.',
+                ],
             );
+        } catch (ValidationException $exception) {
+            Flux::toast(heading: 'Formulaire incomplet', text: 'Acceptez les conditions d’inscription pour continuer.', variant: 'warning');
 
             throw $exception;
         }
 
         try {
-            $registration = $register(
-                $this->formation,
-                $user,
-                $this->registrationMessage,
-                $this->termsAccepted,
-            );
+            $registration = $register($this->formation, $user, $this->registrationMessage, $this->termsAccepted);
         } catch (FormationRegistrationException $exception) {
             $this->addError('registration', $exception->getMessage());
             Flux::toast(heading: 'Inscription impossible', text: $exception->getMessage(), variant: 'danger');
@@ -169,25 +167,11 @@ new #[Layout('layouts::main')] class extends Component {
 
         $user->notify(new FormationRegistrationSubmitted($registration));
 
-        User::query()
-            ->whereHas('roles', fn (Builder $query): Builder => $query->whereIn('name', ['super_admin', 'admin', 'Manager']))
-            ->get()
-            ->each(fn (User $admin): mixed => $admin->notify(
-                new FormationRegistrationAdminAlert($registration)
-            ));
+        User::query()->whereHas('roles', fn(Builder $query): Builder => $query->whereIn('name', ['super_admin', 'admin', 'Manager']))->get()->each(fn(User $admin): mixed => $admin->notify(new FormationRegistrationAdminAlert($registration)));
 
         $this->showRegistrationModal = false;
-        $this->registrationSuccessMessage = $registration->status === FormationRegistration::STATUS_WAITLISTED
-            ? 'La formation est complète. Votre demande a été ajoutée à la liste d’attente.'
-            : 'Votre demande d’inscription a bien été envoyée.';
-        Flux::toast(
-            heading: $registration->status === FormationRegistration::STATUS_WAITLISTED
-                ? 'Vous êtes sur la liste d’attente'
-                : 'Demande envoyée',
-            text: $this->registrationSuccessMessage,
-            variant: 'success',
-            duration: 7000,
-        );
+        $this->registrationSuccessMessage = $registration->status === FormationRegistration::STATUS_WAITLISTED ? 'La formation est complète. Votre demande a été ajoutée à la liste d’attente.' : 'Votre demande d’inscription a bien été envoyée.';
+        Flux::toast(heading: $registration->status === FormationRegistration::STATUS_WAITLISTED ? 'Vous êtes sur la liste d’attente' : 'Demande envoyée', text: $this->registrationSuccessMessage, variant: 'success', duration: 7000);
         $this->registrationMessage = '';
         $this->termsAccepted = false;
     }
@@ -196,7 +180,7 @@ new #[Layout('layouts::main')] class extends Component {
     {
         $registration = $this->existingRegistration;
 
-        if (! $registration?->isOpen()) {
+        if (!$registration?->isOpen()) {
             $message = 'Cette inscription ne peut plus être annulée.';
             $this->addError('registration', $message);
             Flux::toast(heading: 'Annulation impossible', text: $message, variant: 'danger');
@@ -238,9 +222,43 @@ new #[Layout('layouts::main')] class extends Component {
     }
 
     #[Computed]
-    public function galleryJson(): string
+    public function selectedModule(): ?\App\Models\FormationModule
     {
-        return json_encode($this->galleryImages->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+        if (blank($this->activeModule)) {
+            return null;
+        }
+
+        return $this->formation->modules->firstWhere('id', $this->activeModule);
+    }
+
+    #[Computed]
+    public function selectedProject(): ?\App\Models\ModuleProject
+    {
+        if (blank($this->activeProject)) {
+            return null;
+        }
+
+        foreach ($this->formation->modules as $module) {
+            $project = $module->projects->firstWhere('id', $this->activeProject);
+
+            if ($project) {
+                return $project;
+            }
+        }
+
+        return null;
+    }
+
+    #[Computed]
+    public function selectedModuleDescription(): string
+    {
+        return $this->sanitizeRichText($this->selectedModule?->description);
+    }
+
+    #[Computed]
+    public function selectedProjectDescription(): string
+    {
+        return $this->sanitizeRichText($this->selectedProject?->description);
     }
 
     #[Computed]
@@ -253,6 +271,22 @@ new #[Layout('layouts::main')] class extends Component {
     public function nextFormation()
     {
         return Formation::published()->where('id', '>', $this->formation->id)->oldest('published_at')->first();
+    }
+
+    #[Transition(type: 'backward')]
+    public function goToPreviousFormation($id)
+    {
+        $formation = Formation::published()->whereKey($id)->firstOrFail();
+
+        return $this->redirectRoute('formations.show', $formation);
+    }
+
+    #[Transition(type: 'forward')]
+    public function goToNextFormation($id)
+    {
+        $formation = Formation::published()->whereKey($id)->firstOrFail();
+
+        return $this->redirectRoute('formations.show', $formation);
     }
 
     #[Computed]
@@ -272,9 +306,9 @@ new #[Layout('layouts::main')] class extends Component {
     {
         return $this->formation->getMedia('gallery')->map(
             fn($media) => [
-                'url' => $media->getUrl('large'),
-                'medium' => $media->getUrl('card'),
-                'thumb' => $media->getUrl('thumb'),
+                'url' => $media->hasGeneratedConversion('large') ? $media->getUrl('large') : $media->getUrl(),
+                'medium' => $media->hasGeneratedConversion('card') ? $media->getUrl('card') : $media->getUrl(),
+                'thumb' => $media->hasGeneratedConversion('thumb') ? $media->getUrl('thumb') : $media->getUrl(),
                 'title' => $media->getCustomProperty('title', ''),
                 'description' => $media->getCustomProperty('description', ''),
                 'alt' => $media->getCustomProperty('alt', $this->formation->title),
@@ -340,18 +374,63 @@ new #[Layout('layouts::main')] class extends Component {
     }
 
     // --------------------------------------------------------------
-    //  Gestion des modules / projets (FormationModule & ModuleProject)
     // --------------------------------------------------------------
-    public function setModule(?string $moduleId): void
+    //  Navigation modules / projets (CORRIGÉE)
+    // --------------------------------------------------------------
+    public function setModule(?string $moduleId = null): void
     {
+        if (blank($moduleId)) {
+            $this->activeModule = null;
+            $this->activeProject = null;
+
+            return;
+        }
+
+        $module = $this->formation->modules->firstWhere('id', $moduleId);
+        if (!$module) {
+            $this->addError('module', 'Module introuvable.');
+
+            return;
+        }
+
+        $this->resetValidation(['module', 'project']);
         $this->activeModule = $moduleId;
         $this->activeProject = null;
     }
 
     public function setProject(string $projectId): void
     {
+        $projectModule = null;
+
+        foreach ($this->formation->modules as $module) {
+            if ($module->projects->contains('id', $projectId)) {
+                $projectModule = $module;
+                break;
+            }
+        }
+
+        if (!$projectModule) {
+            $this->addError('project', 'Projet introuvable.');
+
+            return;
+        }
+
+        $this->resetValidation(['module', 'project']);
         $this->activeProject = $projectId;
-        $this->activeModule = null;
+        $this->activeModule = $projectModule->getKey();
+    }
+
+    private function sanitizeRichText(?string $content): string
+    {
+        if (blank($content)) {
+            return '';
+        }
+
+        $config = (new HtmlSanitizerConfig)
+            ->allowSafeElements()
+            ->allowRelativeLinks();
+
+        return (new HtmlSanitizer($config))->sanitize($content);
     }
 };
 ?>
@@ -361,6 +440,7 @@ new #[Layout('layouts::main')] class extends Component {
     <div x-data="pageProgress()" class="fixed top-0 left-0 z-50 h-0.5 w-full bg-zinc-200 dark:bg-zinc-800">
         <div class="h-full bg-emerald-500 transition-all duration-150" :style="{ width: progress + '%' }"></div>
     </div>
+
     {{-- Fil d'Ariane --}}
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
         <nav aria-label="Fil d'Ariane" class="flex items-center gap-1 text-xs sm:text-sm">
@@ -392,7 +472,6 @@ new #[Layout('layouts::main')] class extends Component {
             @endif
         </nav>
     </div>
-
     {{-- ==================== HERO SOBRE – Texte élargi, typo soignée ==================== --}}
     <section class="relative overflow-hidden bg-white dark:bg-zinc-900 py-16 sm:py-24 lg:py-0">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -468,8 +547,10 @@ new #[Layout('layouts::main')] class extends Component {
                             @endif
                             @if ($formation->niveau)
                                 <div class="flex items-center gap-2.5">
-                                    <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    <svg class="h-6 w-6 text-emerald-500 shrink-0" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
                                     <span>Niveau {{ $formation->niveau }}</span>
                                 </div>
@@ -491,13 +572,15 @@ new #[Layout('layouts::main')] class extends Component {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-8a4 4 0 100-8 4 4 0 000 8zm7-1a4 4 0 10-3-3.465M22 21v-2a4 4 0 00-3-3.87" />
                                     </svg>
-                                    <span>{{ $this->availableSeats }} place{{ $this->availableSeats === 1 ? '' : 's' }} disponible{{ $this->availableSeats === 1 ? '' : 's' }}</span>
+                                    <span>{{ $this->availableSeats }}
+                                        place{{ $this->availableSeats === 1 ? '' : 's' }}
+                                        disponible{{ $this->availableSeats === 1 ? '' : 's' }}</span>
                                 </div>
                             @endif
                         </div>
 
                         {{-- Boutons d'action --}}
-                        <div class="mt-10 flex flex-wrap items-center gap-4 transition-all duration-700 delay-500"
+                        {{-- <div class="mt-10 flex flex-wrap items-center gap-4 transition-all duration-700 delay-500"
                             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'">
                             @if ($this->existingRegistration)
                                 <div class="flex flex-wrap items-center gap-3">
@@ -513,7 +596,7 @@ new #[Layout('layouts::main')] class extends Component {
                                     @endif
                                 </div>
                             @elseif ($this->canRegister)
-                                <button type="button" wire:click="openRegistration"
+                                <button type="button" wire:click="openRegistration" @click.prevent="$wire.openRegistration()"
                                     class="inline-flex h-14 items-center justify-center rounded-full bg-emerald-600 px-8 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition-all duration-300 hover:bg-emerald-700 hover:shadow-emerald-700/30 dark:bg-emerald-500 dark:hover:bg-emerald-600 active:scale-[0.97]">
                                     Je m'inscris à cette formation
                                     <svg class="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" fill="none"
@@ -542,17 +625,81 @@ new #[Layout('layouts::main')] class extends Component {
                                         d="M19 9l-7 7-7-7" />
                                 </svg>
                             </a>
+                        </div> --}}
+                        {{-- Boutons d'action --}}
+                        <div class="mt-10 flex flex-wrap items-center gap-4 transition-all duration-700 delay-500"
+                            :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'">
+                            @if ($this->existingRegistration)
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <span
+                                        class="inline-flex h-14 items-center rounded-full border border-emerald-200/70 bg-emerald-50/80 backdrop-blur-sm px-6 text-sm font-semibold text-emerald-700 shadow-sm dark:border-emerald-800/60 dark:bg-emerald-950/30 dark:text-emerald-300">
+                                        Demande :
+                                        {{ \App\Models\FormationRegistration::statusOptions()[$this->existingRegistration->status] ?? $this->existingRegistration->status }}
+                                    </span>
+                                    @if ($this->existingRegistration->isOpen())
+                                        <button type="button" wire:click="cancelRegistration"
+                                            wire:confirm="Voulez-vous vraiment annuler cette inscription ?"
+                                            class="inline-flex h-14 items-center justify-center rounded-full border border-zinc-200/70 bg-white/80 backdrop-blur-sm px-6 text-sm font-semibold text-zinc-700 shadow-sm transition-all duration-300 hover:border-rose-300/60 hover:bg-rose-50/80 hover:text-rose-700 dark:border-zinc-700/60 dark:bg-zinc-900/50 dark:text-zinc-300 dark:hover:border-rose-700/60 dark:hover:bg-rose-950/30 dark:hover:text-rose-400">
+                                            Annuler l’inscription
+                                        </button>
+                                    @endif
+                                </div>
+                            @elseif ($this->canRegister)
+                                {{-- Variante fantôme --}}
+                                <button type="button" wire:click="openRegistration"
+                                    @click.prevent="$wire.openRegistration()"
+                                    class="group inline-flex h-14 items-center justify-center rounded-full border border-zinc-300 bg-white/70 px-8 text-sm font-semibold text-zinc-800 shadow-sm backdrop-blur-sm transition-all duration-300 ease-out
+           hover:border-emerald-400 hover:text-emerald-700 hover:shadow-md hover:shadow-emerald-500/10
+           dark:border-zinc-600 dark:bg-zinc-900/50 dark:text-zinc-200 dark:hover:border-emerald-500 dark:hover:text-emerald-400
+           active:scale-[0.97]">
+                                    Je m'inscris à cette formation
+                                    <svg class="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </button>
+                            @else
+                                <span
+                                    class="inline-flex h-14 items-center rounded-full border border-zinc-200/70 bg-white/80 backdrop-blur-sm px-8 text-sm font-semibold text-zinc-500 shadow-sm dark:border-zinc-700/60 dark:bg-zinc-900/50 dark:text-zinc-400">
+                                    Inscriptions fermées
+                                </span>
+                            @endif
+                            @if ($errors->has('registration'))
+                                <p class="basis-full text-sm font-medium text-rose-600 dark:text-rose-400">
+                                    {{ $errors->first('registration') }}</p>
+                            @endif
+                            @if ($registrationSuccessMessage)
+                                <p class="basis-full text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                                    {{ $registrationSuccessMessage }}</p>
+                            @endif
+                            <a href="#chapitres"
+                                class="inline-flex h-14 items-center justify-center rounded-full border border-zinc-200/70 bg-white/80 backdrop-blur-sm px-8 text-sm font-semibold text-zinc-700 shadow-sm transition-all duration-300 hover:border-emerald-300/60 hover:bg-emerald-50/80 hover:text-emerald-700 dark:border-zinc-700/60 dark:bg-zinc-900/50 dark:text-zinc-300 dark:hover:border-emerald-500/60 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400 active:scale-[0.97]">
+                                Voir le programme
+                                <svg class="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-y-0.5"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </a>
                         </div>
 
-                        @if ($this->existingRegistration?->status === \App\Models\FormationRegistration::STATUS_APPROVED && $formation->hasOnlineAccess() && $formation->online_url)
-                            <div class="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-900 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-100">
+                        @if (
+                            $this->existingRegistration?->status === \App\Models\FormationRegistration::STATUS_APPROVED &&
+                                $formation->hasOnlineAccess() &&
+                                $formation->online_url)
+                            <div
+                                class="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-900 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-100">
                                 <p class="text-sm font-semibold">Votre accès en ligne est disponible</p>
-                                <p class="mt-1 text-sm text-sky-700 dark:text-sky-300">Utilisez ce lien pour rejoindre la session à distance.</p>
+                                <p class="mt-1 text-sm text-sky-700 dark:text-sky-300">Utilisez ce lien pour rejoindre
+                                    la session à distance.</p>
                                 <a href="{{ $formation->online_url }}" target="_blank" rel="noopener noreferrer"
                                     class="mt-4 inline-flex items-center rounded-full bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600">
                                     Rejoindre la formation
-                                    <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-6-10h6m0 0v6m0-6L10 14" />
+                                    <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-6-10h6m0 0v6m0-6L10 14" />
                                     </svg>
                                 </a>
                             </div>
@@ -561,8 +708,8 @@ new #[Layout('layouts::main')] class extends Component {
                 </div>
 
                 {{-- Colonne droite : image réduite (1/3 de la largeur) --}}
-                <div class="lg:col-span-1 order-1 lg:order-2 flex justify-center lg:justify-end" x-data="{ shown: false }"
-                    x-intersect="shown = true">
+                <div class="lg:col-span-1 order-1 lg:order-2 flex justify-center lg:justify-end"
+                    x-data="{ shown: false }" x-intersect="shown = true">
                     <div class="transition-all duration-700 delay-200"
                         :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'">
                         @if ($formation->hasMedia('cover'))
@@ -600,7 +747,7 @@ new #[Layout('layouts::main')] class extends Component {
                     </div>
                     <nav class="space-y-1">
                         {{-- Vue d’ensemble --}}
-                        <button wire:click="setModule(null)"
+                        <button type="button" wire:click="setModule"
                             class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3 group
                            {{ is_null($activeModule) && is_null($activeProject) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm' : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800' }}">
                             <span
@@ -614,7 +761,9 @@ new #[Layout('layouts::main')] class extends Component {
                         @foreach ($formation->modules as $moduleIndex => $module)
                             {{-- Module --}}
                             <div class="space-y-1">
-                                <button wire:click="setModule('{{ $module->id }}')"
+                        <button type="button" wire:key="formation-module-{{ $module->getKey() }}"
+                            wire:click="setModule('{{ $module->getKey() }}')"
+                            wire:loading.attr="disabled" wire:target="setModule"
                                     class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-3 group
                                    {{ $activeModule === $module->id && is_null($activeProject) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shadow-sm' : 'text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                                     <span
@@ -628,13 +777,17 @@ new #[Layout('layouts::main')] class extends Component {
                                 @if ($module->projects->isNotEmpty())
                                     <div class="ml-10 space-y-1 border-l-2 border-zinc-200 dark:border-zinc-700 pl-4">
                                         @foreach ($module->projects as $project)
-                                            <button wire:click="setProject('{{ $project->id }}')"
+                                            <button type="button" wire:key="formation-project-{{ $project->getKey() }}"
+                                                wire:click="setProject('{{ $project->getKey() }}')"
+                                                wire:loading.attr="disabled" wire:target="setProject"
                                                 class="w-full text-left py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-between group
                                                {{ $activeProject === $project->id ? 'text-emerald-700 dark:text-emerald-300' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
                                                 <span class="flex items-center gap-2">
                                                     <svg class="h-4 w-4 shrink-0 text-emerald-500" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                                     </svg>
                                                     <span class="line-clamp-1">{{ $project->title }}</span>
                                                 </span>
@@ -725,51 +878,83 @@ new #[Layout('layouts::main')] class extends Component {
                 @endif
 
                 {{-- Contenu (module, projet ou vue d'ensemble) avec transition --}}
-                <div wire:transition class="fi-prose max-w-none w-full mb-16 prose-li:my-0 prose-ul:my-1 prose-ol:my-1">
-                    @if ($activeProject)
-                        @php
-                            $project = \App\Models\ModuleProject::find($activeProject);
-                        @endphp
-                        @if ($project)
-                            <h2 class="text-2xl font-bold mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
-                                <svg class="h-6 w-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                                Projet : {{ $project->title }}
-                            </h2>
-                            <div class="prose dark:prose-invert max-w-none">
-                                {!! $project->description !!}
+                <div wire:key="formation-content-{{ $activeProject ?: ($activeModule ?: 'overview') }}"
+                    wire:transition
+                    class="fi-prose max-w-none w-full mb-16 prose-li:my-0 prose-ul:my-1 prose-ol:my-1">
+                    @if ($this->selectedProject)
+                        <h2 class="text-2xl font-bold mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
+                            <svg class="h-6 w-6 text-emerald-500" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Projet : {{ $this->selectedProject->title }}
+                        </h2>
+                        <div class="mb-6 flex flex-wrap gap-3 text-sm">
+                            <span
+                                class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                Délai : {{ $this->selectedProject->deadline_days }} jours
+                            </span>
+                            <span
+                                class="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                                Points : {{ $this->selectedProject->points }} pts
+                            </span>
+                            <span
+                                class="inline-flex items-center gap-2 rounded-full px-3 py-1 {{ $this->selectedProject->is_mandatory ? 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' }}">
+                                {{ $this->selectedProject->is_mandatory ? 'Obligatoire' : 'Optionnel' }}
+                            </span>
+                        </div>
+                        <div class="prose dark:prose-invert max-w-none">
+                            {!! $this->selectedProjectDescription !!}
+                        </div>
+                    @elseif ($this->selectedModule)
+                        <h2 class="text-3xl font-bold mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
+                            <span
+                                class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg">M</span>
+                            {{ $this->selectedModule->title }}
+                        </h2>
+                        <div class="prose dark:prose-invert max-w-none mb-8">
+                            {!! $this->selectedModuleDescription !!}
+                        </div>
+
+                        @if ($this->selectedModule->projects->isNotEmpty())
+                            <h3 class="text-xl font-bold mt-8 mb-4 text-zinc-800 dark:text-zinc-200">Projets de ce
+                                module</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @foreach ($this->selectedModule->projects as $project)
+                                    <button type="button" wire:key="formation-module-project-{{ $project->getKey() }}"
+                                        wire:click="setProject('{{ $project->getKey() }}')"
+                                        wire:loading.attr="disabled" wire:target="setProject"
+                                        class="flex flex-col text-left p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 hover:shadow-md transition-all group bg-zinc-50 dark:bg-zinc-900/50">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <svg class="h-5 w-5 text-emerald-500 group-hover:scale-110 transition-transform"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            </svg>
+                                            <h4 class="font-bold text-zinc-900 dark:text-white line-clamp-1">
+                                                {{ $project->title }}</h4>
+                                        </div>
+                                        <p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                                            {{ Str::limit(strip_tags($project->description ?? ''), 100) }}
+                                        </p>
+                                        <div
+                                            class="mt-4 flex flex-wrap gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                                            <span
+                                                class="rounded-full bg-emerald-100 px-2.5 py-1 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                {{ $project->deadline_days }}j
+                                            </span>
+                                            <span class="rounded-full bg-zinc-100 px-2.5 py-1 dark:bg-zinc-800">
+                                                {{ $project->points }} pts
+                                            </span>
+                                            <span
+                                                class="rounded-full px-2.5 py-1 {{ $project->is_mandatory ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' }}">
+                                                {{ $project->is_mandatory ? 'Obligatoire' : 'Optionnel' }}
+                                            </span>
+                                        </div>
+                                    </button>
+                                @endforeach
                             </div>
-                        @endif
-                    @elseif($activeModule)
-                        @php $module = \App\Models\FormationModule::find($activeModule); @endphp
-                        @if ($module)
-                            <h2 class="text-3xl font-bold mb-4 text-zinc-900 dark:text-white flex items-center gap-2">
-                                <span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg">M</span>
-                                {{ $module->title }}
-                            </h2>
-                            <div class="prose dark:prose-invert max-w-none mb-8">
-                                {!! $module->description !!}
-                            </div>
-                            
-                            @if($module->projects->isNotEmpty())
-                                <h3 class="text-xl font-bold mt-8 mb-4 text-zinc-800 dark:text-zinc-200">Projets de ce module</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @foreach($module->projects as $project)
-                                        <button wire:click="setProject('{{ $project->id }}')" class="flex flex-col text-left p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500 hover:shadow-md transition-all group bg-zinc-50 dark:bg-zinc-900/50">
-                                            <div class="flex items-center gap-2 mb-2">
-                                                <svg class="h-5 w-5 text-emerald-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                                </svg>
-                                                <h4 class="font-bold text-zinc-900 dark:text-white line-clamp-1">{{ $project->title }}</h4>
-                                            </div>
-                                            <p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
-                                                {{ Str::limit(strip_tags($project->description), 100) }}
-                                            </p>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endif
                         @endif
                     @else
                         @if (is_array($formation->content))
@@ -795,7 +980,7 @@ new #[Layout('layouts::main')] class extends Component {
                         </div>
 
                         <div x-data="{
-                            images: {{ $this->galleryJson }},
+                            images: @js($this->galleryImages),
                             lightboxOpen: false,
                             activeIndex: 0,
                             get activeImage() { return this.images[this.activeIndex]; },
@@ -817,7 +1002,7 @@ new #[Layout('layouts::main')] class extends Component {
                             <div class="grid grid-cols-2 gap-4 sm:grid-cols-3">
                                 @foreach ($this->galleryImages as $index => $image)
                                     <button type="button" @click="open({{ $index }})"
-                                        class="group relative aspect-square cursor-zoom-in overflow-hidden rounded-xl border border-zinc-200/50 bg-zinc-100 transition-all duration-300 hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-500/10 dark:border-zinc-700/50 dark:bg-zinc-800 dark:hover:border-emerald-600">
+                                        class="group relative aspect-square cursor-zoom-in overflow-hidden rounded-xl border border-zinc-200/50 bg-zinc-100 transition-all duration-300 hover:shadow  dark:border-zinc-700/50 dark:bg-zinc-800">
                                         <img loading="eager" src="{{ $image['thumb'] }}" alt="{{ $image['alt'] }}"
                                             class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110">
                                         <div
@@ -906,12 +1091,12 @@ new #[Layout('layouts::main')] class extends Component {
                                                     d="M9 5l7 7-7 7" />
                                             </svg></button>
                                     </div>
-                                    <div class="shrink-0 border-t border-white/10 bg-zinc-900/60 px-4 py-3">
+                                    <div class="shrink-0 border-t border-white/10 bg-zinc-900/60 px-4 py-4">
                                         <div class="flex items-center justify-center gap-2 overflow-x-auto pb-1">
                                             <template x-for="(img, i) in images" :key="i">
                                                 <button type="button" @click="activeIndex = i"
                                                     :class="activeIndex === i ?
-                                                        'ring-2 ring-emerald-400 ring-offset-2 ring-offset-zinc-950 opacity-100 scale-105' :
+                                                        'opacity-100 scale-105' :
                                                         'opacity-40 hover:opacity-75'"
                                                     class="relative h-14 w-14 shrink-0 overflow-hidden rounded-md transition-all duration-200"><img
                                                         :src="img.thumb" :alt="img.alt || ''"
@@ -1042,6 +1227,65 @@ new #[Layout('layouts::main')] class extends Component {
                             </li>
                         </ul>
                     </div>
+
+                    {{-- Évaluations disponibles --}}
+                    @if ($formation->assessments->isNotEmpty())
+                        <div
+                            class="rounded-2xl border border-emerald-200/70 bg-emerald-50/80 p-5 shadow-sm dark:border-emerald-900/50 dark:bg-emerald-950/20">
+                            <div class="mb-4 flex items-start justify-between gap-3">
+                                <div class="flex min-w-0 items-start gap-3">
+                                    <span
+                                        class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm dark:bg-emerald-500">
+                                        <svg class="size-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 12c0 5.591 3.824 10.291 9 11.622C17.176 22.291 21 17.591 21 12c0-1.39-.236-2.725-.672-3.968" />
+                                        </svg>
+                                    </span>
+                                    <div class="min-w-0">
+                                        <h3 class="text-sm font-bold text-emerald-900 dark:text-emerald-100">
+                                            Évaluations disponibles</h3>
+                                        <p class="mt-1 text-xs leading-relaxed text-emerald-800/80 dark:text-emerald-200/80">
+                                            Passez le test ou consultez les questions liées à cette formation.</p>
+                                    </div>
+                                </div>
+                                <span
+                                    class="inline-flex shrink-0 items-center rounded-full bg-emerald-600 px-2.5 py-1 text-2xs font-bold text-white dark:bg-emerald-500">
+                                    {{ $formation->assessments->count() }}
+                                </span>
+                            </div>
+
+                            <div class="flex flex-col gap-2.5">
+                                @foreach ($formation->assessments as $assessment)
+                                    <a href="{{ route('assessments.take', $assessment) }}" wire:navigate
+                                        class="group rounded-xl border border-emerald-200/80 bg-white/80 p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-white hover:shadow-sm dark:border-emerald-800/70 dark:bg-zinc-900/70 dark:hover:border-emerald-600 dark:hover:bg-emerald-950/50">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <h4
+                                                class="min-w-0 text-sm font-semibold leading-snug text-zinc-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-300">
+                                                {{ $assessment->title }}</h4>
+                                            <svg class="mt-0.5 size-4 shrink-0 text-emerald-500 transition-transform group-hover:translate-x-0.5"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
+                                        <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                                            {{ \Illuminate\Support\Str::limit($assessment->description, 110) }}</p>
+                                        <div class="mt-3 flex flex-wrap items-center gap-1.5 text-2xs text-zinc-500 dark:text-zinc-400">
+                                            <span
+                                                class="rounded-full bg-emerald-100 px-2 py-1 font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                                {{ ucfirst($assessment->type) }}</span>
+                                            @if ($assessment->duration_minutes)
+                                                <span class="rounded-full bg-zinc-100 px-2 py-1 dark:bg-zinc-800">
+                                                    {{ $assessment->duration_minutes }} min</span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Documents PDF --}}
                     @if ($this->hasPdf)
@@ -1242,9 +1486,12 @@ new #[Layout('layouts::main')] class extends Component {
     <flux:modal wire:model="showRegistrationModal" variant="floating" class="w-full max-w-xl" scroll="body">
         <div class="space-y-7">
             <div class="flex items-start gap-4">
-                <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                    <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14.25a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0 0c-4.142 0-7.5 1.679-7.5 3.75M12 14.25c4.142 0 7.5 1.679 7.5 3.75M19.5 9.75a3 3 0 10-2.357-4.86M4.5 9.75a3 3 0 112.357-4.86" />
+                <div
+                    class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    <svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                            d="M12 14.25a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0 0c-4.142 0-7.5 1.679-7.5 3.75M12 14.25c4.142 0 7.5 1.679 7.5 3.75M19.5 9.75a3 3 0 10-2.357-4.86M4.5 9.75a3 3 0 112.357-4.86" />
                     </svg>
                 </div>
                 <div class="min-w-0">
@@ -1252,7 +1499,8 @@ new #[Layout('layouts::main')] class extends Component {
                     <flux:text class="mt-1" variant="subtle">
                         Votre demande sera examinée avant confirmation définitive.
                     </flux:text>
-                    <p class="mt-2 truncate text-sm font-semibold text-zinc-900 dark:text-white" title="{{ $formation->title }}">
+                    <p class="mt-2 truncate text-sm font-semibold text-zinc-900 dark:text-white"
+                        title="{{ $formation->title }}">
                         {{ $formation->title }}
                     </p>
                 </div>
@@ -1261,12 +1509,17 @@ new #[Layout('layouts::main')] class extends Component {
             <flux:separator variant="subtle" />
 
             <div class="grid gap-3 sm:grid-cols-2">
-                <div class="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-800/60">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Format</p>
-                    <p class="mt-1 font-semibold text-zinc-900 dark:text-white">{{ $formation->delivery_mode_label }}</p>
+                <div
+                    class="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-800/60">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Format
+                    </p>
+                    <p class="mt-1 font-semibold text-zinc-900 dark:text-white">{{ $formation->delivery_mode_label }}
+                    </p>
                 </div>
-                <div class="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-800/60">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Tarif</p>
+                <div
+                    class="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-800/60">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Tarif
+                    </p>
                     <p class="mt-1 font-semibold text-zinc-900 dark:text-white">
                         {{ $formation->price !== null ? \Illuminate\Support\Number::currency((float) $formation->price, $formation->currency, locale: 'fr') : 'Gratuit' }}
                     </p>
@@ -1274,34 +1527,32 @@ new #[Layout('layouts::main')] class extends Component {
             </div>
 
             @if ($formation->payment_instructions && $formation->price !== null)
-                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+                <div
+                    class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
                     <p class="font-semibold">Instructions de paiement</p>
                     <p class="mt-2 whitespace-pre-line leading-relaxed">{{ $formation->payment_instructions }}</p>
                 </div>
             @endif
 
             <form wire:submit="register" class="space-y-6">
-                <flux:textarea
-                    wire:model="registrationMessage"
-                    label="Message complémentaire"
-                    description="Facultatif : niveau, attentes ou contraintes particulières."
-                    rows="4"
-                    placeholder="Écrivez votre message…"
-                />
-                <flux:error name="registrationMessage" />
+                <flux:textarea wire:model="registrationMessage" label="Message complémentaire"
+                    description="Facultatif : niveau, attentes ou contraintes particulières." rows="4"
+                    placeholder="Écrivez votre message…" />
 
                 <div class="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-700">
-                    <flux:checkbox wire:model="termsAccepted" label="J’accepte les conditions d’inscription et le traitement de mes données." />
-                    <flux:error name="termsAccepted" class="mt-2" />
+                    <flux:checkbox wire:model="termsAccepted"
+                        label="J’accepte les conditions d’inscription et le traitement de mes données." />
                 </div>
 
                 <flux:error name="registration" />
 
-                <div class="flex flex-col-reverse gap-3 border-t border-zinc-200 pt-5 sm:flex-row sm:justify-end dark:border-zinc-700">
+                <div
+                    class="flex flex-col-reverse gap-3 border-t border-zinc-200 pt-5 sm:flex-row sm:justify-end dark:border-zinc-700">
                     <flux:modal.close>
                         <flux:button variant="ghost" type="button" class="w-full sm:w-auto">Annuler</flux:button>
                     </flux:modal.close>
-                    <flux:button variant="primary" type="submit" class="w-full sm:w-auto" wire:loading.attr="disabled" wire:target="register">
+                    <flux:button variant="primary" type="submit" class="w-full sm:w-auto"
+                        wire:loading.attr="disabled" wire:target="register">
                         <span wire:loading.remove wire:target="register">Envoyer ma demande</span>
                         <span wire:loading wire:target="register">Envoi en cours…</span>
                     </flux:button>
@@ -1309,4 +1560,12 @@ new #[Layout('layouts::main')] class extends Component {
             </form>
         </div>
     </flux:modal>
+
+    @script
+        <script>
+            if (window.hljs && typeof window.hljs.highlightAll === 'function') {
+                window.hljs.highlightAll();
+            }
+        </script>
+    @endscript
 </div>

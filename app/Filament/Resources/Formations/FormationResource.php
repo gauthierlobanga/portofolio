@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Formations;
 
+use App\Enums\NavigationGroup;
 use App\Filament\Resources\Comments\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\Formations\Pages\CreateFormation;
 use App\Filament\Resources\Formations\Pages\EditFormation;
@@ -11,10 +12,8 @@ use App\Filament\Resources\Formations\RelationManagers\RegistrationsRelationMana
 use App\Filament\Resources\Formations\Schemas\FormationForm;
 use App\Filament\Resources\Formations\Tables\FormationsTable;
 use App\Models\Formation;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,9 +23,7 @@ class FormationResource extends Resource
 {
     protected static ?string $model = Formation::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
-
-    protected static string|UnitEnum|null $navigationGroup = 'Portofolio';
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::Content;
 
     protected static ?string $recordTitleAttribute = 'title';
 

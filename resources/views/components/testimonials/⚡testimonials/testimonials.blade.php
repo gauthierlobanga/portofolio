@@ -24,7 +24,8 @@
             <h2
                 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-zinc-900 dark:text-white">
                 {{ $this->about->testimonial_subtitle ?? 'Ce que disent' }}<br />
-                <span class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">nos clients et partenaires</span>
+                <span class="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">nos clients et
+                    partenaires</span>
             </h2>
             <div class="mt-6 h-1 w-20 rounded-full bg-linear-to-r from-emerald-500 to-teal-500 mx-auto"></div>
         </div>
@@ -38,8 +39,8 @@
                         <header class="flex items-start justify-between gap-4">
                             <div class="flex min-w-0 items-center gap-3">
                                 @if ($testimonial->photo_url)
-                                    <img loading="eager" decoding="async" src="{{ $testimonial->photo_url }}" alt="{{ $testimonial->name }}" aria-hidden="true"
-                                        loading="eager"
+                                    <img loading="eager" decoding="async" src="{{ $testimonial->photo_url }}"
+                                        alt="{{ $testimonial->name }}" aria-hidden="true" loading="eager"
                                         class="object-cover size-10 rounded-full sm:size-12 ring-2 ring-zinc-100 dark:ring-zinc-800" />
                                 @else
                                     <div
@@ -54,7 +55,9 @@
                                         {{ $testimonial->name }}
                                     </cite>
                                     <p class="text-pretty text-sm sm:text-base text-zinc-500 dark:text-zinc-400">
-                                        {{ $testimonial->role }} @if($testimonial->company) • {{ $testimonial->company }} @endif
+                                        {{ $testimonial->role }} @if ($testimonial->company)
+                                            • {{ $testimonial->company }}
+                                        @endif
                                     </p>
                                 </div>
                             </div>
@@ -77,8 +80,41 @@
                         </blockquote>
                     </article>
                 @empty
-                    <div class="col-span-full text-center py-12">
-                        <p class="text-zinc-500 dark:text-zinc-400">Aucun Témoignage pour le moment.</p>
+                    <div class="col-span-full flex flex-col items-center justify-center py-16 lg:py-24">
+                        <div
+                            class="relative flex flex-col items-center gap-6 rounded-3xl border border-dashed border-zinc-300/70 bg-zinc-50/60 px-8 py-12 text-center backdrop-blur-sm dark:border-zinc-700/60 dark:bg-zinc-900/60">
+                            {{-- Icône décorative --}}
+                            <div
+                                class="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 shadow-sm dark:bg-emerald-900/30">
+                                <svg class="h-10 w-10 text-emerald-600 dark:text-emerald-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                        d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                </svg>
+                            </div>
+
+                            <div class="space-y-2">
+                                <h3 class="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
+                                    Aucun témoignage pour le moment
+                                </h3>
+                                <p class="max-w-md text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+                                    Les avis et retours de nos clients seront affichés ici.
+                                    Revenez bientôt pour découvrir leurs expériences.
+                                </p>
+                            </div>
+
+                            {{-- Bouton d’action (visible uniquement pour les admins par exemple) --}}
+                            @if (Auth::check() && Auth::user()->hasRole('super_admin'))
+                                <a href="{{ route('filament.admin.resources.testimonials.create') }}"
+                                    class="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:bg-emerald-700 hover:shadow-emerald-500/40">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Ajouter un témoignage
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 @endforelse
             </div>

@@ -68,10 +68,14 @@
                             $progress = $total > 0 ? min(100, intval(($elapsed / $total) * 100)) : 0;
                         }
                     }
+                    
+                    $isApproved = $registration->status === 'approved' && $registration->payment_status === 'paid';
                 @endphp
 
-                <a href="{{ route('formations.show', $formation) }}" wire:navigate wire:key="widget-reg-{{ $registration->id }}"
-                    class="group flex flex-col gap-3 rounded-2xl border border-black/5 bg-zinc-50/50 p-4 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-md dark:border-white/5 dark:bg-white/5 dark:hover:border-emerald-800 dark:hover:bg-white/10">
+                <a href="{{ $isApproved ? route('formations.show', $formation) : '#' }}" 
+                    @if(!$isApproved) wire:click.prevent="notifyNotApproved" @else wire:navigate @endif
+                    wire:key="widget-reg-{{ $registration->id }}"
+                    class="group flex flex-col gap-3 rounded-2xl border border-black/5 bg-zinc-50/50 p-4 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-md dark:border-white/5 dark:bg-white/5 dark:hover:border-emerald-800 dark:hover:bg-white/10 {{ !$isApproved ? 'opacity-70 cursor-not-allowed' : '' }}">
 
                     <div class="flex items-start gap-3">
                         {{-- Thumbnail ou icône --}}

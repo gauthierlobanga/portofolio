@@ -15,6 +15,24 @@ class EditPost extends EditRecord
 {
     protected static string $resource = PostResource::class;
 
+    protected ?string $primaryCategory = null;
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->primaryCategory = $data['primary_category'] ?? null;
+
+        unset($data['primary_category']);
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        if ($this->record) {
+            $this->record->syncPrimaryCategory($this->primaryCategory);
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -24,7 +42,7 @@ class EditPost extends EditRecord
         ];
     }
 
-    protected function getCreatedNotification(): ?Notification
+    protected function getSavedNotification(): ?Notification
     {
         $post = $this->record;
 
@@ -35,7 +53,7 @@ class EditPost extends EditRecord
             ->actions([
                 Action::make('view')
                     ->button()
-                    ->url(route('tenant.blog.show', $post), shouldOpenInNewTab: true),
+                    ->url(route('posts.show', $post), shouldOpenInNewTab: true),
                 Action::make('undo')
                     ->color('gray')
                     ->dispatch('undoEditingPost', [$post->id])

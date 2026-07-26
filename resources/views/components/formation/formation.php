@@ -24,7 +24,7 @@ new #[Layout('layouts::main')] class extends Component
     {
         return Formation::query()
             ->with(['category', 'media', 'user'])
-            ->where('is_active', true)
+            ->published()
             ->when($this->search, fn ($q) => $q->where(function ($query) {
                 $query->where('title', 'like', '%'.$this->search.'%')
                     ->orWhere('excerpt', 'like', '%'.$this->search.'%')

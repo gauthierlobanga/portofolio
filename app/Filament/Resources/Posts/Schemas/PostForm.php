@@ -333,6 +333,8 @@ class PostForm
                                             ->pluck('nom', 'id')
                                             ->toArray()
                                     )
+                                    ->default(fn ($record): ?string => $record?->getPrimaryCategoryId())
+                                    ->dehydrated(false)
                                     ->preload()
                                     ->searchable()
                                     ->visible(fn (Get $get): bool => count($get('categories') ?? []) > 0)

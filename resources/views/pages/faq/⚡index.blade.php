@@ -167,7 +167,7 @@ new #[Layout('layouts::main')] class extends Component
             @forelse ($this->faqs as $faq)
                 <article
                     wire:key="faq-{{ $faq->id }}"
-                    class="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-sm transition hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-800"
+                    class="overflow-hidden rounded border border-zinc-200/80 bg-white transition hover:border-emerald-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-emerald-800"
                 >
                     <button
                         type="button"
@@ -208,7 +208,7 @@ new #[Layout('layouts::main')] class extends Component
                     </div>
                 </article>
             @empty
-                <div class="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-16 text-center dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="rounded border border-dashed border-zinc-300 bg-white px-6 py-16 text-center dark:border-zinc-700 dark:bg-zinc-900">
                     <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
                         <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 9a2.5 2.5 0 1 1 4.7 1.2c-.6.9-1.7 1.2-2.2 2.1-.2.3-.3.7-.3 1.2M12 17.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Post;
+use App\Models\PostCategory;
 use App\Models\Service;
 use App\Models\User;
 
@@ -38,4 +39,30 @@ it('exposes its service relationship', function () {
     $post->services()->attach($service);
 
     expect($post->services()->whereKey($service->id)->exists())->toBeTrue();
+});
+
+it('can sync the primary category pivot', function () {
+    $post = Post::factory()->create();
+    $categoryOne = PostCategory::create([
+        'nom' => 'Category One',
+        'slug' => 'category-one',
+    ]);
+    $categoryTwo = PostCategory::create([
+        'nom' => 'Category Two',
+        'slug' => 'category-two',
+    ]);
+
+    $post->categories()->attach([$categoryOne->id, $categoryTwo->id]);
+
+    $post->syncPrimaryCategory($categoryOne->id);
+    $post->refresh();
+
+    expect($post->categories()->wherePivot('est_principale', true)->pluck('posts_categories.id')->all())
+        ->toEqual([$categoryOne->id]);
+
+    $post->syncPrimaryCategory($categoryTwo->id);
+    $post->refresh();
+
+    expect($post->categories()->wherePivot('est_principale', true)->pluck('posts_categories.id')->all())
+        ->toEqual([$categoryTwo->id]);
 });

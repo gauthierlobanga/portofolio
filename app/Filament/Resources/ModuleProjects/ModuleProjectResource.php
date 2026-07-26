@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ModuleProjects;
 
+use App\Enums\NavigationGroup;
 use App\Filament\Resources\ModuleProjects\Pages\CreateModuleProject;
 use App\Filament\Resources\ModuleProjects\Pages\EditModuleProject;
 use App\Filament\Resources\ModuleProjects\Pages\ListModuleProjects;
@@ -9,19 +10,16 @@ use App\Filament\Resources\ModuleProjects\RelationManagers\SubmissionsRelationMa
 use App\Filament\Resources\ModuleProjects\Schemas\ModuleProjectForm;
 use App\Filament\Resources\ModuleProjects\Tables\ModuleProjectsTable;
 use App\Models\ModuleProject;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ModuleProjectResource extends Resource
 {
     protected static ?string $model = ModuleProject::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBeaker;
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Portofolio';
+    protected static string|UnitEnum|null $navigationGroup = NavigationGroup::Content;
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -49,5 +47,15 @@ class ModuleProjectResource extends Resource
             'create' => CreateModuleProject::route('/create'),
             'edit' => EditModuleProject::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() > 10 ? 'success' : 'warning';
     }
 }

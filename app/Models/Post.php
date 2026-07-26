@@ -978,6 +978,7 @@ class Post extends Model implements Feedable, HasMedia, HasRichContent, Sitemapa
         }
 
         return self::published()
+            ->with(['categories', 'media', 'user'])
             ->where('id', '!=', $this->id)
             ->whereHas('categories', fn ($q) => $q->whereIn('posts_categories.id', $categoryIds))
             ->orderBy('published_at', 'desc')

@@ -157,6 +157,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasMedia,
         return $this->hasMany(UserProjectSubmission::class);
     }
 
+    public function assessmentAttempts(): HasMany
+    {
+        return $this->hasMany(UserAssessmentAttempt::class);
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);

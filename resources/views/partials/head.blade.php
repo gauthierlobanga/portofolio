@@ -97,6 +97,50 @@ if (!isset($schema)) {
     .no-transition * {
         transition: none !important;
     }
+
+/* Livewire View Transition styles for `content` group and types forward/backward */
+::view-transition-old(content) {
+    animation: 300ms ease-out both slide-out-left;
+}
+
+::view-transition-new(content) {
+    animation: 300ms ease-in both slide-in-right;
+}
+
+html:active-view-transition-type(forward) {
+    &::view-transition-old(content) {
+        animation: 300ms ease-out both slide-out-left;
+    }
+    &::view-transition-new(content) {
+        animation: 300ms ease-in both slide-in-right;
+    }
+}
+
+html:active-view-transition-type(backward) {
+    &::view-transition-old(content) {
+        animation: 300ms ease-out both slide-out-right;
+    }
+    &::view-transition-new(content) {
+        animation: 300ms ease-in both slide-in-left;
+    }
+}
+
+@keyframes slide-out-left {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-100%); opacity: 0; }
+}
+@keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slide-out-right {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slide-in-left {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
 </style>
 
 @fonts
@@ -105,3 +149,110 @@ if (!isset($schema)) {
 @livewireStyles
 @stack('styles')
 
+<style>
+    /* Disable page scroll when `.no-scroll` is applied */
+    .no-scroll, .no-scroll body {
+        overflow: hidden !important;
+        height: 100% !important;
+        width: 100% !important;
+        position: static !important;
+    }
+</style>
+
+<script>
+    (function () {
+        const KEY = 'preserveScrollY';
+
+        // Only act when the clicked actionable element (anchor/button) itself
+        // has the data-preserve-scroll attribute. This avoids capturing clicks
+        // inside sections that happen to carry the attribute on a parent.
+        document.addEventListener('click', function (e) {
+            // Find the actionable element the user actually clicked (anchor or button)
+            const actionable = e.target.closest('a[href], button[type="button"], [role="button"]');
+            if (!actionable) return;
+
+            if (!actionable.hasAttribute('data-preserve-scroll')) return;
+
+            // If this is a programmatic click triggered by the view-transition flow,
+            // allow the default action to proceed (do nothing).
+            if (actionable.dataset.vtPending === '1') {
+                delete actionable.dataset.vtPending;
+                return;
+            }
+
+            // Only handle same-origin links (external links should behave normally)
+            if (actionable.tagName.toLowerCase() === 'a') {
+                const href = actionable.getAttribute('href') || '';
+                if (/^\w+:\/\//.test(href)) {
+                    try {
+                        const url = new URL(href, location.href);
+                        if (url.origin !== location.origin) return; // external
+                    } catch (err) {
+                        // if URL parse fails, allow default
+                    }
+                }
+            }
+
+            e.preventDefault();
+
+            const href = actionable.getAttribute('href');
+            try {
+                sessionStorage.setItem(KEY, String(window.scrollY || window.pageYOffset || 0));
+            } catch (err) {
+                // ignore storage errors
+            }
+
+            // lock scrolling visually while transitioning
+            document.documentElement.classList.add('no-scroll');
+
+            const navigate = () => {
+                try {
+                    // Mark as pending so our handler ignores the programmatic click
+                    actionable.dataset.vtPending = '1';
+                    // Trigger the native click event so Livewire's wire:navigate handlers
+                    // (if present) will receive it and perform their client-side navigation.
+                    // Using a timeout lets the dataset flag set before the event fires.
+                    setTimeout(() => actionable.click(), 0);
+                } catch (err) {
+                    // Fallback to full navigation
+                    if (href) window.location.href = href;
+                }
+            };
+
+            if (typeof document.startViewTransition === 'function') {
+                try {
+                    document.startViewTransition(() => {
+                        navigate();
+                    });
+                } catch (err) {
+                    navigate();
+                }
+            } else {
+                navigate();
+            }
+        }, true);
+
+        // On page load, restore scroll position if present and remove the lock
+        window.addEventListener('DOMContentLoaded', function () {
+            try {
+                const v = sessionStorage.getItem(KEY);
+                if (v !== null) {
+                    const y = parseInt(v, 10) || 0;
+                    // Use setTimeout to wait for layout to stabilize if needed
+                    setTimeout(() => {
+                        window.scrollTo({ top: y, left: 0, behavior: 'auto' });
+                        window.dispatchEvent(new Event('scroll'));
+                        try { sessionStorage.removeItem(KEY); } catch (e) {}
+                    }, 5);
+                }
+            } catch (err) {
+                // ignore
+            }
+
+            // Ensure lock is removed after load
+            document.documentElement.classList.remove('no-scroll');
+        });
+    })();
+</script>
+
+    

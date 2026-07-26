@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-    <section class="px-5 py-8 xs:px-8 md:p-10 mx-auto max-w-7xl lg:px-12">
+    <section class="px-5 py-8 xs:px-8 md:p-6 mx-auto max-w-7xl lg:px-12">
         <div class="mb-16 max-w-3xl" x-data="cspState" x-intersect="shown = true">
             @if ($this->about->project_hero_badge)
                 <p class="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 transition-all duration-300 delay-100 ease-out"

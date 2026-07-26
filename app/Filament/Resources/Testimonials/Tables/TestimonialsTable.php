@@ -2,6 +2,10 @@
 
 namespace App\Filament\Resources\Testimonials\Tables;
 
+use App\Models\Testimonial;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -69,12 +73,73 @@ class TestimonialsTable
             ->recordActions([
                 EditAction::make()->iconButton(),
                 DeleteAction::make()->iconButton(),
+                ActionGroup::make([
+                    Action::make('activate')
+                        ->label('Activer')
+                        ->icon('heroicon-m-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Activer le témoignage')
+                        ->modalDescription('Êtes-vous sûr de vouloir activer ce témoignage ?')
+                        ->visible(fn (Testimonial $record): bool => ! $record->is_active)
+                        ->action(fn (Testimonial $record) => $record->update(['is_active' => true])),
+
+                    Action::make('deactivate')
+                        ->label('Désactiver')
+                        ->icon('heroicon-m-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Désactiver le témoignage')
+                        ->modalDescription('Êtes-vous sûr de vouloir désactiver ce témoignage ?')
+                        ->visible(fn (Testimonial $record): bool => $record->is_active)
+                        ->action(fn (Testimonial $record) => $record->update(['is_active' => false])),
+                ])
+                    ->label('Plus')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->size('sm')
+                    ->button()
+                    ->color('gray'),
             ])
             ->toolbarActions([
+                Action::make('activateAll')
+                    ->label('Activer tout')
+                    ->icon('heroicon-m-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Activer tous les témoignages')
+                    ->modalDescription('Êtes-vous sûr de vouloir activer tous les témoignages ?')
+                    ->action(fn () => Testimonial::query()->update(['is_active' => true])),
+
+                Action::make('deactivateAll')
+                    ->label('Désactiver tout')
+                    ->icon('heroicon-m-x-circle')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Désactiver tous les témoignages')
+                    ->modalDescription('Êtes-vous sûr de vouloir désactiver tous les témoignages ?')
+                    ->action(fn () => Testimonial::query()->update(['is_active' => false])),
+
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
+                    BulkAction::make('activate')
+                        ->label('Activer les sélectionnés')
+                        ->icon('heroicon-m-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Activer les témoignages sélectionnés')
+                        ->modalDescription('Êtes-vous sûr de vouloir activer tous les témoignages sélectionnés ?')
+                        ->action(fn ($records) => $records->each->update(['is_active' => true])),
+
+                    BulkAction::make('deactivate')
+                        ->label('Désactiver les sélectionnés')
+                        ->icon('heroicon-m-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Désactiver les témoignages sélectionnés')
+                        ->modalDescription('Êtes-vous sûr de vouloir désactiver tous les témoignages sélectionnés ?')
+                        ->action(fn ($records) => $records->each->update(['is_active' => false])),
                 ]),
             ])
             ->emptyStateHeading('Aucun témoignage')

@@ -41,7 +41,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
         }
 
         $formations = $this->search === ''
-            ? $this->applyFormationFilters(Formation::query())->paginate(9)
+            ? $this->applyFormationFilters(Formation::query())->paginate(12)
             : Formation::search($this->search)
                 ->query(fn (Builder $query): Builder => $this->applyFormationFilters($query))
                 ->paginate(9);
@@ -124,7 +124,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
     <x-formations-banner :stats="$this->stats" :about="$this->about" />
 
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
-    @island
+
         <section id="scroll-to-reference" data-preserve-scroll x-data="{ showFilters: false, sortOpen: false }"
             @keydown.window.slash="if (!$event.target.matches('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.searchInput.focus() }"
             aria-label="Recherche et filtres des formations"
@@ -333,10 +333,10 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
             </div>
 
             {{-- ========== SECTION GRILLE  ========== --}}
-            <div wire:loading.class="opacity-50 pointer-events-none"
+            <div id="formations-list" wire:loading.class="opacity-50 pointer-events-none"
                 wire:target="search,category,sort,clearFilters,gotoPage,nextPage,previousPage"
                 wire:transition
-                class="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-start gap-7 transition-opacity duration-300"
+                class="mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-fr items-start gap-7 transition-opacity duration-300"
                 aria-label="Liste des formations">
                 @forelse ($formations as $formation)
                     <a wire:navigate href="{{ route('formations.show', $formation) }}"
@@ -374,13 +374,13 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                                     @endif
                                 </div>
                             </div>
-                            
+
                             <h3 class="mt-2 text-lg font-bold text-zinc-900 transition-colors duration-300 group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
                                 {{ $formation->title }}
                             </h3>
-                            
+
                             <p class="flex-1 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                                {{ $formation->getPlainTextContent(120) }}
+                                {{ $formation->getPlainTextContent(100) }}
                             </p>
 
                             <div class="mt-4 flex flex-wrap items-center gap-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -459,7 +459,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
             </div>
 
         </section>
-    @endisland
+
 </div>
 
 @placeholder
@@ -480,14 +480,14 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                 <div class="h-8 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
                 <div class="h-4 w-72 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
             </div>
-            
+
             <div class="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center">
                 <div class="h-10 w-24 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
                 <div class="h-10 grow bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
             </div>
 
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-                @for ($i = 0; $i < 6; $i++)
+            <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">
+                @for ($i = 0; $i < 8; $i++)
                     <div class="flex h-96 flex-col border border-zinc-200/50 bg-white dark:border-zinc-700/60 dark:bg-zinc-900 rounded-xl overflow-hidden">
                         <div class="aspect-video w-full bg-zinc-200 dark:bg-zinc-800"></div>
                         <div class="flex flex-1 flex-col gap-4 p-4">

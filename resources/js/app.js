@@ -64,7 +64,8 @@ document.addEventListener("alpine:init", () => {
                     active = false;
                     // Restaure la position après le morph
                     requestAnimationFrame(() => {
-                        window.scrollTo({ top: savedY, behavior: "instant" });
+                        window.scrollTo({ top: savedY, behavior: "auto" });
+                        window.dispatchEvent(new Event("scroll"));
                     });
                 });
             },
@@ -195,6 +196,53 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
+    Alpine.data('codeEditor', (questionId, initialCode = '') => ({
+        questionId,
+        editor: null,
+        initialCode,
+        editorLoaded: false,
+
+        init() {
+            const loadEditor = () => {
+                if (! window.ace) {
+                    return;
+                }
+
+                const editorId = `editor_container_${this.questionId}`;
+                this.editor = window.ace.edit(editorId);
+                this.editor.setTheme('ace/theme/monokai');
+                this.editor.session.setMode('ace/mode/php');
+                this.editor.setOptions({
+                    fontSize: '14px',
+                    showPrintMargin: false,
+                    enableBasicAutocompletion: true,
+                    enableLiveAutocompletion: true,
+                });
+
+                this.editor.setValue(this.initialCode || '', -1);
+                this.editorLoaded = true;
+
+                this.editor.getSession().on('change', () => {
+                    if (this.$wire) {
+                        this.$wire.set(`answers.${this.questionId}`, this.editor.getValue());
+                    }
+                });
+            };
+
+            if (typeof window.ace === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.js';
+                script.onload = loadEditor;
+                script.onerror = () => {
+                    console.error('Ace editor failed to load.');
+                };
+                document.head.appendChild(script);
+            } else {
+                loadEditor();
+            }
+        },
+    }));
+
     // filamentSection (déjà présente, mais assurez-vous qu'elle est bien là)
     // Si elle n'existe pas, ajoutez-la :
     if (!Alpine.data("filamentSection")) {
@@ -305,6 +353,82 @@ document.addEventListener("alpine:init", () => {
         },
         scrollToTop() {
             window.scrollTo({ top: 0, behavior: "smooth" });
+        },
+    }));
+
+    Alpine.data("scrollToBottomButton", () => ({
+        init() {
+            this.$nextTick(() => {
+                const link = this.$el; // l'élément racine est le <a>
+                if (!link) return;
+
+                const textWrapper = link.querySelector("[data-text]");
+                const arrow = link.querySelector("svg");
+
+                if (
+                    typeof window.SplitText !== "undefined" &&
+                    typeof window.gsap !== "undefined"
+                ) {
+                    try {
+                        const split = new window.SplitText(textWrapper, {
+                            type: "chars",
+                        });
+                        const chars = split.chars;
+                        const tl = window.gsap.timeline({ paused: true });
+                        // Animation vers le bas (descend puis remonte)
+                        tl.to(chars, {
+                            keyframes: [
+                                {
+                                    y: 10,
+                                    opacity: 0,
+                                    duration: 0.2,
+                                    ease: "power2.in",
+                                },
+                                { y: -10, opacity: 0, duration: 0 },
+                                {
+                                    y: 0,
+                                    opacity: 1,
+                                    duration: 0.2,
+                                    ease: "power2.out",
+                                },
+                            ],
+                            stagger: 0.02,
+                        });
+                        tl.to(
+                            arrow,
+                            {
+                                keyframes: [
+                                    {
+                                        y: 30,
+                                        duration: 0.25,
+                                        ease: "power2.in",
+                                    },
+                                    { y: -30, duration: 0 },
+                                    {
+                                        y: 0,
+                                        duration: 0.25,
+                                        ease: "power2.out",
+                                    },
+                                ],
+                            },
+                            0.1,
+                        );
+                        link.addEventListener("mouseenter", () => tl.play());
+                        link.addEventListener("mouseleave", () => tl.reverse());
+                    } catch (e) {
+                        console.warn(
+                            "GSAP animation failed (scroll-to-bottom button)",
+                            e,
+                        );
+                    }
+                }
+            });
+        },
+        scrollToBottom() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: "smooth",
+            });
         },
     }));
 
@@ -1122,15 +1246,23 @@ document.addEventListener("alpine:init", () => {
                         scale: 1.05,
                     });
 
-                    tl.to(refs.bgImage, {
-                        scale: 1,
-                        duration: 1.2,
-                        ease: "power3.out",
-                    }, 0);
+                    tl.to(
+                        refs.bgImage,
+                        {
+                            scale: 1,
+                            duration: 1.2,
+                            ease: "power3.out",
+                        },
+                        0,
+                    );
                 }
 
                 if (refs.title) {
-                    tl.from(refs.title, { y: 26, opacity: 0, duration: 0.5 }, 0.15);
+                    tl.from(
+                        refs.title,
+                        { y: 26, opacity: 0, duration: 0.5 },
+                        0.15,
+                    );
                 }
 
                 const authorElement = getAuthorElement();
@@ -1138,7 +1270,9 @@ document.addEventListener("alpine:init", () => {
                     let authorSplit = null;
                     try {
                         if (typeof SplitText !== "undefined") {
-                            authorSplit = new SplitText(authorElement, { type: "words" });
+                            authorSplit = new SplitText(authorElement, {
+                                type: "words",
+                            });
                         }
                     } catch (error) {
                         authorSplit = null;
@@ -1159,7 +1293,12 @@ document.addEventListener("alpine:init", () => {
                     } else {
                         tl.from(
                             refs.author,
-                            { opacity: 0, y: 12, duration: 0.35, ease: "power2.out" },
+                            {
+                                opacity: 0,
+                                y: 12,
+                                duration: 0.35,
+                                ease: "power2.out",
+                            },
                             "-=0.25",
                         );
                     }
@@ -1176,7 +1315,12 @@ document.addEventListener("alpine:init", () => {
                 if (refs.buttons) {
                     tl.from(
                         refs.buttons,
-                        { opacity: 0, y: 10, duration: 0.35, ease: "power2.out" },
+                        {
+                            opacity: 0,
+                            y: 10,
+                            duration: 0.35,
+                            ease: "power2.out",
+                        },
                         "-=0.15",
                     );
                 }
@@ -1259,12 +1403,15 @@ document.addEventListener("alpine:init", () => {
                     0,
                 );
             }
-            const authorElement = this.$refs.author?.querySelector?.("p") || this.$refs.author;
+            const authorElement =
+                this.$refs.author?.querySelector?.("p") || this.$refs.author;
             let authorSplit = null;
             if (authorElement) {
                 try {
                     if (typeof SplitText !== "undefined") {
-                        authorSplit = new SplitText(authorElement, { type: "words" });
+                        authorSplit = new SplitText(authorElement, {
+                            type: "words",
+                        });
                     }
                 } catch (error) {
                     authorSplit = null;
@@ -1342,12 +1489,15 @@ document.addEventListener("alpine:init", () => {
                     0,
                 );
             }
-            const authorElement = this.$refs.author?.querySelector?.("p") || this.$refs.author;
+            const authorElement =
+                this.$refs.author?.querySelector?.("p") || this.$refs.author;
             let authorSplit = null;
             if (authorElement) {
                 try {
                     if (typeof SplitText !== "undefined") {
-                        authorSplit = new SplitText(authorElement, { type: "words" });
+                        authorSplit = new SplitText(authorElement, {
+                            type: "words",
+                        });
                     }
                 } catch (error) {
                     authorSplit = null;
@@ -1704,38 +1854,49 @@ const registerCookieConsentAlpineData = () => {
                         });
                     }
                 });
-
+ 
                 this.$watch("preferences", (value) => {
                     if (typeof window.gsap === "undefined") return;
+                    const modal = this.$refs.modal;
+                    const backdrop = this.$refs.backdrop;
+ 
                     if (value) {
-                        window.gsap.fromTo(
-                            this.$refs.modal,
-                            { y: 40, opacity: 0, scale: 0.96 },
-                            {
-                                y: 0,
-                                opacity: 1,
-                                scale: 1,
-                                duration: 0.5,
-                                ease: "back.out(1.1)",
-                            },
-                        );
-                        window.gsap.fromTo(
-                            this.$refs.backdrop,
-                            { opacity: 0 },
-                            { opacity: 1, duration: 0.4 },
-                        );
+                        if (modal) {
+                            window.gsap.fromTo(
+                                modal,
+                                { y: 40, opacity: 0, scale: 0.96 },
+                                {
+                                    y: 0,
+                                    opacity: 1,
+                                    scale: 1,
+                                    duration: 0.5,
+                                    ease: "back.out(1.1)",
+                                },
+                            );
+                        }
+                        if (backdrop) {
+                            window.gsap.fromTo(
+                                backdrop,
+                                { opacity: 0 },
+                                { opacity: 1, duration: 0.4 },
+                            );
+                        }
                     } else {
-                        window.gsap.to(this.$refs.modal, {
-                            y: 20,
-                            opacity: 0,
-                            scale: 0.96,
-                            duration: 0.25,
-                            ease: "power2.in",
-                        });
-                        window.gsap.to(this.$refs.backdrop, {
-                            opacity: 0,
-                            duration: 0.25,
-                        });
+                        if (modal) {
+                            window.gsap.to(modal, {
+                                y: 20,
+                                opacity: 0,
+                                scale: 0.96,
+                                duration: 0.25,
+                                ease: "power2.in",
+                            });
+                        }
+                        if (backdrop) {
+                            window.gsap.to(backdrop, {
+                                opacity: 0,
+                                duration: 0.25,
+                            });
+                        }
                     }
                 });
             },
@@ -1904,5 +2065,3 @@ if (
 // enregistré le magic $flux. Appeler Alpine.start() ici provoquerait
 // une erreur « $flux is not defined » car Flux n'aurait pas encore
 // enregistré ses plugins Alpine.
-
-

@@ -13,12 +13,15 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class CertificationResource extends Resource
 {
     protected static ?string $model = Certification::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Portofolio';
 
     public static function form(Schema $schema): Schema
     {
@@ -44,5 +47,15 @@ class CertificationResource extends Resource
             'create' => CreateCertification::route('/create'),
             'edit' => EditCertification::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::count() > 10 ? 'success' : 'warning';
     }
 }

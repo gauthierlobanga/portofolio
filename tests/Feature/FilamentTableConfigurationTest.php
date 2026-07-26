@@ -49,6 +49,7 @@ it('exposes formation delivery and registration tracking columns', function () {
     expect(tableColumnNames(ListFormations::class, FormationsTable::class))
         ->toContain(
             'delivery_mode',
+            'published_at',
             'price',
             'capacity',
             'registrations_count',

@@ -242,6 +242,16 @@ class Formation extends Model implements Feedable, HasMedia, HasRichContent, Sit
         return $this->hasMany(FormationModule::class)->orderBy('sort_order');
     }
 
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class, 'formation_id');
+    }
+
+    public function moduleAssessments()
+    {
+        return $this->hasManyThrough(Assessment::class, FormationModule::class);
+    }
+
     public static function deliveryModes(): array
     {
         return [

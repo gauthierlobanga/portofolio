@@ -6,13 +6,13 @@ use App\Models\Formation;
 use App\Models\FormationCategory;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -235,6 +235,13 @@ class FormationForm
                                     ->displayFormat('d/m/Y')
                                     ->after('start_date')
                                     ->helperText('Optionnelle.'),
+
+                                DateTimePicker::make('published_at')
+                                    ->label('Date de publication')
+                                    ->native(false)
+                                    ->seconds(false)
+                                    ->displayFormat('d/m/Y H:i')
+                                    ->helperText('Date prévue de publication de la formation.'),
                             ]),
                     ]),
 
@@ -311,20 +318,8 @@ class FormationForm
                 Section::make('Paramètres')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(3)
                             ->schema([
-                                Toggle::make('is_active')
-                                    ->label('Actif')
-                                    ->default(true)
-                                    ->onColor('success')
-                                    ->offColor('danger'),
-
-                                TextInput::make('sort_order')
-                                    ->label('Ordre d\'affichage')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0)
-                                    ->helperText('Plus petit = premier.'),
 
                                 // --- Nouveau champ utilisateur ---
                                 Select::make('user_id')
@@ -334,6 +329,31 @@ class FormationForm
                                     ->preload()
                                     ->placeholder('Choisissez un auteur')
                                     ->helperText('Personne qui dispense la formation.'),
+
+                                TextInput::make('sort_order')
+                                    ->label('Ordre d\'affichage')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->minValue(0)
+                                    ->helperText('Plus petit = premier.'),
+
+                                ToggleButtons::make('is_active')
+                                    ->label('Visibilité')
+                                    ->options([
+                                        '1' => 'Actif',
+                                        '0' => 'Inactif',
+                                    ])
+                                    ->colors([
+                                        '1' => 'success',
+                                        '0' => 'danger',
+                                    ])
+                                    ->icons([
+                                        '1' => 'heroicon-o-eye',
+                                        '0' => 'heroicon-o-eye-slash',
+                                    ])
+                                    ->inline()
+                                    ->required()
+                                    ->default('1'),
                             ]),
                     ]),
             ]);

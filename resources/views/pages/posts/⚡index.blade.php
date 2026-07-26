@@ -117,7 +117,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
     <x-posts-banner :stats="$this->stats" :about="$this->about" />
 
     {{-- ========== SECTION FILTRES + LISTE ========== --}}
-    @island
+
         <section x-cloak id="scroll-to-reference" data-preserve-scroll x-data="{ showFilters: false, sortOpen: false }"
             @keydown.window.slash="if (!$event.target.matches('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.searchInput.focus() }"
             aria-label="Recherche et filtres des articles"
@@ -454,7 +454,7 @@ new #[Lazy] #[Layout('layouts::main')] class extends Component {
                 </nav>
             </div>
         </section>
-    @endisland
+
 </div>
 
 @placeholder

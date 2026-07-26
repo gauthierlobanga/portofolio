@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Formations\Tables;
 
 use App\Models\Formation;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -130,6 +132,12 @@ class FormationsTable
                     ->sortable()
                     ->toggleable(),
 
+                TextColumn::make('published_at')
+                    ->label('Publication')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(),
+
                 TextColumn::make('price')
                     ->label('Tarif')
                     ->money(fn (Formation $record): string => $record->currency ?? 'EUR')
@@ -210,12 +218,68 @@ class FormationsTable
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+
+                // Groupe d'actions pour le changement de statut
+                ActionGroup::make([
+                    Action::make('markPlanned')
+                        ->label('Marquer comme planifié')
+                        ->icon('heroicon-o-calendar-days')
+                        ->color('gray')
+                        ->requiresConfirmation()
+                        ->modalHeading('Changer le statut en "Planifié"')
+                        ->modalDescription('Cette action va définir la formation comme planifiée. Continuer ?')
+                        ->action(fn (Formation $record) => $record->update(['status' => 'planned'])),
+                    Action::make('markOngoing')
+                        ->label('Marquer comme en cours')
+                        ->icon('heroicon-o-play-circle')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Changer le statut en "En cours"')
+                        ->modalDescription('Cette action va définir la formation comme en cours. Continuer ?')
+                        ->action(fn (Formation $record) => $record->update(['status' => 'ongoing'])),
+                    Action::make('markCompleted')
+                        ->label('Marquer comme terminée')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Changer le statut en "Terminée"')
+                        ->modalDescription('Cette action va définir la formation comme terminée. Continuer ?')
+                        ->action(fn (Formation $record) => $record->update(['status' => 'completed'])),
+                ])
+                    ->label('Statut')
+                    ->icon('heroicon-o-arrow-path')
+                    ->button(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
+                    Action::make('allMarkPlanned')
+                        ->label('Tout en planifié')
+                        ->icon('heroicon-o-calendar-days')
+                        ->color('gray')
+                        ->requiresConfirmation()
+                        ->modalHeading('Marquer toutes les formations comme planifiées')
+                        ->modalDescription('Cette action affectera TOUTES les formations. Continuer ?')
+                        ->action(fn () => Formation::query()->update(['status' => 'planned'])),
+                    Action::make('allMarkOngoing')
+                        ->label('Tout en cours')
+                        ->icon('heroicon-o-play-circle')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Marquer toutes les formations comme en cours')
+                        ->modalDescription('Cette action affectera TOUTES les formations. Continuer ?')
+                        ->action(fn () => Formation::query()->update(['status' => 'ongoing'])),
+                    Action::make('allMarkCompleted')
+                        ->label('Tout terminé')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Marquer toutes les formations comme terminées')
+                        ->modalDescription('Cette action affectera TOUTES les formations. Continuer ?')
+                        ->action(fn () => Formation::query()->update(['status' => 'completed'])),
+                    BulkActionGroup::make([]),
                 ]),
             ])
             ->defaultSort('start_date', 'desc')

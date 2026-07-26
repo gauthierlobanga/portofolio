@@ -49,7 +49,6 @@ new class extends Component
         if (! Auth::check()) {
             // envoyer un toast FluxUI côté serveur pour inviter à se connecter
             Flux::toast(variant: 'warning', text: 'Veuillez vous connecter pour poster un commentaire.');
-            session()->flash('error', 'Veuillez vous connecter pour poster un commentaire.');
 
             return;
         }
